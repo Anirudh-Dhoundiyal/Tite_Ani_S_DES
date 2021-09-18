@@ -103,6 +103,9 @@ void S_DES::ip_inverse(string)
 void S_DES::p_10(string)
 {
 }
+void S_DES::shift(string, string)
+{
+}
 void S_DES::ls_1(string)
 {
 }

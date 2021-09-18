@@ -27,19 +27,20 @@ private:
 	// variables
 	string cp, pt, key1, key2;
 	// functions
-	void ip(string);
-	void fk(string, string);
-	void e_p(string);
-	void p_4(string, string);
-	void s0_box(string);
-	void s1_box(string);
-	void sw(string); //switch function
-	void ip_inverse(string);
-	void p_10(string);
-	void ls_1(string);
-	void ls_2(string);
-	void p_8(string,string);
-	void x_or(string,string);
+	void ip(string);			// T
+	void fk(string, string);	// A
+	void e_p(string);			// A
+	void p_4(string, string);	// A
+	void s0_box(string);		// A
+	void s1_box(string);		// A
+	void sw(string);			//switch function	A
+	void ip_inverse(string);	// T
+	void p_10(string);			// T
+	void shift(string, string);	// A
+	void ls_1(string);			// T
+	void ls_2(string);			// T
+	void p_8(string,string);	// T
+	void x_or(string,string);	// T
 public:
 	S_DES();
 	~S_DES();
