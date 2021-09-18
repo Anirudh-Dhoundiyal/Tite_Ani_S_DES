@@ -21,6 +21,10 @@ S_DES::~S_DES()
 {
 }
 
+void S_DES::key_gen(string)
+{
+}
+
 /****************************************************************************************
 *** FUNCTION < ip >          											  			  ***
 *****************************************************************************************
@@ -48,6 +52,22 @@ void S_DES::ip(string)
 void S_DES::fk(string, string)
 {
 
+}
+
+void S_DES::e_p(string)
+{
+}
+
+void S_DES::p_4(string, string)
+{
+}
+
+void S_DES::s0_box(string)
+{
+}
+
+void S_DES::s1_box(string)
+{
 }
 
 /****************************************************************************************
@@ -80,6 +100,21 @@ void S_DES::ip_inverse(string)
 {
 
 }
+void S_DES::p_10(string)
+{
+}
+void S_DES::ls_1(string)
+{
+}
+void S_DES::ls_2(string)
+{
+}
+void S_DES::p_8(string, string)
+{
+}
+void S_DES::x_or(string, string)
+{
+}
 /****************************************************************************************
 *** FUNCTION < encrypt >               											  	  ***
 *****************************************************************************************
@@ -91,7 +126,7 @@ void S_DES::ip_inverse(string)
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < None > 															  ***
 ****************************************************************************************/
-void S_DES::encrypt()
+void S_DES::encrypt(string)
 {
     //  ip(cipher_string);
     //  fk(ip_string, key1);
@@ -112,7 +147,7 @@ void S_DES::encrypt()
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < None > 															  ***
 ****************************************************************************************/
-void S_DES::decrypt()
+void S_DES::decrypt(string)
 {
 
 }
