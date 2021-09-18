@@ -139,7 +139,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="S_DES.cpp" />
     <ClCompile Include="Tite_Ani_S_DES.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="S_DES.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

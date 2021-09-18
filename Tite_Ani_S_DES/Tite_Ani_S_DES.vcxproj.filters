@@ -18,5 +18,13 @@
     <ClCompile Include="Tite_Ani_S_DES.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="S_DES.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="S_DES.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
