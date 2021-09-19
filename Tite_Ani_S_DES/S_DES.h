@@ -37,10 +37,9 @@ class S_DES
 		string s1_box(string);		// s1 takes a string of length 4 and returns a string of length 2.
 		string sw(string);			//switch function
 		string ip_inverse(string);	// T
-		void p_10(string);			// T
+		void p_10(string);		// T
 		void shift(string, string);	// A
-		void ls_1(string);			// T
-		void ls_2(string);			// T
+		void left_shift(string, int);			// T
 		void p_8(string,string);	// T
 		void x_or(string,string);	// T
 		int binary_to_int(string);  // function takes a two bit string and returns an int

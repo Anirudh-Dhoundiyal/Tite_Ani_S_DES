@@ -151,27 +151,45 @@ string S_DES::sw(string x)
 ****************************************************************************************/
 string S_DES::ip_inverse(string)
 {
-    int ip_pos[8] = { 4, 1, 3, 5, 7, 2, 8, 6 };
+    int ip_invers_pos[8] = { 4, 1, 3, 5, 7, 2, 8, 6 };
     string ip_inv;           // hold the ciphertext after the initial permutation
     for (int i = 0; i < 8; i++) {
         // assign the cp_ip string at position i to the cipthertext bit located at 
         // the initial permutation position of ith element in the string ip_pos - 1 since 
         // ciphertext string start from 0 to 7 while the ip_pos goes to 8
-        ip_inv[i] = cp[ip_pos[i] - 1];
+        ip_inv[i] = cp[ip_invers_pos[i] - 1];
     }
     return ip_inv;
 }
+
 void S_DES::p_10(string)
 {
+    int bit_key_pos[10] = { 3, 5, 2, 7, 4, 10, 1, 9, 8, 6 };
+    string ip_inv;           // hold the ciphertext after the initial permutation
+    for (int i = 0; i <10; i++) {
+        // assign the cp_ip string at position i to the cipthertext bit located at 
+        // the initial permutation position of ith element in the string ip_pos - 1 since 
+        // ciphertext string start from 0 to 7 while the ip_pos goes to 8
+        ip_inv[i] = cp[bit_key_pos[i] - 1];
+    }
+    shift(ip_inv.substr(0, 4), ip_inv.substr(5, 9));
 }
-void S_DES::shift(string, string)
+
+void S_DES::shift(string left_bit, string right_bit)
 {
+    left_shift(left_bit, 1);    // LS-1
+    left_shift(right_bit,1);    // LS-1
 }
-void S_DES::ls_1(string)
+void S_DES::left_shift(string bits, int spos)
 {
-}
-void S_DES::ls_2(string)
-{
+    int n = bits.size();
+    string temp;
+    // copy strings from spos position to the end of the temp string 
+    // by using the total strings remove the amount of shift performed
+    temp = bits.substr(spos, n - spos);
+    // copy the rest left out from begining to shift position to the end of temp string
+    temp += bits.substr(0, spos);
+
 }
 void S_DES::p_8(string, string)
 {
