@@ -69,11 +69,8 @@ string S_DES::e_p(string x)
     string temp = "";
 
     for (int i = 0; i < 8; i++) {
-
-        temp += x[arr[i] - 1];
-
+       temp += x[arr[i] - 1];
     }
-
     return temp;
 }
 
@@ -101,8 +98,6 @@ string S_DES::s0_box(string x)
     col = binary_to_int(temp2);
     result = s0[row][col];
     return decimal_to_binary(result);
-
-
 }
 
 string S_DES::s1_box(string x)
@@ -154,9 +149,17 @@ string S_DES::sw(string x)
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < None > 															  ***
 ****************************************************************************************/
-void S_DES::ip_inverse(string)
+string S_DES::ip_inverse(string)
 {
-
+    int ip_pos[8] = { 4, 1, 3, 5, 7, 2, 8, 6 };
+    string ip_inv;           // hold the ciphertext after the initial permutation
+    for (int i = 0; i < 8; i++) {
+        // assign the cp_ip string at position i to the cipthertext bit located at 
+        // the initial permutation position of ith element in the string ip_pos - 1 since 
+        // ciphertext string start from 0 to 7 while the ip_pos goes to 8
+        ip_inv[i] = cp[ip_pos[i] - 1];
+    }
+    return ip_inv;
 }
 void S_DES::p_10(string)
 {
