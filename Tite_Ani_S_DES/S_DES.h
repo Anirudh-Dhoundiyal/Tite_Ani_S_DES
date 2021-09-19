@@ -29,7 +29,7 @@ class S_DES
 			key1,			// key 1 
 			key2;			// key 2
 		// functions declaration
-		void ip(string);			// T
+		string ip(string);			// T
 		void fk(string, string);	// A
 		string e_p(string);			// ep function returns a string of length 8
 		string p_4(string, string);	// p4 function gets two strings of length 2 and returns one string of length 4
@@ -43,7 +43,7 @@ class S_DES
 		void ls_2(string);			// T
 		void p_8(string,string);	// T
 		void x_or(string,string);	// T
-		int binary_to_int(string); // function takes a two bit string and returns an int
+		int binary_to_int(string);  // function takes a two bit string and returns an int
 		string decimal_to_binary(int); //function takes an int and returns binary.
 	public:
 		S_DES();

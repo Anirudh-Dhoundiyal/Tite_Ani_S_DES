@@ -23,6 +23,7 @@ S_DES::~S_DES()
 
 void S_DES::key_gen(string)
 {
+
 }
 
 /****************************************************************************************
@@ -34,10 +35,18 @@ void S_DES::key_gen(string)
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < None > 															  ***
 ****************************************************************************************/
-void S_DES::ip(string)
+string S_DES::ip(string cp)
 {
-
-}       
+    int ip_pos[8] = { 2, 6, 3, 1, 4, 8, 5, 7};
+    string cp_ip;           // hold the ciphertext after the initial permutation
+    for (int i = 0; i < 8; i++) {
+        // assign the cp_ip string at position i to the cipthertext bit located at 
+        // the initial permutation position of ith element in the string ip_pos - 1 since 
+        // ciphertext string start from 0 to 7 while the ip_pos goes to 8
+        cp_ip[i] = cp[ip_pos[i] - 1];
+    }
+    return cp_ip;
+}
 
 /****************************************************************************************
 *** FUNCTION < fk >          											  			  ***
