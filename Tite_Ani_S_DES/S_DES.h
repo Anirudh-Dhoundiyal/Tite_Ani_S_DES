@@ -39,8 +39,8 @@ class S_DES
 		string ip_inverse(string);	// T
 		void p_10(string);		// T
 		void shift(string, string);	// A
-		void left_shift(string, int);			// T
-		void p_8(string,string);	// T
+		string left_shift(string, int); // T takes the string to shift and the number of shift to perform
+		string p_8(string,string);	// T
 		void x_or(string,string);	// T
 		int binary_to_int(string);  // function takes a two bit string and returns an int
 		string decimal_to_binary(int); //function takes an int and returns binary.

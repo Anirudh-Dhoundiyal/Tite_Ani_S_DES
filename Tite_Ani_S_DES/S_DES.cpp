@@ -180,7 +180,19 @@ void S_DES::shift(string left_bit, string right_bit)
     left_shift(left_bit, 1);    // LS-1
     left_shift(right_bit,1);    // LS-1
 }
-void S_DES::left_shift(string bits, int spos)
+
+
+/****************************************************************************************
+*** FUNCTION < left_shift >          											  	  ***
+*****************************************************************************************
+*** DESCRIPTION : < This is the left shift function. It performs the circular shift   ***
+***                 by the spos integer value.                                        ***
+*** INPUT ARGS :  < String, int >         											  ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None > 															  ***
+*** RETURN : 	  < string > 														  ***
+****************************************************************************************/
+string S_DES::left_shift(string bits, int spos)
 {
     int n = bits.size();
     string temp;
@@ -189,10 +201,31 @@ void S_DES::left_shift(string bits, int spos)
     temp = bits.substr(spos, n - spos);
     // copy the rest left out from begining to shift position to the end of temp string
     temp += bits.substr(0, spos);
-
+    return temp;
 }
-void S_DES::p_8(string, string)
+
+/****************************************************************************************
+*** FUNCTION < p_8 >          											  	          ***
+*****************************************************************************************
+*** DESCRIPTION : < This is the p_8. Picks out and permutes 8 of 10 bits according to ***
+***                 the values in the array bit_key_pos into a string to be returned. ***
+*** INPUT ARGS :  < String, String >       											  ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None > 															  ***
+*** RETURN : 	  < String > 														  ***
+****************************************************************************************/
+string S_DES::p_8(string leftShift_L, string leftShift_R)
 {
+    int bit_key_pos[8] = { 6, 3, 7, 4, 8, 5, 10, 9};
+    string perm = leftShift_L + leftShift_R,
+        p8_out;           // hold the bit of string after the permutation p8
+    for (int i = 0; i < 8; i++) {
+        // assign the p8_out string at position i to the bit located at 
+        // the rule's ith positioning in the string bit_key_pos - 1 since 
+        // permutation p8_out string starts from 0 to 7 while the ip_pos goes to 8
+        p8_out[i] = perm[bit_key_pos[i] - 1];
+    }
+    return p8_out;
 }
 void S_DES::x_or(string, string)
 {
