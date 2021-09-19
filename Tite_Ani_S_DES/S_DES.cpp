@@ -54,20 +54,66 @@ void S_DES::fk(string, string)
 
 }
 
-void S_DES::e_p(string)
+string S_DES::e_p(string x)
 {
+    int arr[8] = { 4,1,2,3,2,3,4,1 };
+    string temp = "";
+
+    for (int i = 0; i < 8; i++) {
+
+        temp += x[arr[i] - 1];
+
+    }
+
+    return temp;
 }
 
-void S_DES::p_4(string, string)
+string S_DES::p_4(string left, string right)
 {
+    string temp = "";
+    temp += left+right;
+    return temp;
 }
 
-void S_DES::s0_box(string)
+string S_DES::s0_box(string x)
 {
+    int s0[4][4] = { {1,0,3,2},{3,2,1,0},{0,2,1,3},{3,1,3,2} };
+    int row, col, result;
+    row = 0;
+    col = 0;
+    result = 0;
+    string temp1 = "";
+    string temp2 = "";
+    temp1 += x.at(0);
+    temp1 += x.at(3);
+    temp2 += x.at(1);
+    temp2 += x.at(2);
+    row = binary_to_int(temp1);
+    col = binary_to_int(temp2);
+    result = s0[row][col];
+    return decimal_to_binary(result);
+
+
 }
 
-void S_DES::s1_box(string)
+string S_DES::s1_box(string x)
 {
+    int s0[4][4] = { {0,1,2,3},{2,0,1,3},{3,0,1,0},{2,1,0,3} };
+    int row, col, result;
+    row = 0;
+    col = 0;
+    result = 0;
+    string temp1 = "";
+    string temp2 = "";
+    temp1 += x.at(0);
+    temp1 += x.at(3);
+    temp2 += x.at(1);
+    temp2 += x.at(2);
+    row = binary_to_int(temp1);
+    col = binary_to_int(temp2);
+    result = s0[row][col];
+    return decimal_to_binary(result);
+
 }
 
 /****************************************************************************************
@@ -81,9 +127,12 @@ void S_DES::s1_box(string)
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < None > 															  ***
 ****************************************************************************************/
-void S_DES::sw(string)
+string S_DES::sw(string x)
 {
-
+    string b;
+    b = x.substr(4, 4);
+    b += x.substr(0, 4);
+    return b;
 }
 
 /****************************************************************************************
@@ -117,6 +166,41 @@ void S_DES::p_8(string, string)
 }
 void S_DES::x_or(string, string)
 {
+}
+int S_DES::binary_to_int(string binary)
+{
+    int decimal =0;
+    
+    if (binary.at(0) == '0') {
+        if (binary.at(1) == '0') {
+            decimal = 0;
+            return decimal;
+        }
+        else {
+            decimal = 1;
+            return decimal;
+        }
+    }
+    else
+    {
+        if (binary.at(1) == '0') {
+            decimal = 2;
+            return decimal;
+        }
+        else {
+            decimal = 3;
+            return decimal;
+        }
+    }
+
+    return decimal;
+}
+string S_DES::decimal_to_binary(int x)
+{
+    string cmp_arr[4] = { "00","01","10","11" };
+    string result = "";
+    result = cmp_arr[x];
+    return result;
 }
 /****************************************************************************************
 *** FUNCTION < encrypt >               											  	  ***

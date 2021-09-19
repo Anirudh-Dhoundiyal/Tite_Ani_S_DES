@@ -31,11 +31,11 @@ class S_DES
 		// functions declaration
 		void ip(string);			// T
 		void fk(string, string);	// A
-		void e_p(string);			// A
-		void p_4(string, string);	// A
-		void s0_box(string);		// A
-		void s1_box(string);		// A
-		void sw(string);			//switch function	A
+		string e_p(string);			// ep function returns a string of length 8
+		string p_4(string, string);	// p4 function gets two strings of length 2 and returns one string of length 4
+		string s0_box(string);		// s0 takes a string of length 4 and returns a string of length 2.
+		string s1_box(string);		// s1 takes a string of length 4 and returns a string of length 2.
+		string sw(string);			//switch function
 		void ip_inverse(string);	// T
 		void p_10(string);			// T
 		void shift(string, string);	// A
@@ -43,6 +43,8 @@ class S_DES
 		void ls_2(string);			// T
 		void p_8(string,string);	// T
 		void x_or(string,string);	// T
+		int binary_to_int(string); // function takes a two bit string and returns an int
+		string decimal_to_binary(int); //function takes an int and returns binary.
 	public:
 		S_DES();
 		~S_DES();
