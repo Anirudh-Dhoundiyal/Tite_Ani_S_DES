@@ -21,48 +21,116 @@ S_DES::~S_DES()
 {
 }
 
-void S_DES::key_gen(string)
-{
 
+/****************************************************************************************
+*** FUNCTION < key_gen >          											  	      ***
+*****************************************************************************************
+*** DESCRIPTION : < This function is the key generation function. It takes a 10 bit   ***
+***                 key and two string for key passed by reference. It produces two 8 ***
+***                 bit subkey returned by reference. >                               ***
+*** INPUT ARGS :  < String, String&, String& >    								  	  ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < String&, String& > 	    										  ***
+*** RETURN : 	  < None > 															  ***
+****************************************************************************************/
+void S_DES::key_gen(string ten_bit_key, string & key1, string & key2)
+{
+    // permutate the 10 bit key
+    string p10_out = p_10(ten_bit_key);
+    //string shift_out = shift(p10_out);
+
+    string left_side, right_side;                   // hold the value of first and second five bit
+
+    // after permutation split bit in two halves
+    left_side = p10_out.substr(0, 5);               // get the first five bit
+    right_side = p10_out.substr(5, 5);              // get the second five bit
+    
+    // circular left shift by a on each 5 bit part 
+    left_shift(left_side, 1);                       // left LS-1
+    left_shift(right_side, 1);                      // right LS-1
+    // next we apply p8, the result is subkey 1 K1
+    key1 = p_8(left_side, right_side);
+
+    // then we go back to the pair of 5-bit strings produced by the two LS-1 functions
+    // right side and left side. Perform a circular shift of 2 bits on each string 
+    left_shift(left_side, 2);
+    left_shift(right_side, 2);
+    // next we apply p8, the result is subkey 2 K2
+    key2 = p_8(left_side, right_side);
 }
 
 /****************************************************************************************
 *** FUNCTION < ip >          											  			  ***
 *****************************************************************************************
-*** DESCRIPTION : < This function is the initial permutation.  Takws an  >		      ***
+*** DESCRIPTION : < This function is the initial permutation. Takes an 8 bit block of *** 
+***                 plaintext. Permutes it using the IP order of permutation. It then ***
+***                 return the 8 bit of plaintext that was mixed up as a string.>     ***
 *** INPUT ARGS :  < String >         											  	  ***
 *** OUTPUT ARGS : < None > 															  ***
 *** IN/OUT ARGS : < None > 															  ***
-*** RETURN : 	  < None > 															  ***
+*** RETURN : 	  < String > 														  ***
 ****************************************************************************************/
-string S_DES::ip(string cp)
+string S_DES::ip(string pt)
 {
     int ip_pos[8] = { 2, 6, 3, 1, 4, 8, 5, 7};
-    string cp_ip;           // hold the ciphertext after the initial permutation
+    string pt_ip;           // hold the plaintext after the initial permutation
     for (int i = 0; i < 8; i++) {
-        // assign the cp_ip string at position i to the cipthertext bit located at 
+        // assign the pt_ip string at position i to the bit located at 
         // the initial permutation position of ith element in the string ip_pos - 1 since 
-        // ciphertext string start from 0 to 7 while the ip_pos goes to 8
-        cp_ip[i] = cp[ip_pos[i] - 1];
+        // plainttext string start from 0 to 7 while the ip_pos goes to 8
+        pt_ip[i] = pt[ip_pos[i] - 1];
     }
-    return cp_ip;
+    return pt_ip;
 }
 
 /****************************************************************************************
 *** FUNCTION < fk >          											  			  ***
 *****************************************************************************************
 *** DESCRIPTION : < This is the fk function which consists of a combination of        ***
-***                 permutation and substitution functions >	        	 		  ***
+***                 permutation and substitution functions. Input is a 4-bit number   ***
+***                 that produce a 4 bit output.    >                                 ***
 *** INPUT ARGS :  < String, String>    											  	  ***
 *** OUTPUT ARGS : < None > 															  ***
 *** IN/OUT ARGS : < None > 															  ***
-*** RETURN : 	  < None > 															  ***
+*** RETURN : 	  < String >    													  ***
 ****************************************************************************************/
-void S_DES::fk(string, string)
-{
+string S_DES::fk(string four_bit_num, string k1)
+{   
+    string ep_out,
+        xor_out,
+        s0_out, s1_out,
+        p4_out;
 
+    // the first operation is an expansion/permutation operation
+    // transforming a 4-bit to an 8-bit number
+    ep_out = e_p(four_bit_num);
+
+    // The 8-bit subkey K1 is added to this value using exclusive OR
+    xor_out = x_or(ep_out, k1);
+
+    // the first 4 bits are fed into the S-box S0 to produce a 2 bit output
+    s0_out = s0_box(xor_out.substr(0,4));
+
+    // the remaining 4 bits are fed into S1 to produce another 2-bit output
+    s1_out = s1_box(xor_out.substr(4, 4));
+    
+    // the 4 bits produced by S0 and S1 undergo a further permutation
+    p4_out = p_4(s0_out, s1_out);
+
+    // The output of P4 is the output of the function F
+    return p4_out;
 }
 
+/****************************************************************************************
+*** FUNCTION < e_p >          											  			  ***
+*****************************************************************************************
+*** DESCRIPTION : < This is the e_p function. An expansion/permutation operation is   ***
+***                 performed on a 4-bit number >                                     ***
+*** INPUT ARGS :  < String >        											  	  ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None > 															  ***
+*** RETURN : 	  < String >    													  ***
+****************************************************************************************/
 string S_DES::e_p(string x)
 {
     int arr[8] = { 4,1,2,3,2,3,4,1 };
@@ -74,6 +142,15 @@ string S_DES::e_p(string x)
     return temp;
 }
 
+/****************************************************************************************
+*** FUNCTION < p_4 >          											  			  ***
+*****************************************************************************************
+*** DESCRIPTION : < This is the p_4 function that performs the permutation on a 4-bit > *
+*** INPUT ARGS :  < String, String >  											  	  ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None > 															  ***
+*** RETURN : 	  < String >    													  ***
+****************************************************************************************/
 string S_DES::p_4(string left, string right)
 {
     string temp = "";
@@ -162,7 +239,7 @@ string S_DES::ip_inverse(string)
     return ip_inv;
 }
 
-void S_DES::p_10(string)
+string S_DES::p_10(string)
 {
     int bit_key_pos[10] = { 3, 5, 2, 7, 4, 10, 1, 9, 8, 6 };
     string ip_inv;           // hold the ciphertext after the initial permutation
@@ -172,13 +249,17 @@ void S_DES::p_10(string)
         // ciphertext string start from 0 to 7 while the ip_pos goes to 8
         ip_inv[i] = cp[bit_key_pos[i] - 1];
     }
-    shift(ip_inv.substr(0, 4), ip_inv.substr(5, 9));
+    // shift(ip_inv.substr(0, 4), ip_inv.substr(5, 9));
+    return ip_inv;
 }
 
-void S_DES::shift(string left_bit, string right_bit)
+string S_DES::shift(string p10_out)
 {
-    left_shift(left_bit, 1);    // LS-1
-    left_shift(right_bit,1);    // LS-1
+    //left_shift(left_bit, 1);    // LS-1
+   // left_shift(right_bit,1);    // LS-1
+
+
+    return "";
 }
 
 
@@ -192,7 +273,7 @@ void S_DES::shift(string left_bit, string right_bit)
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < string > 														  ***
 ****************************************************************************************/
-string S_DES::left_shift(string bits, int spos)
+void S_DES::left_shift(string & bits, int spos)
 {
     int n = bits.size();
     string temp;
@@ -201,7 +282,7 @@ string S_DES::left_shift(string bits, int spos)
     temp = bits.substr(spos, n - spos);
     // copy the rest left out from begining to shift position to the end of temp string
     temp += bits.substr(0, spos);
-    return temp;
+    bits = temp;
 }
 
 /****************************************************************************************
@@ -227,9 +308,31 @@ string S_DES::p_8(string leftShift_L, string leftShift_R)
     }
     return p8_out;
 }
-void S_DES::x_or(string, string)
+
+
+/****************************************************************************************
+*** FUNCTION < x_or >          											  	          ***
+*****************************************************************************************
+*** DESCRIPTION : < This is the Exclusive OR                                          ***
+*** INPUT ARGS :  < String, String >       											  ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None > 															  ***
+*** RETURN : 	  < String > 														  ***
+****************************************************************************************/
+string S_DES::x_or(string value1, string k1)
 {
+    string result;
+    // loop through the value to exclusive-OR
+    for (int i = 0; i < value1.size(); i++) {
+        if (value1[i] == k1[i])
+            result += '0';
+        else
+            result += '1';
+    }
+    return result;
 }
+
+
 int S_DES::binary_to_int(string binary)
 {
     int decimal =0;
@@ -276,8 +379,28 @@ string S_DES::decimal_to_binary(int x)
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < None > 															  ***
 ****************************************************************************************/
-void S_DES::encrypt(string)
+void S_DES::encrypt(string eight_bit_plaintext)
 {
+    string  l,          //      the leftmost 4 bits
+        r,          //      the rightmost 4 bits
+        ip_out, fk_out,
+        ten_bit_key, key1, key2;
+    // key generation
+    key_gen(ten_bit_key, key1, key2);
+
+    //  initial permutation
+    ip_out = ip(eight_bit_plaintext);
+
+    //  L and R be the leftmost 4 bits and rightmost 4 bits of the 8 - bit input
+    l = ip_out.substr(0, 4);
+    r = ip_out.substr(5, 4);
+
+    // F(R,SK) SK is the subkey 
+    fk_out = fk(r, key1);
+
+    // expansion/permutation (E/P)
+    //ep_out = e_p(r);
+
     //  ip(cipher_string);
     //  fk(ip_string, key1);
     //  sw(fk_string);

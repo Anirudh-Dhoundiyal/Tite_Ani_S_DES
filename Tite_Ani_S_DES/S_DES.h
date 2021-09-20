@@ -30,24 +30,24 @@ class S_DES
 			key2;			// key 2
 		// functions declaration
 		string ip(string);			// T
-		void fk(string, string);	// A
+		string fk(string, string);	// A
 		string e_p(string);			// ep function returns a string of length 8
 		string p_4(string, string);	// p4 function gets two strings of length 2 and returns one string of length 4
 		string s0_box(string);		// s0 takes a string of length 4 and returns a string of length 2.
 		string s1_box(string);		// s1 takes a string of length 4 and returns a string of length 2.
 		string sw(string);			//switch function
 		string ip_inverse(string);	// T
-		void p_10(string);		// T
-		void shift(string, string);	// A
-		string left_shift(string, int); // T takes the string to shift and the number of shift to perform
+		string p_10(string);		// T
+		string shift(string);	// A
+		void left_shift(string&, int); // T takes the string to shift and the number of shift to perform
 		string p_8(string,string);	// T
-		void x_or(string,string);	// T
+		string x_or(string,string);	// A
 		int binary_to_int(string);  // function takes a two bit string and returns an int
 		string decimal_to_binary(int); //function takes an int and returns binary.
 	public:
 		S_DES();
 		~S_DES();
-		void key_gen(string);		// T	
+		void key_gen(string, string&, string&);		// T	
 		void encrypt(string);		// A
 		void decrypt(string);		// A
 };
