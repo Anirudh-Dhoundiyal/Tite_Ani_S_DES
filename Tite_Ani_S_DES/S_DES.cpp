@@ -33,7 +33,7 @@ S_DES::~S_DES()
 *** IN/OUT ARGS : < String&, String& > 	    										  ***
 *** RETURN : 	  < None > 															  ***
 ****************************************************************************************/
-void S_DES::key_gen(string ten_bit_key, string & key1, string & key2)
+void S_DES::key_gen(string ten_bit_key)
 {
     // permutate the 10 bit key
     string p10_out = p_10(ten_bit_key);
@@ -43,20 +43,20 @@ void S_DES::key_gen(string ten_bit_key, string & key1, string & key2)
 
     // after permutation split bit in two halves
     left_side = p10_out.substr(0, 5);               // get the first five bit
-    right_side = p10_out.substr(5, 5);              // get the second five bit
+    right_side = p10_out.substr(5, 11);              // get the second five bit
     
     // circular left shift by a on each 5 bit part 
     left_shift(left_side, 1);                       // left LS-1
     left_shift(right_side, 1);                      // right LS-1
     // next we apply p8, the result is subkey 1 K1
-    key1 = p_8(left_side, right_side);
+    setkey1(p_8(left_side, right_side));
 
     // then we go back to the pair of 5-bit strings produced by the two LS-1 functions
     // right side and left side. Perform a circular shift of 2 bits on each string 
     left_shift(left_side, 2);
     left_shift(right_side, 2);
     // next we apply p8, the result is subkey 2 K2
-    key2 = p_8(left_side, right_side);
+    setkey2(p_8(left_side, right_side));
 }
 
 /****************************************************************************************
@@ -70,7 +70,7 @@ void S_DES::key_gen(string ten_bit_key, string & key1, string & key2)
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < String > 														  ***
 ****************************************************************************************/
-string S_DES::ip(string pt)
+string S_DES::ip()
 {
     int ip_pos[8] = { 2, 6, 3, 1, 4, 8, 5, 7};
     string pt_ip;           // hold the plaintext after the initial permutation
@@ -78,7 +78,13 @@ string S_DES::ip(string pt)
         // assign the pt_ip string at position i to the bit located at 
         // the initial permutation position of ith element in the string ip_pos - 1 since 
         // plainttext string start from 0 to 7 while the ip_pos goes to 8
-        pt_ip[i] = pt[ip_pos[i] - 1];
+        if (decrypt_flag == false) {
+            pt_ip += pt[ip_pos[i] - 1];
+        }
+        else
+        {
+            pt_ip += cp[ip_pos[i] - 1];
+        }
     }
     return pt_ip;
 }
@@ -94,26 +100,42 @@ string S_DES::ip(string pt)
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < String >    													  ***
 ****************************************************************************************/
-string S_DES::fk(string eight_bit_num, string k1)
-{   
+string S_DES::fk(string eight_bit_num)
+{
     string ep_out,
         xor_out1, xor_out2,
         s0_out, s1_out,
         p4_out,
         l,                          //      the leftmost 4 bits
         r;                          //      the rightmost 4 bits
-               
+
     //  L and R be the leftmost 4 bits and rightmost 4 bits of the 8 - bit input
     l = eight_bit_num.substr(0, 4);
-    r = eight_bit_num.substr(4, 4);
+    r = eight_bit_num.substr(4, 8);
 
     // the first operation is an expansion/permutation operation
     // transforming a 4-bit to an 8-bit number
     ep_out = e_p(r);
-
-    // The 8-bit subkey K1 is added to this value using exclusive OR
-    xor_out1 = x_or(ep_out, k1);
-
+    if (decrypt_flag == false) {
+    if (fk_flag == false) {
+        // The 8-bit subkey K1 is added to this value using exclusive OR
+        xor_out1 = x_or(ep_out, key1);
+        fk_flag = true;
+    }
+    else {
+        xor_out1 = x_or(ep_out, key2);
+    }
+    }
+    else {
+        if (fk_flag == true) {
+            // The 8-bit subkey K2 is added to this value using exclusive OR
+            xor_out1 = x_or(ep_out, key2);
+            fk_flag = false;
+        }
+        else {
+            xor_out1 = x_or(ep_out, key1);
+        }
+    }
     // the first 4 bits are fed into the S-box S0 to produce a 2 bit output
     s0_out = s0_box(xor_out1.substr(0,4));
 
@@ -127,7 +149,7 @@ string S_DES::fk(string eight_bit_num, string k1)
     xor_out2 = x_or(p4_out,l);
 
     // The output of P4 is the output of the function F
-    return p4_out;
+    return xor_out2;
 }
 
 /****************************************************************************************
@@ -164,7 +186,13 @@ string S_DES::p_4(string left, string right)
 {
     string temp = "";
     temp += left+right;
-    return temp;
+    string temp2;
+    int arr[8] = { 2,4,3,1 };
+    
+    for (int i = 0; i < 4; i++) {
+        temp2 += temp[arr[i] - 1];
+    }
+    return temp2;
 }
 
 string S_DES::s0_box(string x)
@@ -235,7 +263,7 @@ string S_DES::sw(string x)
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < None > 															  ***
 ****************************************************************************************/
-string S_DES::ip_inverse(string)
+string S_DES::ip_inverse(string x)
 {
     int ip_invers_pos[8] = { 4, 1, 3, 5, 7, 2, 8, 6 };
     string ip_inv;           // hold the ciphertext after the initial permutation
@@ -243,12 +271,12 @@ string S_DES::ip_inverse(string)
         // assign the cp_ip string at position i to the cipthertext bit located at 
         // the initial permutation position of ith element in the string ip_pos - 1 since 
         // ciphertext string start from 0 to 7 while the ip_pos goes to 8
-        ip_inv[i] = cp[ip_invers_pos[i] - 1];
+        ip_inv += x[ip_invers_pos[i] - 1];
     }
     return ip_inv;
 }
 
-string S_DES::p_10(string)
+string S_DES::p_10(string key)
 {
     int bit_key_pos[10] = { 3, 5, 2, 7, 4, 10, 1, 9, 8, 6 };
     string ip_inv;           // hold the ciphertext after the initial permutation
@@ -256,7 +284,7 @@ string S_DES::p_10(string)
         // assign the cp_ip string at position i to the cipthertext bit located at 
         // the initial permutation position of ith element in the string ip_pos - 1 since 
         // ciphertext string start from 0 to 7 while the ip_pos goes to 8
-        ip_inv[i] = cp[bit_key_pos[i] - 1];
+        ip_inv += key[bit_key_pos[i] - 1];
     }
     // shift(ip_inv.substr(0, 4), ip_inv.substr(5, 9));
     return ip_inv;
@@ -313,7 +341,7 @@ string S_DES::p_8(string leftShift_L, string leftShift_R)
         // assign the p8_out string at position i to the bit located at 
         // the rule's ith positioning in the string bit_key_pos - 1 since 
         // permutation p8_out string starts from 0 to 7 while the ip_pos goes to 8
-        p8_out[i] = perm[bit_key_pos[i] - 1];
+        p8_out += perm[bit_key_pos[i] - 1];
     }
     return p8_out;
 }
@@ -388,27 +416,26 @@ string S_DES::decimal_to_binary(int x)
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < None > 															  ***
 ****************************************************************************************/
-void S_DES::encrypt(string eight_bit_plaintext)
+void S_DES::encrypt(string ten_bit_key)
 {
     string  ip_out, cipthertext, 
             fk_out1, fk_out2,
-            ten_bit_key, key1, key2,
             sw_out1, sw_out2;
     // key generation
-    key_gen(ten_bit_key, key1, key2);
+    key_gen(ten_bit_key);
 
     //  initial permutation
-    ip_out = ip(eight_bit_plaintext);
+    ip_out = ip();
 
     // F(R,SK) SK is the subkey 
-    fk_out1 = fk(ip_out, key1);
+    fk_out1 = fk(ip_out);
     
     // the switch function
     // interchanges the fk output and right 4 bits of initial permutation 
     sw_out1 = sw(fk_out1+(ip_out.substr(4,4)));
     
     // second function fk 
-    fk_out2 = fk(sw_out1, key2);
+    fk_out2 = fk(sw_out1);
 
     // inverse initial permutation
     cipthertext = ip_inverse(fk_out2+(sw_out1.substr(4,4)));
@@ -417,7 +444,7 @@ void S_DES::encrypt(string eight_bit_plaintext)
     //  fk(ip_string, key1);
     //  sw(fk_string);
     //  ip_inverse(sw_string);
-
+    setcp(cipthertext);
 }
 
 /****************************************************************************************
@@ -432,8 +459,34 @@ void S_DES::encrypt(string eight_bit_plaintext)
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < None > 															  ***
 ****************************************************************************************/
-void S_DES::decrypt(string)
+string S_DES::decrypt()
 {
+    decrypt_flag = true;
+    string  ip_out,
+        fk_out1, fk_out2,
+        sw_out1, sw_out2;
+    // key generation
 
+    //  initial permutation
+    ip_out = ip();
+
+    // F(R,SK) SK is the subkey 
+    fk_out1 = fk(ip_out);
+
+    // the switch function
+    // interchanges the fk output and right 4 bits of initial permutation 
+    sw_out1 = sw(fk_out1 + (ip_out.substr(4, 4)));
+
+    // second function fk 
+    fk_out2 = fk(sw_out1);
+
+    // inverse initial permutation
+    string text = ip_inverse(fk_out2 + (sw_out1.substr(4, 4)));
+
+    //  ip(cipher_string);
+    //  fk(ip_string, key1);
+    //  sw(fk_string);
+    //  ip_inverse(sw_string);
+    return text;
 }
 

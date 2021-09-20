@@ -28,9 +28,11 @@ class S_DES
 			pt,				// plaintext 
 			key1,			// key 1 
 			key2;			// key 2
+		bool fk_flag = false;
+		bool decrypt_flag = false;
 		// functions declaration
-		string ip(string);			// T
-		string fk(string, string);	// A
+		string ip();			// T
+		string fk(string);	// A
 		string e_p(string);			// ep function returns a string of length 8
 		string p_4(string, string);	// p4 function gets two strings of length 2 and returns one string of length 4
 		string s0_box(string);		// s0 takes a string of length 4 and returns a string of length 2.
@@ -44,12 +46,29 @@ class S_DES
 		string x_or(string,string);	// A
 		int binary_to_int(string);  // function takes a two bit string and returns an int
 		string decimal_to_binary(int); //function takes an int and returns binary.
+		void key_gen(string);		// T
+		void setkey1(string x) {
+			key1 = x;
+		}
+		void setkey2(string x) {
+			key2 = x;
+		}
+		void setcp(string x) {
+			cp = x;
+		}
 	public:
 		S_DES();
 		~S_DES();
-		void key_gen(string, string&, string&);		// T	
+			
 		void encrypt(string);		// A
-		void decrypt(string);		// A
+		string decrypt();
+		void setpt(string x) {
+			pt = x;
+		}
+		string getcp() {
+			return cp;
+		}
+		
 };
 
 #endif // !S_DES_H

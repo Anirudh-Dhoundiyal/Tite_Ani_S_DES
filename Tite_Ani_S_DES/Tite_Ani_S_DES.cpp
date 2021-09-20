@@ -18,5 +18,28 @@
 
 int main()
 {
-    cout << "Hello World!\n";
-}
+    string temppt;
+    string tempkey;
+    S_DES cypher;
+    cout << "Please enter your plain text: ";
+    cin >> temppt;
+    cout << " " << endl;
+    cypher.setpt(temppt);
+    
+
+    cout << "please enter your key: ";
+    cin >> tempkey;
+    cout << " " << endl;
+    cypher.encrypt(tempkey);
+    
+    cout << "The Cypher Text is: ";
+    cout << cypher.getcp() << endl;
+
+    cout << "The plain text is: ";
+    cout << cypher.decrypt() << endl;
+
+
+
+
+
+}   
