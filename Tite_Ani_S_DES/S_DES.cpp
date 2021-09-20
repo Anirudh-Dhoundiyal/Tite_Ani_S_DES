@@ -94,28 +94,37 @@ string S_DES::ip(string pt)
 *** IN/OUT ARGS : < None > 															  ***
 *** RETURN : 	  < String >    													  ***
 ****************************************************************************************/
-string S_DES::fk(string four_bit_num, string k1)
+string S_DES::fk(string eight_bit_num, string k1)
 {   
     string ep_out,
-        xor_out,
+        xor_out1, xor_out2,
         s0_out, s1_out,
-        p4_out;
+        p4_out,
+        l,                          //      the leftmost 4 bits
+        r;                          //      the rightmost 4 bits
+               
+    //  L and R be the leftmost 4 bits and rightmost 4 bits of the 8 - bit input
+    l = eight_bit_num.substr(0, 4);
+    r = eight_bit_num.substr(4, 4);
 
     // the first operation is an expansion/permutation operation
     // transforming a 4-bit to an 8-bit number
-    ep_out = e_p(four_bit_num);
+    ep_out = e_p(r);
 
     // The 8-bit subkey K1 is added to this value using exclusive OR
-    xor_out = x_or(ep_out, k1);
+    xor_out1 = x_or(ep_out, k1);
 
     // the first 4 bits are fed into the S-box S0 to produce a 2 bit output
-    s0_out = s0_box(xor_out.substr(0,4));
+    s0_out = s0_box(xor_out1.substr(0,4));
 
     // the remaining 4 bits are fed into S1 to produce another 2-bit output
-    s1_out = s1_box(xor_out.substr(4, 4));
+    s1_out = s1_box(xor_out1.substr(4, 4));
     
     // the 4 bits produced by S0 and S1 undergo a further permutation
     p4_out = p_4(s0_out, s1_out);
+
+    // xor leftmost bit of initial permutation with p4_out
+    xor_out2 = x_or(p4_out,l);
 
     // The output of P4 is the output of the function F
     return p4_out;
@@ -381,25 +390,28 @@ string S_DES::decimal_to_binary(int x)
 ****************************************************************************************/
 void S_DES::encrypt(string eight_bit_plaintext)
 {
-    string  l,          //      the leftmost 4 bits
-        r,          //      the rightmost 4 bits
-        ip_out, fk_out,
-        ten_bit_key, key1, key2;
+    string  ip_out, cipthertext, 
+            fk_out1, fk_out2,
+            ten_bit_key, key1, key2,
+            sw_out1, sw_out2;
     // key generation
     key_gen(ten_bit_key, key1, key2);
 
     //  initial permutation
     ip_out = ip(eight_bit_plaintext);
 
-    //  L and R be the leftmost 4 bits and rightmost 4 bits of the 8 - bit input
-    l = ip_out.substr(0, 4);
-    r = ip_out.substr(5, 4);
-
     // F(R,SK) SK is the subkey 
-    fk_out = fk(r, key1);
+    fk_out1 = fk(ip_out, key1);
+    
+    // the switch function
+    // interchanges the fk output and right 4 bits of initial permutation 
+    sw_out1 = sw(fk_out1+(ip_out.substr(4,4)));
+    
+    // second function fk 
+    fk_out2 = fk(sw_out1, key2);
 
-    // expansion/permutation (E/P)
-    //ep_out = e_p(r);
+    // inverse initial permutation
+    cipthertext = ip_inverse(fk_out2+(sw_out1.substr(4,4)));
 
     //  ip(cipher_string);
     //  fk(ip_string, key1);
