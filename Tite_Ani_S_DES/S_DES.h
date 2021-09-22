@@ -16,7 +16,7 @@
 
 //libraries
 #include<string>
-
+#include <fstream>
 //using namespace std
 using namespace std;
 
@@ -56,6 +56,7 @@ class S_DES
 		void setcp(string x) {
 			cp = x;
 		}
+
 	public:
 		S_DES();
 		~S_DES();
