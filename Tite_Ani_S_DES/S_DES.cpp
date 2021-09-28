@@ -487,6 +487,7 @@ string S_DES::decrypt()
     //  fk(ip_string, key1);
     //  sw(fk_string);
     //  ip_inverse(sw_string);
+    decrypt_flag = false;
     return text;
 }
 

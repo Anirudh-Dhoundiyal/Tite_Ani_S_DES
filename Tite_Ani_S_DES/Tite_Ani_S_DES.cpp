@@ -15,40 +15,11 @@
 //including class header
 #include "S_DES.h"
 
-
-int main()
-{
-    string temppt;
-    string tempkey;
-    S_DES cypher;
-    cout << "Please enter your plain text: ";
-    cin >> temppt;
-    cout << " " << endl;
-    cypher.setpt(temppt);
-    
-
-    cout << "please enter your key: ";
-    cin >> tempkey;
-    cout << " " << endl;
-    cypher.encrypt(tempkey);
-    
-    cout << "The Cypher Text is: ";
-    cout << cypher.getcp() << endl;
-
-    cout << "The plain text is: ";
-    cout << cypher.decrypt() << endl;
-
-
-
-
-
-}   
-
 /****************************************************************************************
 *** FUNCTION < readFile >          											  	      ***
 *****************************************************************************************
 *** DESCRIPTION : < This function is the read file function. It reads a txt file which **
-***                 contains all the plain text. For each plaintext it encrypts, then *** 
+***                 contains all the plain text. For each plaintext it encrypts, then ***
 ***                 diplay cypher text, then decrypt the cypher text and displays it. ***
 ***                 It takes the file name and the Simple DES class object >          ***                               ***
 *** INPUT ARGS :  < String, S_DES >             								  	  ***
@@ -57,9 +28,9 @@ int main()
 *** RETURN : 	  < None > 															  ***
 ****************************************************************************************/
 void readFile(string filename, S_DES cypher) {
-               
+
     ifstream inFile;
-    string plaintext, 
+    string plaintext,
         ten_bit_key;
     inFile.open(filename);
 
@@ -69,7 +40,7 @@ void readFile(string filename, S_DES cypher) {
     }
     else {
         // get 10-bit key from user 
-        cout << "Enter 8-bit Key for encryption and decryption : ";
+        cout << "Enter 10-bit Key for encryption and decryption : ";
         cin >> ten_bit_key;
         //cypher.setpt(ten_bit_key);
         // if key is too short or too long prompt key one more time
@@ -85,7 +56,7 @@ void readFile(string filename, S_DES cypher) {
             cypher.setpt(plaintext);
             // encrypt the plaintext using the ten_bit_key to create the encryption key
             cypher.encrypt(ten_bit_key);
-           
+
             // Display the cypher text
             cout << "The Cypher Text is: ";
             cout << cypher.getcp() << endl;
@@ -96,3 +67,15 @@ void readFile(string filename, S_DES cypher) {
 
     }
 }
+
+int main()
+{
+    string temppt;
+    string tempkey;
+    string fileName = "Plaintext.txt";
+    S_DES cypher;
+    readFile(fileName, cypher);
+
+
+
+}   
