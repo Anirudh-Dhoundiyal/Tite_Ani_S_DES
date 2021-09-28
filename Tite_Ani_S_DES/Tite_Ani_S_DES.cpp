@@ -15,6 +15,16 @@
 //including class header
 #include "S_DES.h"
 
+
+
+void writeFile(string cyphertext) {
+
+    ofstream outFile;
+    outFile.open("CipherText.txt", ios_base::app);
+    outFile << cyphertext << endl;
+    outFile.close();
+}
+
 /****************************************************************************************
 *** FUNCTION < readFile >          											  	      ***
 *****************************************************************************************
@@ -58,15 +68,15 @@ void readFile(string filename, S_DES cypher) {
             cypher.encrypt(ten_bit_key);
 
             // Display the cypher text
-            cout << "The Cypher Text is: ";
-            cout << cypher.getcp() << endl;
+            writeFile(cypher.getcp());
             // Decrypt then display the original plaintext
-            cout << "The plain text is: ";
+            cout << "The decrypted plain text is: ";
             cout << cypher.decrypt() << endl;
         }
 
     }
 }
+
 
 int main()
 {
