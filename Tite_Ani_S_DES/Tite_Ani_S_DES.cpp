@@ -14,6 +14,29 @@
 
 //including class header
 #include "S_DES.h"
+//function declarations
+void writeFile(string);
+void readFile(string, S_DES);
+void encryptionWrapper(string, string, S_DES);
+string charToBinary(char);
+string BinaryToChar(string);
+
+
+
+
+//main
+int main()
+{
+    string temppt;
+    string tempkey;
+    string fileName = "Plaintext.txt";
+    S_DES cypher;
+    readFile(fileName, cypher);
+
+
+
+}
+
 
 
 
@@ -62,30 +85,46 @@ void readFile(string filename, S_DES cypher) {
         }
         // keep getting plaintext from file while not at the end of file
         while (inFile >> plaintext) {
-            // process current plaintext being read
-            cypher.setpt(plaintext);
-            // encrypt the plaintext using the ten_bit_key to create the encryption key
-            cypher.encrypt(ten_bit_key);
 
-            // Display the cypher text
-            writeFile(cypher.getcp());
-            // Decrypt then display the original plaintext
-            cout << "The decrypted plain text is: ";
-            cout << cypher.decrypt() << endl;
+            for (auto i : plaintext) {
+
+                encryptionWrapper(charToBinary(i), ten_bit_key, cypher);
+            }
+
+
+            
         }
 
     }
 }
 
-
-int main()
+string charToBinary(char c)
 {
-    string temppt;
-    string tempkey;
-    string fileName = "Plaintext.txt";
-    S_DES cypher;
-    readFile(fileName, cypher);
+    string result = "0";
+    string r;
+    int n = int(c);
+    while (n != 0) { r = (n % 2 == 0 ? "0" : "1") + r; n /= 2; }
+    result += r;
+    return result;
+}
+string BinaryToChar(string decrypted_str) {
 
 
 
-}   
+
+}
+
+
+void encryptionWrapper(string plaintext, string ten_bit_key, S_DES cypher)
+{
+    // process current plaintext being read
+    cypher.setpt(plaintext);
+    // encrypt the plaintext using the ten_bit_key to create the encryption key
+    cypher.encrypt(ten_bit_key);
+    // Display the cypher text
+    writeFile(cypher.getcp());
+    // Decrypt then display the original plaintext
+    cout << "The decrypted plain text is: ";
+
+    cout << BinaryToChar(cypher.decrypt()); //added a functiong to send char
+}
