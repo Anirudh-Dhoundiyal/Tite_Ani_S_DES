@@ -11,6 +11,8 @@
 
 //libraries 
 #include <iostream>
+#include <bitset>           // Library that stores bits (elements with only two possible values: 0 or 1, true or false...)
+#include <sstream>
 
 //including class header
 #include "S_DES.h"
@@ -19,7 +21,7 @@ void writeFile(string);
 void readFile(string, S_DES);
 void encryptionWrapper(string, string, S_DES);
 string charToBinary(char);
-string BinaryToChar(string);
+string binaryToChar(string);
 
 
 
@@ -54,7 +56,7 @@ void writeFile(string cyphertext) {
 *** DESCRIPTION : < This function is the read file function. It reads a txt file which **
 ***                 contains all the plain text. For each plaintext it encrypts, then ***
 ***                 diplay cypher text, then decrypt the cypher text and displays it. ***
-***                 It takes the file name and the Simple DES class object >          ***                               ***
+***                 It takes the file name and the Simple DES class object >          ***
 *** INPUT ARGS :  < String, S_DES >             								  	  ***
 *** OUTPUT ARGS : < None > 															  ***
 *** IN/OUT ARGS : < None >          	    										  ***
@@ -107,10 +109,30 @@ string charToBinary(char c)
     result += r;
     return result;
 }
-string BinaryToChar(string decrypted_str) {
 
+/****************************************************************************************
+*** FUNCTION < binaryToChar >          											  	  ***
+*****************************************************************************************
+*** DESCRIPTION : < This function reads an 8 bit decrypted string, converts it into   ***
+***                 ASCII then back to its original value >                           ***
+*** INPUT ARGS :  < String >             								  	          ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None >          	    										  ***
+*** RETURN : 	  < String > 														  ***
+****************************************************************************************/
+string binaryToChar(string decrypted_str) {
+    // stores the converted 8 bit to original character
+    string asciiToCharacter;
+    // read from string as if it were a stream like cin
+    stringstream sstream(decrypted_str); 
+    // stores the 8 bit to be converted 
+    bitset<8> bits;
+    // read from stringstream object 
+    sstream >> bits;
+    // convert binary to character
+    asciiToCharacter = char(bits.to_ullong());
 
-
+    return asciiToCharacter;
 
 }
 
@@ -125,6 +147,6 @@ void encryptionWrapper(string plaintext, string ten_bit_key, S_DES cypher)
     writeFile(cypher.getcp());
     // Decrypt then display the original plaintext
     cout << "The decrypted plain text is: ";
-
-    cout << BinaryToChar(cypher.decrypt()); //added a functiong to send char
+    //cout << cypher.decrypt()<<endl; //added a functiong to send char
+    cout << binaryToChar(cypher.decrypt()) << endl; //added a functiong to send char
 }
