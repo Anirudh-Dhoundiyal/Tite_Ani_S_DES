@@ -491,3 +491,70 @@ string S_DES::decrypt()
     return text;
 }
 
+
+
+/****************************************************************************************
+*** FUNCTION < charToBinary >          											  	  ***
+*****************************************************************************************
+*** DESCRIPTION : < This function reads a character, converts it to an 8 bit ASCII    ***
+***                 then convert that ASCII value to a binary string                  ***
+*** INPUT ARGS :  < String >             								  	          ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None >          	    										  ***
+*** RETURN : 	  < String > 														  ***
+****************************************************************************************/
+string S_DES::charToBinary(char c)
+{
+    string result = "0";
+    string r;
+    int n = int(c);
+    while (n != 0) { r = (n % 2 == 0 ? "0" : "1") + r; n /= 2; }
+    result += r;
+    return result;
+}
+
+/****************************************************************************************
+*** FUNCTION < binaryToChar >          											  	  ***
+*****************************************************************************************
+*** DESCRIPTION : < This function reads an 8 bit decrypted string, converts it into   ***
+***                 ASCII then back to its original value >                           ***
+*** INPUT ARGS :  < String >             								  	          ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None >          	    										  ***
+*** RETURN : 	  < String > 														  ***
+****************************************************************************************/
+string S_DES::binaryToChar(string decrypted_str) {
+    // stores the converted 8 bit to original character
+    string asciiToCharacter;
+    // read from string as if it were a stream like cin
+    stringstream sstream(decrypted_str);
+    // stores the 8 bit to be converted 
+    bitset<8> bits;
+    // read from stringstream object 
+    sstream >> bits;
+    // convert binary to character
+    asciiToCharacter = char(bits.to_ullong());
+
+    return asciiToCharacter;
+
+}
+
+
+/****************************************************************************************
+*** FUNCTION < writeFile >          											  	  ***
+*****************************************************************************************
+*** DESCRIPTION : < This function write strings into a file called Ciphertext >       ***
+*** INPUT ARGS :  < String, S_DES >             								  	  ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None >          	    										  ***
+*** RETURN : 	  < None > 															  ***
+****************************************************************************************/
+void S_DES::writeFile(string cyphertext) {
+
+    ofstream outFile;
+    outFile.open("CipherText.txt", ios_base::app);
+    outFile << cyphertext << endl;
+    outFile.close();
+}
+
+

@@ -17,6 +17,8 @@
 //libraries
 #include<string>
 #include <fstream>
+#include <bitset>           // Library that stores bits (elements with only two possible values: 0 or 1, true or false...)
+#include <sstream>
 //using namespace std
 using namespace std;
 
@@ -60,7 +62,7 @@ class S_DES
 	public:
 		S_DES();
 		~S_DES();
-			
+		
 		void encrypt(string);		// A
 		string decrypt();
 		void setpt(string x) {
@@ -69,7 +71,9 @@ class S_DES
 		string getcp() {
 			return cp;
 		}
-		
+		string charToBinary(char);
+		string binaryToChar(string);
+		void writeFile(string );
 };
 
 #endif // !S_DES_H
