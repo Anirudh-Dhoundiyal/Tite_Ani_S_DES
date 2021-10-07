@@ -631,11 +631,11 @@ void S_DES::writeFile(string cyphertext) {
 *** IN/OUT ARGS : < None >          	    										  ***
 *** RETURN : 	  < int > 															  ***
 ****************************************************************************************/
-int S_DES::fastModExpAlg(string binary, int n, int a) {
+int S_DES::fastModExpAlg(string binary, int a, int n) {
     int c = 0,
         f = 1;
 
-    for (int i = 0; i < binary.size(); i++) {
+    for (int i = 9; i >= 0; i--) {
         // 
         c = 2 * c;
         f = (f * f) % n;
