@@ -557,4 +557,30 @@ void S_DES::writeFile(string cyphertext) {
     outFile.close();
 }
 
+/****************************************************************************************
+*** FUNCTION < fastModExpAlg >       											  	  ***
+*****************************************************************************************
+*** DESCRIPTION : This function performs the Fast Modular Exponentiation calculation  ***
+***               of the modulo n of an integer a raised to the power of an integer b ***
+***                                     a ^ b mod n                                   *** 
+*** INPUT ARGS :  < String, int, int >             								  	  ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None >          	    										  ***
+*** RETURN : 	  < int > 															  ***
+****************************************************************************************/
+int S_DES::fastModExpAlg(string binary, int n, int a) {
+    int c = 0,
+        f = 1;
 
+    for (int i = 0; i < binary.size(); i++) {
+        // 
+        c = 2 * c;
+        f = (f * f) % n;
+        // Check that the binary digit at position i is 1 to perform ...
+        if (int(binary[i]) == 1) {
+            c = c + 1;
+            f = (f * a) % n;
+        }
+    }
+    return f;
+}

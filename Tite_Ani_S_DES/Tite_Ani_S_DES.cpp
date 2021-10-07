@@ -28,9 +28,8 @@ int main()
     string tempkey;
     string fileName = "Plaintext.txt";
     S_DES cypher;
+    // cypher.readFile(filename);
     readFile(fileName, cypher);
-
-
 
 }
 

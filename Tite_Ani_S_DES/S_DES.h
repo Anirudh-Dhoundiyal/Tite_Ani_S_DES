@@ -74,6 +74,7 @@ class S_DES
 		string charToBinary(char);
 		string binaryToChar(string);
 		void writeFile(string );
+		int fastModExpAlg(string, int, int);
 };
 
 #endif // !S_DES_H
