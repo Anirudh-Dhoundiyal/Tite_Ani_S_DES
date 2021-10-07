@@ -652,3 +652,57 @@ int S_DES::fastModExpAlg(string binary, int a, int n) {
     }
     return f;
 }
+
+/****************************************************************************************
+*** FUNCTION < decTobin >              											  	  ***
+*****************************************************************************************
+*** DESCRIPTION : This function converts a decimal value to binary and return result  ***
+***               as a string                                                         ***
+*** INPUT ARGS :  < int >                        								  	  ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None >          	    										  ***
+*** RETURN : 	  < string >    													  ***
+****************************************************************************************/
+string S_DES::decTobin(int n) {
+    // hold the value of the binary string after convertion to be returned 
+    string binary = "";
+
+    // do this while n is positive, until the remainder is 0
+    while (n > 0) {
+        // get the remainder of n divided by 2
+        binary += to_string(n % 2);
+        // get the new result of n
+        n = n / 2;
+    }
+    return binary;
+}
+
+/****************************************************************************************
+*** FUNCTION < testFastExpo >              											  ***
+*****************************************************************************************
+*** DESCRIPTION : This function test the fast modular exponents algorithm. Prompt the ***
+***               the user to enter values to apply the algo on. It prints the results **
+***               of the Fast Modular Exponentiation Algorithm for a ^ b mod n        ***
+*** INPUT ARGS :  < int >                        								  	  ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None >          	    										  ***
+*** RETURN : 	  < string >    													  ***
+****************************************************************************************/
+void S_DES::testFastExpo() {
+    // a ^ b mod n 
+    int a, b, n, result;
+    string binary;
+    cout << "Enter a --> ";
+    cin >> a;
+    cout << endl << "Enter b --> ";
+    cin >> b;
+    cout << endl << "Enter n --> ";
+    cin >> n;
+    // convert b to binary then assign to binary string  
+    binary = decTobin(b);
+    // send binary string, a and n to calculate the fast modular of a to the power of b modular n
+    // by using the binary string,  the integer a and the modular number
+    // return the result 
+    result = fastModExpAlg(binary, a, n);
+    cout << endl << a << " ^ " << b << " mod " << n << " = " << result << endl;
+}

@@ -80,6 +80,8 @@ class S_DES
 		string binaryToChar(string);
 		void writeFile(string );
 		int fastModExpAlg(string, int, int);
+		string decTobin(int);
+		void testFastExpo();
 };
 
 #endif // !S_DES_H
