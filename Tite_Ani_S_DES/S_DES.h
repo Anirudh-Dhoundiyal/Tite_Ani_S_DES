@@ -19,6 +19,7 @@
 #include <fstream>
 #include <bitset>           // Library that stores bits (elements with only two possible values: 0 or 1, true or false...)
 #include <sstream>
+#include <iostream>
 //using namespace std
 using namespace std;
 
@@ -62,6 +63,10 @@ class S_DES
 	public:
 		S_DES();
 		~S_DES();
+
+		void readFile(string filename);
+
+		void encryptionWrapper(string plaintext, string ten_bit_key);
 		
 		void encrypt(string);		// A
 		string decrypt();
