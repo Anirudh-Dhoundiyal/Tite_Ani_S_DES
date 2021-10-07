@@ -66,7 +66,7 @@ class S_DES
 
 		void readFile(string filename);
 
-		void encryptionWrapper(string plaintext, string ten_bit_key);
+		void encryptionWrapper(string plaintext, string ten_bit_key7);
 		
 		void encrypt(string);		// A
 		string decrypt();

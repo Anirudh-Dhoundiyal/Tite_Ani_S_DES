@@ -19,6 +19,7 @@
 string decTobin(int n) {
     // hold the value of the binary string after convertion to be returned 
     string binary = "";
+
     // do this while n is positive, until the remainder is 0
     while (n > 0) {
         // get the remainder of n divided by 2

@@ -620,6 +620,9 @@ void S_DES::writeFile(string cyphertext) {
     outFile.close();
 }
 
+void printFastModTable(int i, char bt, int c, int f) {
+    cout << i << "\t\t" << bt << "\t\t" << c << "\t\t" << f << "\t\t" << endl;
+}
 /****************************************************************************************
 *** FUNCTION < fastModExpAlg >       											  	  ***
 *****************************************************************************************
@@ -634,16 +637,18 @@ void S_DES::writeFile(string cyphertext) {
 int S_DES::fastModExpAlg(string binary, int a, int n) {
     int c = 0,
         f = 1;
-
-    for (int i = 9; i >= 0; i--) {
+    // Print
+    cout << "i\t\t" << "b\t\t" << "c\t\t" << "f\t\t" << endl;
+    for (int i = binary.size() - 1; i >= 0; i--) {
         // 
         c = 2 * c;
         f = (f * f) % n;
         // Check that the binary digit at position i is 1 to perform ...
-        if (int(binary[i]) == 1) {
+        if (binary[i] == '1') {
             c = c + 1;
             f = (f * a) % n;
         }
+        printFastModTable(i, binary[i], c, f);
     }
     return f;
 }
