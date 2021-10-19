@@ -150,6 +150,14 @@ int server(void)
 		// Check if g prime and q are defined,
 		// If not process with g and q
 		if (g >= 0 && q >= 0) {
+			// Case 2 K or k for sending the key and requesting key from server
+			if(){
+				
+			}
+			else{
+				
+			}
+			
 			// Ask user to enter their key 
 			printf("\nEnter server private key --> ");
 			scanf("%d", &pKa);
