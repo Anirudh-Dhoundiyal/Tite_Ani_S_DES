@@ -140,6 +140,12 @@ int server(void)
 			system(list);
 			printf("\n\n");
 		}// End of if
+		// Check what instructions have been sent
+		
+		// Case 1 -1 for setting up g and q 
+		// Case 2 K or k for sending the key and requesting key from server
+		// Case 3 M or m for sending the message to server possibly decrypting before sending then receive encrypted message then decrypt it if instruction is M or m and display the decrypted on the server comparing to original message from client
+		
 		
 		// Check if g prime and q are defined,
 		// If not process with g and q

@@ -172,7 +172,8 @@ int client(void)
 					}	// End of if
 
 				//*** Case 2 message containing g and q
-					else if (strcmp(found, "M") == 0 || strcmp(found, "k") == 0) {
+					// If M is the instruction ask client to enter their message, then encrypt the message using the generated private key if it exist, if not start again 
+					else if (strcmp(found, "M") == 0 || strcmp(found, "m") == 0) {
 						printf("Enter message to server.\n");
 						scanf("%s", client_message);
 						valid = true;
