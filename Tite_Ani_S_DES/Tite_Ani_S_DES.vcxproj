@@ -143,6 +143,8 @@
     <ClCompile Include="Tite_Ani_S_DES.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="client.h" />
+    <ClInclude Include="server.h" />
     <ClInclude Include="S_DES.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -11,10 +11,17 @@
 ****************************************************************************************************************/
 
 #include "S_DES.h"
+extern "C" {
+    // Get declaration for f(int i, char c, float x)
+#include "server.h"
+#include "client.h"
+}
 
 
 S_DES::S_DES()
 {
+    // Call server or client to get Key from
+    
 }
 
 S_DES::~S_DES()
@@ -61,10 +68,8 @@ void S_DES::readFile(string filename) {
         while (inFile >> plaintext) {
 
             for (auto i : plaintext) {
-
                 encryptionWrapper(charToBinary(i), ten_bit_key);
             }
-
         }
 
     }

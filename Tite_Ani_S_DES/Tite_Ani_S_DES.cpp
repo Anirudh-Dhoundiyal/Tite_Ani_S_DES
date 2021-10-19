@@ -22,6 +22,6 @@ int main()
 {
     string fileName = "Plaintext.txt";
     S_DES cypher;
-    cypher.testFastExpo();
+    
     //cypher.readFile(fileName);
 }
