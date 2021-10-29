@@ -61,28 +61,77 @@ void S_DES::readFile(string filename) {
         while (inFile >> plaintext) {
 
             for (auto i : plaintext) {
+                if (i >= '0' && i <= '9') {
+                    string a = "0000";
+                    a += decimal_to_binary(i);
+                    encryptionWrapper(a, ten_bit_key);
+                }
+                else {
+                    encryptionWrapper(charToBinary(i), ten_bit_key);
+                }
 
-                encryptionWrapper(charToBinary(i), ten_bit_key);
             }
-
         }
 
     }
 }
 
+/****************************************************************************************
+*** FUNCTION < diffie_Hellman_Exchange >          									  ***
+*****************************************************************************************
+*** DESCRIPTION : < This function use the Diffie-Hellman protocol to calculate two    ***
+                     public-private key pairs. Using a prime of q and a generator of g **
+                     private keys pK for A and B are used with fast modular exponents ***
+                     then send over to the receiver. The receiver sends their key too ***
+                     Fast mod is applied on it using the sender private key to produce **
+                     the derived Key. Return & use it to exchange encrypted messages  ***
+*** INPUT ARGS :  < None >                       								  	  ***
+*** OUTPUT ARGS : < None > 															  ***
+*** IN/OUT ARGS : < None >          	    										  ***
+*** RETURN : 	  < int > 															  ***
+****************************************************************************************/
+//int s_des::diffie_hellman_exchange() {
+//    int q, g, r, bkeyreceived, derivedkey, pk;
+//    string binary;
+//     convert from decimal to binary
+//    binary = dectobin(g);
+//     calculate the fast mod 
+//    r = fastmodexpalg(binary, pk, q);
+//
+//     use the server/client to send key produced 
+//
+//     use the server/client to receive key 
+//                bkeyreceived = 
+//
+//     perform fast mod exponents using key received 
+//    binary = dectobin(bkeyreceived);
+//    derivedkey = fastmodexpalg(binary, pk, q);
+//
+//    cout << "the private key is " << derivedkey << endl;
+//     return the derived key to exchange encrypted messages
+//    return derivedkey;
+//}
 
 void S_DES::encryptionWrapper(string plaintext, string ten_bit_key)
 {
-    // process current plaintext being read
-    setpt(plaintext);
-    // encrypt the plaintext using the ten_bit_key to create the encryption key
-    encrypt(ten_bit_key);
-    // Display the cypher text
-    writeFile(getcp());
-    // Decrypt then display the original plaintext
-    cout << "The decrypted plain text is: ";
-    //cout << cypher.decrypt()<<endl; //added a functiong to send char
-    cout << binaryToChar(decrypt()) << endl; //added a functiong to send char
+    if (image_flag == true) { /// Do this with image flag!
+        setpt(plaintext);
+        encrypt(ten_bit_key);
+        //writeFile(getcp());
+    }
+    else {
+        // process current plaintext being read
+        setpt(plaintext);
+        // encrypt the plaintext using the ten_bit_key to create the encryption key
+        encrypt(ten_bit_key);
+        // Display the cypher text
+        writeFile(getcp());
+        // Decrypt then display the original plaintext
+        cout << "The decrypted plain text is: ";
+        //cout << cypher.decrypt()<<endl; //added a functiong to send char
+        cout << binaryToChar(decrypt()) << endl; //added a functiong to send char
+    }
+
 }
 
 /****************************************************************************************

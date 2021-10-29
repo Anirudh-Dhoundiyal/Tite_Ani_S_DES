@@ -33,6 +33,7 @@ class S_DES
 			key2;			// key 2
 		bool fk_flag = false;
 		bool decrypt_flag = false;
+		
 		// functions declaration
 		string ip();			// T
 		string fk(string);	// A
@@ -61,10 +62,13 @@ class S_DES
 		}
 
 	public:
+		bool image_flag = false;
 		S_DES();
 		~S_DES();
 
 		void readFile(string filename);
+
+		int diffie_Hellman_Exchange();
 
 		void encryptionWrapper(string plaintext, string ten_bit_key7);
 		
