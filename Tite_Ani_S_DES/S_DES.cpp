@@ -59,7 +59,6 @@ void S_DES::readFile(string filename) {
         }
         // keep getting plaintext from file while not at the end of file
         while (inFile >> plaintext) {
-
             for (auto i : plaintext) {
                 if (i >= '0' && i <= '9') {
                     string a = "0000";
