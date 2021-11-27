@@ -59,7 +59,7 @@ int main()
     string fileName = "Plaintext.txt";
     
     int option = 0;
-    cout << "Enter 1 to encrypt a File, Enter 2 To encrypt a Image, Enter 3 for CBC ";
+    cout << "Enter 1 to encrypt a File, Enter 2 To encrypt a Image, Enter 3 for image CBC, Enter 4 for hash CBS ";
     cin >> option;
     cin.ignore();
     if (option == 1) {
@@ -73,6 +73,10 @@ int main()
     {
         CBC = true;
         image_function();
+    }
+    else if (option == 4)
+    {
+       
     }
 }
 
