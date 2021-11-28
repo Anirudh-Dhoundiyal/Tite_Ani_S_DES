@@ -9,6 +9,22 @@ Certificates::~Certificates()
 {
 }
 
+string Certificates::sign_certificate(string)
+{
+
+	return string();
+}
+
+string Certificates::generate_hash(subjectPkInfo s_info)
+{
+	// concatinate the subject information in a string of text
+	string concatinated_info = s_info.algo + s_info.parameters + s_info.key;
+	// send the concatinated string to the function that will hash it
+	hash = cbc_hash(concatinated_info);
+	// return hash
+	return hash;
+}
+
 void Certificates::getValues()
 {
 	cout << "Enter certificate version ";
