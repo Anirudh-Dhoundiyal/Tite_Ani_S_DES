@@ -21,9 +21,15 @@
     <ClCompile Include="S_DES.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Certificates.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="S_DES.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Certificates.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

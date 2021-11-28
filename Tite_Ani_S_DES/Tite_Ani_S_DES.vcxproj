@@ -139,10 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Certificates.cpp" />
     <ClCompile Include="S_DES.cpp" />
     <ClCompile Include="Tite_Ani_S_DES.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Certificates.h" />
     <ClInclude Include="S_DES.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
