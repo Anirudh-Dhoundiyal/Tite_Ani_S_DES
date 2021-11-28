@@ -533,7 +533,8 @@ void S_DES::encrypt(string ten_bit_key)
             fk_out1, fk_out2,
             sw_out1, sw_out2;
     // key generation
-    key_gen(ten_bit_key);
+    // No key generation is needed for CBC used for hash function WRONG no secret key is needed but key generation still needed 
+     key_gen(ten_bit_key);
 
     //  initial permutation
     ip_out = ip();
@@ -619,7 +620,12 @@ string S_DES::charToBinary(char c)
     string result = "0";
     string r;
     int n = int(c);
-    while (n != 0) { r = (n % 2 == 0 ? "0" : "1") + r; n /= 2; }
+    while (n != 0) { 
+        r = 
+            (n % 2 == 0 ? "0" 
+                        : "1") + r; 
+        n /= 2; 
+    }
     result += r;
     return result;
 }
@@ -713,7 +719,7 @@ int S_DES::fastModExpAlg(string binary, int a, int n) {
 ****************************************************************************************/
 string S_DES::decTobin(int n) {
     // hold the value of the binary string after convertion to be returned 
-    string binary = "";
+    string binary = "", result ;
 
     // do this while n is positive, until the remainder is 0
     while (n > 0) {

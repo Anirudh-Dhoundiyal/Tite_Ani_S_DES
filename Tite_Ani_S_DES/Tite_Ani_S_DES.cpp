@@ -49,7 +49,12 @@ void image_function();
 string unsignedChartoBinary(unsigned char);
 string x_or(string, string);
 string sw(string);
+string cbc_hash();
+ifstream readFile(string filename);
+string get_SDES_Key();
+
 bool CBC = false;
+bool hashFlag = false;
 
 // SDES Object global 
 S_DES cypher;
@@ -57,7 +62,7 @@ S_DES cypher;
 int main()
 {
     string fileName = "Plaintext.txt";
-    
+
     int option = 0;
     cout << "Enter 1 to encrypt a File, Enter 2 To encrypt a Image, Enter 3 for image CBC, Enter 4 for hash CBS ";
     cin >> option;
@@ -76,7 +81,103 @@ int main()
     }
     else if (option == 4)
     {
-       
+        CBC = true;
+        hashFlag = true;
+        string hash = cbc_hash();
+        //image_function();
+        cout << "The hash is now " << hash << " " << endl;
+    }
+}
+
+string cbc_hash() {
+    // Initiale value
+    int iv = 3;
+    bool CBC_firstPass = false;
+    string fileName = "Plaintext.txt";
+    string plaintext_character,
+        initial_vector,
+        temp,
+        input_block, 
+        k;
+    // get s-des key for encryption 
+    k = get_SDES_Key();
+
+    cypher.image_flag = true;
+    // convertion of IV to plaint text block size
+    temp += cypher.decTobin(iv);
+    int count = 8 - temp.size();
+    while (count > 0) {
+        initial_vector += '0';
+        count--;
+    }
+    initial_vector += temp ;
+
+    // read the file
+    ifstream inFile = readFile(fileName);
+    
+    // get plain text from it 
+    while (inFile >> plaintext_character) {
+        // for each plaintext block encrypt every character at a time
+        for (int i = 0; i < plaintext_character.size(); i++) {
+            if (hashFlag) {
+                // after pass one do this
+                // Exclusive-or current plaintext block with previous ciphertext block
+                // Hi = E (Mi, Hi-1) 
+                if (CBC_firstPass) {
+                    input_block = "";
+                    input_block = cypher.getcp();       // get previous cipher block
+                    input_block = x_or(unsignedChartoBinary(plaintext_character[i]), input_block);      // exclusive-or current plain text character with the previous cipher block
+                    input_block += "01";        // add padding 
+                    cypher.encryptionWrapper(unsignedChartoBinary(plaintext_character[i]), k);      // encrypt output of the exclusive-or 
+                }
+                else
+                {
+                    input_block = x_or(unsignedChartoBinary(plaintext_character[i]), initial_vector);      // exclusive-or current plain text character with the previous cipher block
+                    // get the initial value h0
+                    cypher.encryptionWrapper(input_block, k);
+                    CBC_firstPass = true;
+                }
+            }
+        }
+    }
+    // close file once done 
+    inFile.close();
+    // get the hash value of the file
+    // G = Hn
+    string hash = cypher.getcp();
+
+    return hash;
+}
+
+string get_SDES_Key()
+{
+    string ten_bit_key;
+    // get 10-bit key from user 
+    cout << "Enter 10-bit Key for encryption and decryption : ";
+    cin >> ten_bit_key;
+    //cypher.setpt(ten_bit_key);
+    // if key is too short or too long prompt key one more time
+    while (ten_bit_key.size() != 10) {
+        cerr << "Error. Key must be a 10 bit key" << endl;
+        cin.ignore();
+        cin.clear();
+        cin >> ten_bit_key;
+    }
+    return ten_bit_key;
+}
+
+ifstream readFile(string filename) {
+    ifstream inFile;
+    string plaintext,
+        ten_bit_key;
+    inFile.open(filename);
+
+    // if file not found display message
+    if (!inFile) {
+        cerr << "File not found: " << filename << endl;
+    }
+    else {
+        return inFile;
     }
 }
 
@@ -143,7 +244,6 @@ void image_function() {
     fwrite(header, sizeof(unsigned char), 54, cypherImg);
     
     for (int i = 0; i < size; i++) {
-       
         if (CBC) {
             if (CBC_firstPass) {
                 string cbc_key = "";
@@ -163,6 +263,11 @@ void image_function() {
         else {
             cypher.encryptionWrapper(unsignedChartoBinary(pixelData[i]), tempKey);
             temp += cypher.binaryToChar(cypher.getcp());
+        }
+
+        if (hashFlag) {
+            // if the hash flag is on keep the last cipher text as the hash value 
+            string hash = cypher.getcp();
         }
     }
     unsigned char* cypherData = (unsigned char*)temp.c_str();
