@@ -64,23 +64,23 @@ string CBC::cbc_hash(string fileName) {
     }
     initial_vector += temp;
 
-    cout << "Press 1 to hash a file or 2 to hash a string of text ";
-    cin >> option;
-    if (option == 1) {
+    //cout << "Press 1 to hash a file or 2 to hash a string of text ";
+    //cin >> option;
+    //if (option == 1) {
         // read the file
-        ifstream inFile = readFile(fileName);
-        temp = "";
+    //    ifstream inFile = readFile(fileName);
+    //    temp = "";
         // get plain text from it 
-        while (inFile >> temp) {
-            plaintext_character += temp;
-        }
+    //    while (inFile >> temp) {
+    //        plaintext_character += temp;
+    //    }
         // close file once done 
-        inFile.close();
-    }
-    else if (option == 2) {
+    //    inFile.close();
+    //}
+    //else if (option == 2) {
         plaintext_character = fileName;
         hashFlag = true;
-    }
+    //}
 
     // for each plaintext block encrypt every character at a time
     for (int i = 0; i < plaintext_character.size(); i++) {
@@ -104,11 +104,9 @@ string CBC::cbc_hash(string fileName) {
             }
         }
     }
-
     // get the hash value of the file
     // G = Hn
     string hash = getcp();
-
     return hash;
 }
 
