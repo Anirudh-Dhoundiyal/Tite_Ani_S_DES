@@ -3,6 +3,7 @@
 Certificates::Certificates()
 {
 	certificate_file = "Certificate.txt";
+	system_time = "2021";
 	getValues();
 	hash = generate_hash(x);
 	sign_certificate();
@@ -58,6 +59,23 @@ void Certificates::compare_hash() {
 		cout << "Invalid Certificate. " << unsigned_hash << "  !=  " << signed_hash << endl;
 	}
 	// hash;
+}
+
+void Certificates::verify_validity()
+{
+	// get the certificate file name to read
+
+	// check if it exist, if yes then read all input in the file
+
+	// read all required values storing each line of the file in a required field 
+
+	// generate the hash for verification
+
+	// compare the hash
+
+	// check period of validity
+
+	// determine whether vaild or not
 }
 
 void Certificates::getValues()

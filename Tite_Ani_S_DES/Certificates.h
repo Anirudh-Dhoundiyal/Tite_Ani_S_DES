@@ -47,7 +47,8 @@ private:
 	cert_fields x;
 	signature s;
 	string hash,
-		certificate_file;
+		certificate_file,
+		system_time;
 	void displayCert();
 	void getValues();
 public:
@@ -56,6 +57,7 @@ public:
 	void sign_certificate();
 	string generate_hash(cert_fields);
 	void compare_hash();
+	void verify_validity();
 };
 
 
