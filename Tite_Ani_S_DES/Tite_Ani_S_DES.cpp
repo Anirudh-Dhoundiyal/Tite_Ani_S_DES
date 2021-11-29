@@ -17,11 +17,13 @@ using namespace std;
 
 //including class header
 #include "CBC.h"
+#include "Certificates.h"
 
 //main
 int main()
 {
-    CBC x;
-    x.cbc_menu();
-
+    //CBC x;
+    //x.cbc_menu();
+    Certificates certs;
+    //certs.va
 }

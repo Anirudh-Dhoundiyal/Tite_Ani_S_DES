@@ -124,7 +124,7 @@ void S_DES::encryptionWrapper(string plaintext, string ten_bit_key)
         // encrypt the plaintext using the ten_bit_key to create the encryption key
         encrypt(ten_bit_key);
         // Display the cypher text
-        writeFile(getcp());
+        writeFile(getcp(), "CipherText.txt");
         // Decrypt then display the original plaintext
         cout << "The decrypted plain text is: ";
         //cout << cypher.decrypt()<<endl; //added a functiong to send char
@@ -511,7 +511,7 @@ int S_DES::binary_to_int(string binary)
 }
 string S_DES::decimal_to_binary(int x)
 {
-    string cmp_arr[4] = { "00","01","10","11" };
+    string cmp_arr[10] = { "0000","0001","0010","0011", "0100", "0101", "0110", "0111", "1000", "1001"};
     string result = "";
     result = cmp_arr[x];
     return result;
@@ -666,10 +666,10 @@ string S_DES::binaryToChar(string decrypted_str) {
 *** IN/OUT ARGS : < None >          	    										  ***
 *** RETURN : 	  < None > 															  ***
 ****************************************************************************************/
-void S_DES::writeFile(string cyphertext) {
+void S_DES::writeFile(string cyphertext, string filename) {
 
     ofstream outFile;
-    outFile.open("CipherText.txt", ios_base::app);
+    outFile.open(filename, ios_base::app);
     outFile << cyphertext << endl;
     outFile.close();
 }

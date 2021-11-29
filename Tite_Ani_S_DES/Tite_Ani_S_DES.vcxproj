@@ -141,12 +141,14 @@
   <ItemGroup>
     <ClCompile Include="CBC.cpp" />
     <ClCompile Include="Certificates.cpp" />
+    <ClCompile Include="RSA.cpp" />
     <ClCompile Include="S_DES.cpp" />
     <ClCompile Include="Tite_Ani_S_DES.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CBC.h" />
     <ClInclude Include="Certificates.h" />
+    <ClInclude Include="RSA.h" />
     <ClInclude Include="S_DES.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

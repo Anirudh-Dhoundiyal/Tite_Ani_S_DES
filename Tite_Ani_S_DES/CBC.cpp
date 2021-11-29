@@ -1,6 +1,5 @@
 #include "CBC.h"
 
-
 CBC::CBC()
 {
 	CBCFlaG = false;
@@ -80,6 +79,7 @@ string CBC::cbc_hash(string fileName) {
     }
     else if (option == 2) {
         plaintext_character = fileName;
+        hashFlag = true;
     }
 
     // for each plaintext block encrypt every character at a time
@@ -241,19 +241,33 @@ void CBC::image_function() {
 
 //Reference: https://stackoverflow.com/questions/58052458/how-to-convert-unsigned-char-to-binary-representation
 
+string dec_to_binary(int x)
+{
+    string cmp_arr[10] = { "0000","0001","0010","0011", "0100", "0101", "0110", "0111", "1000", "1001" };
+    string result = "";
+    result = cmp_arr[x];
+    return result;
+}
+
 string CBC::unsignedChartoBinary(unsigned char letter)
 {
     string temp;
     int binary[8] = {'/0'};
-    for (int n = 0; n < 8; n++)
-        binary[7 - n] = (letter >> n) & 1;
+    if (letter >= '0' && letter <= '9') {
+        temp = letter;
+        temp = "0000" + dec_to_binary(stoi(temp));
+    }
+    else {
+        for (int n = 0; n < 8; n++)
+            binary[7 - n] = (letter >> n) & 1;
 
-    for (int n = 0; n < 8; n++)
-        temp += to_string(binary[n]);
-
-
+        for (int n = 0; n < 8; n++)
+            temp += to_string(binary[n]);
+    }
     return temp;
 }
+
+
 
 string CBC::x_or(string value1, string k1)
 {

@@ -71,7 +71,6 @@ class S_DES
 		int diffie_Hellman_Exchange();
 
 		void encryptionWrapper(string plaintext, string ten_bit_key7);
-		
 		void encrypt(string);		// A
 		string decrypt();
 		void setpt(string x) {
@@ -82,7 +81,7 @@ class S_DES
 		}
 		string charToBinary(char);
 		string binaryToChar(string);
-		void writeFile(string );
+		void writeFile(string, string);
 		int fastModExpAlg(string, int, int);
 		string decTobin(int);
 		void testFastExpo();
