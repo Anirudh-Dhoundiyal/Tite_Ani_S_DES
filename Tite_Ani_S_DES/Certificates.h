@@ -6,7 +6,7 @@
 #include<string>
 #include "CBC.h"
 #include "RSA.h"
-
+#include <vector>
 using namespace std;
 
 struct Ta {
@@ -41,11 +41,21 @@ struct cert_fields {
 	signature s;							// signature
 };
 
+struct cert_revo_list_fields {
+	signature_algo_id sign_algo_id;
+	string issuer_name,
+		this_data_date,
+		next_update_date;
+	vector<string>	revoked_certificates;
+	signature crl_s;
+};
+
 class Certificates :
 	public CBC , public RSA
 {
 private:
 	cert_fields x;
+	cert_revo_list_fields crl;
 	string hash,
 		certificate_file,
 		system_time;
