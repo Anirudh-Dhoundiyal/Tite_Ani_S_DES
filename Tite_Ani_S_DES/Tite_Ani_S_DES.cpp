@@ -18,6 +18,11 @@ using namespace std;
 //including class header
 #include "CBC.h"
 #include "Certificates.h"
+#include "Server.h"
+#include "Client.h"
+
+
+
 
 //main
 int main()

@@ -148,7 +148,9 @@
   <ItemGroup>
     <ClInclude Include="CBC.h" />
     <ClInclude Include="Certificates.h" />
+    <ClInclude Include="Client.h" />
     <ClInclude Include="RSA.h" />
+    <ClInclude Include="Server.h" />
     <ClInclude Include="S_DES.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
