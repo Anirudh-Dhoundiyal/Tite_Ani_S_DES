@@ -78,7 +78,7 @@ class Client {
 
 
 
-	void client() {
+	int client() {
 		int socket_desc;    // file descripter returned by socket command
 		struct sockaddr_in server;    // in arpa/inet.h
 		int read_size, pKb, g = -1, q = -1, gPKb, comKey, gPKa;

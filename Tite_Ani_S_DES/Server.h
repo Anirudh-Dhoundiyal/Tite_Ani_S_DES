@@ -72,7 +72,7 @@ class Server {
 		return f;
 	}
 
-	void server() {
+	int server() {
 		int socket_desc, new_socket, c, read_size, i, comKey = -1, pKa, gPKa, gPKb, keyReceived, g = -1, q = -1;
 		struct sockaddr_in server, client;
 		char* message, client_message[100], convert[15];
