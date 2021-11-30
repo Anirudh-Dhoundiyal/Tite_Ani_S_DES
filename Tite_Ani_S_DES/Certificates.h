@@ -41,12 +41,17 @@ struct cert_fields {
 	signature s;							// signature
 };
 
+struct revok_certs {
+	string serial_N,
+		revoc_date;
+};
+
 struct crl_fields {
 	signature_algo_id sign_algo_id;
 	string issuer_name,
 		this_data_date,
 		next_update_date;
-	vector<string>	revoked_certificates;
+	vector<revok_certs>	revoked_certificates;
 	signature crl_s;
 };
 
@@ -56,22 +61,28 @@ class Certificates :
 private:
 	cert_fields x;
 	crl_fields cert_rev_list;
-	string hash,
+	string hash, 
+		crl_hash,
 		certificate_file,
 		system_time;
 	void displayCert();
 	cert_fields getCertValues();
 	crl_fields getCrlValues();
+	void validateCrl();
 	void displayCrl();
 public:
 	Certificates();
 	~Certificates();
 	void sign_certificate();
+	void sign_crl();
 	string generate_hash(cert_fields);
+	string generate_crl_hash(crl_fields);
 	void compare_hash(string, string);
 	void verify_validity();
 	void menu();
 	cert_fields get_file_data();
+	crl_fields get_crl_file_data();
+	void verify_certs(string serial_num, crl_fields);
 	//crl data type created.
 	//	Need:
 	//		-function to generate a crl(insert values)

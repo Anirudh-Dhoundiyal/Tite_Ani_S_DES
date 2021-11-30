@@ -21,9 +21,6 @@ using namespace std;
 #include "Server.h"
 #include "Client.h"
 
-
-
-
 //main
 int main()
 {
