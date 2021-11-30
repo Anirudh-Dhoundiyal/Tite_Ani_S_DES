@@ -9,7 +9,8 @@
 #include<arpa/inet.h> 
 
 class Client {
-
+private:
+public:
 	int modExpo(int x, int y, int p)
 	{
 		int res = 1;     // Initialize result
@@ -76,7 +77,9 @@ class Client {
 		return f;
 	}
 
-
+Client(){
+	client();
+}
 
 	int client() {
 		int socket_desc;    // file descripter returned by socket command

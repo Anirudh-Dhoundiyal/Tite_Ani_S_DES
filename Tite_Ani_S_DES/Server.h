@@ -10,6 +10,12 @@
 using namespace std;
 
 class Server {
+	private:
+
+	public:
+	Server() {
+		server();
+	}
 	int modExpo(int x, int y, int p)
 	{
 		int res = 1;     // Initialize result
