@@ -10,6 +10,12 @@
 using namespace std;
 
 class Server {
+	int decrypt(int signedKey) {
+		int pt = 0;
+		pt = fastModExpAlg(e, signedKey, n);
+		return signedKey;
+	}
+
 	int modExpo(int x, int y, int p)
 	{
 		int res = 1;     // Initialize result
@@ -31,14 +37,14 @@ class Server {
 		}
 		return res;
 	}
-
-	void printFastModTable(int i, char bt, int c, int f)
+	?
+		void printFastModTable(int i, char bt, int c, int f)
 	{
 		printf("%d\t\t %c\t\t %d\t\t %d\t\t\n", i, bt, c, f);
-
+		?
 	}
-
-	char* decToBin(int decimal) {
+	?
+		char* decToBin(int decimal) {
 		// hold the value of the binary string after convertion to be returned 
 		char* binary = malloc(25);
 		int i = 0;
@@ -52,8 +58,8 @@ class Server {
 		}
 		return binary;
 	}
-
-	int fastModExpAlg(char* binary, int a, int n) {
+	?
+		int fastModExpAlg(char* binary, int a, int n) {
 		int c = 0,
 			f = 1;
 		// Print
@@ -71,19 +77,20 @@ class Server {
 		}
 		return f;
 	}
+	?
 
 	int server() {
-		int socket_desc, new_socket, c, read_size, i, comKey = -1, pKa, gPKa, gPKb, keyReceived, g = -1, q = -1;
+		int socket_desc, new_socket, c, read_size, i, comKey = -1, pKa, gPKa, gPKb, keyReceived, g = -1, q = -1, signedKey;
 		struct sockaddr_in server, client;
 		char* message, client_message[100], convert[15];
 
 		char* list;
 		list = "ls -l\n";
-
-		char* found, convertS[15];
-
-		//Create socket
-		socket_desc = socket(AF_INET, SOCK_STREAM, 0);
+		?
+			char* found, convertS[15];
+		?
+			//Create socket
+			socket_desc = socket(AF_INET, SOCK_STREAM, 0);
 		if (socket_desc == -1)
 		{
 			printf("Could not create socket");
@@ -127,22 +134,22 @@ class Server {
 		while ((read_size = recv(new_socket, client_message, 100, 0)) > 0)
 		{
 			printf("\n Client sent %2i byte message:  %.*s\n", read_size, read_size, client_message);
+			?
+				if (!strncmp(client_message, "showMe", 6))
+				{
+					printf("\nFiles in this directory: \n");
+					system(list);
+					printf("\n\n");
+				}// End of if
+				// Check what instructions have been sent
 
-			if (!strncmp(client_message, "showMe", 6))
-			{
-				printf("\nFiles in this directory: \n");
-				system(list);
-				printf("\n\n");
-			}// End of if
-			// Check what instructions have been sent
-
-			// Case 1 -1 for setting up g and q 
-			// Case 2 K or k for sending the key and requesting key from server
-			// Case 3 M or m for sending the message to server possibly decrypting before sending then receive encrypted message then decrypt it if instruction is M or m and display the decrypted on the server comparing to original message from client
+				// Case 1 -1 for setting up g and q 
+				// Case 2 K or k for sending the key and requesting key from server
+				// Case 3 M or m for sending the message to server possibly decrypting before sending then receive encrypted message then decrypt it if instruction is M or m and display the decrypted on the server comparing to original message from client
 
 
-			// Check if g prime and q are defined,
-			// If not process with g and q
+				// Check if g prime and q are defined,
+				// If not process with g and q
 			if (g >= 0 && q >= 0) {
 				found = (char*)malloc(strlen(client_message) + 1);
 				strcpy(found, client_message);
@@ -162,6 +169,13 @@ class Server {
 					gPKb = atoi(found);
 					// Use key received to find common key
 					comKey = fastModExpAlg(decToBin(gPKb), g, q);
+
+					// Check for signed key for authentification
+					// get signed next to generated key 
+					found = strtok(NULL, " ");
+					signedKey = atoi(found);
+					printf("Your decrypted RSA Key is %d \n", decrypt(signedKey));
+
 					// Display private key and generated private key
 					printf("\nYour Private Key is %d and your Generated Key is %d\n\n", pKa, gPKa);
 					// Display common key generated from client private key
@@ -194,8 +208,8 @@ class Server {
 				// send private key produced 
 				// write(new_socket, client_message, read_size);
 			}// End of if
-
-			// Otherwise if g and q not define
+			?
+				// Otherwise if g and q not define
 			else {
 				found = (char*)malloc(strlen(client_message) + 1);
 				strcpy(found, client_message);
@@ -214,6 +228,12 @@ class Server {
 					// set q
 					found = strtok(NULL, " ");
 					q = atoi(found);
+					// get key pair d
+					found = strtok(NULL, " ");
+					e = atoi(found);
+					// get key pair n
+					found = strtok(NULL, " ");
+					n = atoi(found);
 					// send confirmation message back
 					// copy the message to reply back to the client
 					strcpy(client_message, "g and q are set!! Ready to receive generated key\n");
@@ -239,7 +259,6 @@ class Server {
 
 		//Free the socket pointer
 		close(socket_desc);
-
 		return 0;
 	}
 

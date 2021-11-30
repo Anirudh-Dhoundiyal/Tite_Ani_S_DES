@@ -10,6 +10,101 @@
 
 class Client {
 
+	int nt = 0, 	// totient of n 
+		e = 0,		// public key pair
+		d = 0,		// private key pair
+		p = 73, q = 97,
+		n = 0;
+	char pubKeyPair[5];
+
+	int extendGcd(int a, int b, int* x, int* y)
+	{
+		// Base Case 
+		if (a == 0)
+		{
+			*x = 0;
+			*y = 1;
+			return b;
+		}
+		int x1, y1;
+		int gcd = extendGcd(b % a, a, &x1, &y1);
+		*x = y1 - (b / a) * x1;
+		*y = x1;
+
+		return gcd;
+	}
+
+	int getInverse(int a, int m)
+	{
+		int x, y;
+		int result = 0;
+		int g = extendGcd(a, m, &x, &y);
+
+
+		if (g != 1)
+		{
+			cout << "The Inverse dosent exist" << endl;
+		}
+		else {
+			result = (x % m + m) % m;
+			cout << "The Inverse of " << a << " mod " << m << " is: " << result << endl;
+		}
+
+		return result;
+	}
+
+	//char* getRPrime()
+	void getRPrime()
+	{
+		char convert[2];
+
+		srand(time(NULL)); //http://www.cplusplus.com/forum/beginner/26611/
+
+		int a[9] = { 73, 79, 83, 107, 109, 113, 283, 293, 307 };
+		// get the totient
+		//int  nt = (p - 1) * (q - 1);
+		nt = (p - 1) * (q - 1);	// get the totient of n
+		//int e = 0;
+		int RandIndex = rand() % 9; //Gets random index for the array
+		e = a[RandIndex]; 		// sets public key
+		d = getInverse(e, nt);  	// set private key pair using public key and totient of n
+		n = p * q;
+
+		sprintf(convert, "%d", d);
+		// add the private key to character of string	
+		strcpy(pubKeyPair, convert);
+		// add space between key pair 
+		strcat(pubKeyPair, " ");
+		// convert n
+		sprintf(convert, "%d", n);
+		// add n converted to the key pair
+		strcat(pubKeyPair, convert);
+
+		//setN(p * q);
+			//setNtot(nt);
+			//setE(e);
+	   // return d;
+	   // return pubKeyPair;
+	}
+
+
+	int encrypt()
+	{
+		int pt, signedKey;
+		char entry;
+
+		// set the private key pair (n, d) and the public key pair
+		//	getRPrime();
+		printf("\nEnter your signed key: ");
+		while (scanf("%d%c", &pt, &entry) != 2 || entry != '\n') {
+			printf("Failure, enter numerical value followed by enter.\nEnter your signed key: ");
+			getchar();
+		}
+		signedKey = fastModExpAlgo(decToBin(e), pt, n);
+		printf("encrypted num is: %d\n", signedKey);
+		return signedKey;
+	}
+
 	int modExpo(int x, int y, int p)
 	{
 		int res = 1;     // Initialize result
@@ -77,36 +172,37 @@ class Client {
 	}
 
 
-
 	int client() {
-		int socket_desc;    // file descripter returned by socket command
-		struct sockaddr_in server;    // in arpa/inet.h
-		int read_size, pKb, g = -1, q = -1, gPKb, comKey, gPKa;
+		//////int socket_desc;    // file descripter returned by socket command
+	//////struct sockaddr_in server;    // in arpa/inet.h
+		int read_size, pKb, g = -1, q = -1, gPKb, comKey, gPKa, rsaK;
 		char  server_reply[100], client_message[100], entry;
 		bool valid = false, validEntry = false;
 		char* found = " ", convert[15], * foundS;
-		//Create socket
-		socket_desc = socket(AF_INET, SOCK_STREAM, 0);
 
-		printf("Trying to create socket\n");
-		if (socket_desc == -1)
-		{
-			printf("Unable to create socket\n");
-		}
+		//Create socket
+		/////socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+
+		/////printf("Trying to create socket\n");
+		/////if (socket_desc == -1)
+		/////{
+		/////	printf("Unable to create socket\n");
+		/////}
 
 		// *********** This is the line you need to edit ****************
-		server.sin_addr.s_addr = inet_addr("169.254.71.79");  // doesn't like localhost?
-		server.sin_family = AF_INET;
-		server.sin_port = htons(8421);    // random "high"  port number
+		/////server.sin_addr.s_addr = inet_addr("169.254.71.79");  // doesn't like localhost?
+		/////server.sin_family = AF_INET;
+		/////server.sin_port = htons( 8421 );    // random "high"  port number
 
 		//Connect to remote server
-		if (connect(socket_desc, (struct sockaddr*)&server, sizeof(server)) < 0)
-		{
-			printf(" connect error");
-			return 1;
-		}
+		/////if (connect(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0)
+		/////{
+		/////	printf(" connect error");
+		/////	return 1;
+		/////}
 
-
+		// Generate RSA Public and private key
+		getRPrime();
 		//Get data from keyboard and send  to server
 		printf("What do you want to send to the server. (b for bye)\n");
 
@@ -119,8 +215,6 @@ class Client {
 			memset(client_message, '\0', 100);
 			scanf("%s", client_message);
 
-			//scanf ("%s", client_message);
-
 			// if client input is -1 prompt user for G and Q then send to server
 			// Server reply with a confirmation message that G and Q are set
 			if (strcmp(client_message, "-1") == 0) {
@@ -132,14 +226,12 @@ class Client {
 					getchar();
 					client_message[0] = '\0';
 				}
-				//scanf ("%d%c", &g);
 
 				printf("\nEnter q --> ");
 				while (scanf("%d%c", &q, &entry) != 2 || entry != '\n') {
 					printf("Failure, enter numerical value followed by enter.\nEnter q --> ");
 					getchar();
 				}
-				//scanf ("%d", &q);
 
 				// append the integer g and q to client message containing -1 already
 				// after converting the integer to character g
@@ -150,6 +242,10 @@ class Client {
 				strcat(client_message, " ");
 				sprintf(convert, "%d", q);
 				strcat(client_message, convert);
+
+				// adding private key pair to server
+				strcat(client_message, " ");
+				strcat(client_message, pubKeyPair);
 				valid = true;
 			}//End of if
 			// Before Sending the message make sure(Check) that g and q are set
@@ -185,7 +281,16 @@ class Client {
 					strcat(client_message, " ");
 					// copy key generated to be sent over to the server
 					strcat(client_message, convert);
-					printf("Wait for server generated private key!!\n");
+
+					// Sign the private key using RSA for authentification by server
+					rsaK = encrypt();
+					// convert rsa key to string to be appended to the private key for authentification
+					sprintf(convert, "%d", rsaK);
+					// Append rsa Keyy with flag r or just add a space next to the private key
+					strcat(client_message, " ");
+					strcat(client_message, convert);
+
+					printf("Wait for server generated private key!! \n");
 					valid = true;
 				}	// End of if
 			//*** Case 2 message containing client message to be encrypted
@@ -217,11 +322,11 @@ class Client {
 					valid = false;
 
 					// Send to server
-					if (send(socket_desc, &client_message, strlen(client_message), 0) < 0)
-					{
-						printf("Send failed");
-						return 1;
-					}// End of if
+					/////if (send(socket_desc, &client_message, strlen(client_message), 0) < 0)
+					/////{
+					/////	printf("Send failed");
+					/////	return 1;
+					/////}// End of if
 
 					// Print message client is sending to the client 
 					printf("\nSending Message: %.*s\n", (int)strlen(client_message), client_message);
@@ -265,8 +370,6 @@ class Client {
 				}
 			}
 		}
-
-
 
 		return 0;
 	}

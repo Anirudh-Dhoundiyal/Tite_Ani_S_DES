@@ -22,7 +22,7 @@ void Certificates::menu() {
 			verify_validity();
 		else if(option == "2")
 		{
-			getValues();
+			getCertValues();
 			displayCert();
 			compare_hash(x.s.certificate_signature, hash);
 		}
@@ -150,7 +150,7 @@ void Certificates::sign_certificate()
 
 }
 
-cert_fields Certificates::getValues()
+cert_fields Certificates::getCertValues()
 {
 
 	string certificate_file = "Certificate.txt";
@@ -211,6 +211,16 @@ cert_fields Certificates::getValues()
 
 	// return the certificate data with the signature
 	return x;
+}
+
+crl_fields Certificates::getCrlValues()
+{
+
+	return crl_fields();
+}
+
+void Certificates::displayCrl()
+{
 }
 
 void Certificates::displayCert()

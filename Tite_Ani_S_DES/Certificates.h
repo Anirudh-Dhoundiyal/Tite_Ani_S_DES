@@ -41,7 +41,7 @@ struct cert_fields {
 	signature s;							// signature
 };
 
-struct cert_revo_list_fields {
+struct crl_fields {
 	signature_algo_id sign_algo_id;
 	string issuer_name,
 		this_data_date,
@@ -55,12 +55,14 @@ class Certificates :
 {
 private:
 	cert_fields x;
-	cert_revo_list_fields crl;
+	crl_fields cert_rev_list;
 	string hash,
 		certificate_file,
 		system_time;
 	void displayCert();
-	cert_fields getValues();
+	cert_fields getCertValues();
+	crl_fields getCrlValues();
+	void displayCrl();
 public:
 	Certificates();
 	~Certificates();
@@ -70,6 +72,14 @@ public:
 	void verify_validity();
 	void menu();
 	cert_fields get_file_data();
+	//crl data type created.
+	//	Need:
+	//		-function to generate a crl(insert values)
+	//		- function to generate a signature of the crl using the unsigned hash of the crl
+	//		- function to validate the crl
+	//		- function to disuqlifty cert on the list of revoked certs
+	//			(thinking of maybe prompt user to enter the cert serial number or
+	//			just read a certain cert and get the serial number to check)
 };
 
 
