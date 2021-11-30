@@ -16,7 +16,7 @@ void Certificates::menu() {
 	//cout << "Press 1 to Read and Verify a Certificate file or Press 2 to enter values for a certificate or Press q to quit: ";
 	//cin >> option;
 	while (option != "q") {
-		cout << "\n Press 1 to Read and Verify a Certificate file \n Press 2 to enter values for a certificate \n Press 3 to generate a Certification Revokation List \n Press 4 to verify a Certificate in the current CRL \nPress q to quit: ";
+		cout << "Press 1 to Read and Verify a Certificate file or Press 2 to enter values for a certificate or Press q to quit: ";
 		cin >> option;
 		if (option == "1")
 			verify_validity();
@@ -24,14 +24,7 @@ void Certificates::menu() {
 		{
 			getCertValues();
 			displayCert();
-			//compare_hash(x.s.certificate_signature, hash);
-		}
-		else if (option == "3") {
-			getCrlValues();
-			displayCrl();
-		}
-		else if (option == "4") {
-			verify_certs_on_crl();
+			compare_hash(x.s.certificate_signature, hash);
 		}
 	}
 	
@@ -42,7 +35,7 @@ cert_fields Certificates::get_file_data()
 	string filename	, filedata;
 	ifstream certificate_inFile;
 	// get the certificate file name to read
-	cout << "Enter Certificate file name: ";
+	cout << "Enter file name: ";
 	cin >> filename;
 	// check if it exist, if yes then read all input in the file
 	certificate_inFile = readFile(filename);
@@ -140,47 +133,9 @@ crl_fields Certificates::get_crl_file_data()
 	return cert_rev_list;
 }
 
-revok_certs Certificates::find_certs(string serial_num, crl_fields a)
+void Certificates::verify_certs(string serial_num, crl_fields a)
 {
-	int count = 0;
-	bool found = false;
 	// search for the serial number in the crl
-	while (count < a.revoked_certificates.size() && !found) {
-		// if current certificate in the list equal to the serial number entered then revoked certificate has been found
-		if (a.revoked_certificates[count].serial_N == serial_num)
-			found = true;
-		else  // Else move to next certificate on the list till the end of the list
-			count++;
-	}
-	// if nothing found set the result to return to empty
-	if (found == false) {
-		a.revoked_certificates[count].serial_N = "\0";
-		return a.revoked_certificates[count];
-	}
-	else 
-		return a.revoked_certificates[count];
-}
-
-void Certificates::verify_certs_on_crl()
-{
-	string certs_sn;
-	revok_certs rev_cert;
-	cert_fields certificate;
-	bool is_found;
-	cout << "Press 1 to verify a certificate file ";
-	cin >> certs_sn;
-	// get certificate data and store it
-	certificate = get_file_data();
-	// use certificate serial number to verify whether to disqualify the data or not
-	rev_cert = find_certs(certificate.serial_number, cert_rev_list);
-	// if not found in the CRL, a empty value is returned 
-	// if an empty value is not detected then certificate have been found in the CRL display message
-	if (rev_cert.serial_N != "\0") {
-		cout << "Certificate serial number found in the CRL. Following certificate " << rev_cert.serial_N << " has been disqualified on the "<<rev_cert.revoc_date << endl;
-	}
-	else {		// if an empty value is detected then certificate not in the CRL
-		cout << "Certificate " << certificate.serial_number	<< " is stil valid. " << endl;
-	}
 }
 
 
@@ -203,7 +158,7 @@ string Certificates::generate_crl_hash(crl_fields a)
 	// adding the Rest of crl information
 	concatinated_info += a.this_data_date + a.next_update_date;
 	// add info of all revoked certificate
-	for (int i = 0; i < a.revoked_certificates.size(); i++) {
+	for (int i = 0; i <= a.revoked_certificates.size(); i++) {
 		concatinated_info += a.revoked_certificates[i].serial_N;
 		concatinated_info += a.revoked_certificates[i].revoc_date;
 	}
@@ -360,7 +315,6 @@ crl_fields Certificates::getCrlValues()
 	string crl_file = "CRL.txt",
 		user_certificate_serial,
 		revocation_date;
-	revok_certs temp_rev_certs;
 
 	cout << "\n Enter signature algorithm id: ";
 	cin >> cert_rev_list.sign_algo_id.algo;
@@ -397,15 +351,13 @@ crl_fields Certificates::getCrlValues()
 		
 		cout << "\n Enter User Certificate serial #";
 		cin >> user_certificate_serial;
-		temp_rev_certs.serial_N = user_certificate_serial;
-		hashable += temp_rev_certs.serial_N;
+		cert_rev_list.revoked_certificates[count].serial_N = user_certificate_serial;
+		hashable += cert_rev_list.revoked_certificates[count].serial_N;
 
-		cout << "\n Enter revocation date: ";
+		cout << "\n Enter revocation date";
 		cin >> revocation_date;
-		temp_rev_certs.revoc_date = revocation_date;
-		hashable += temp_rev_certs.revoc_date;
-		
-		cert_rev_list.revoked_certificates.push_back(temp_rev_certs);
+		cert_rev_list.revoked_certificates[count].revoc_date = revocation_date;
+		hashable += cert_rev_list.revoked_certificates[count].revoc_date;
 	}
 	// if no certificate on the revocation list 
 	if (cert_list_number == 0) {
@@ -431,24 +383,21 @@ void Certificates::validateCrl()
 	unsigned_hash = generate_crl_hash(crl_values);
 	// compare the hash
 	compare_hash(crl_values.crl_s.certificate_signature, unsigned_hash);
+	// check period of validity
+	// while system time is between the before and after validity time frame then certificate is validated
+	// determine whether vaild or not
+	if (stoi(system_time) < crl_values.period_of_validity.not_before)
+		cout << "Certificate not valid yet! System time is below the period of validity " << cert_values.period_of_validity.not_before << " - " << cert_values.period_of_validity.not_after << endl;
+	else if (stoi(system_time) > cert_values.period_of_validity.not_after)
+		cout << "Certificate is expired! System time is above the period of validity " << cert_values.period_of_validity.not_before << " - " << cert_values.period_of_validity.not_after << endl;
+	else
+		cout << "Period of validity validated. System time within the period of validity" << cert_values.period_of_validity.not_before << " - " << cert_values.period_of_validity.not_after << endl;
 
 }
 
 
 void Certificates::displayCrl()
 {
-	cout << "-----------------------------------------------------------------------------------------------------------------------" << endl;
-	cout << "Signature Algo Identifier and Parameters: " << cert_rev_list.sign_algo_id.algo << "		" << cert_rev_list.sign_algo_id.parameters << endl;
-	cout << "Issuer Name : " << cert_rev_list.issuer_name << endl;
-	cout << "Update Date : " << cert_rev_list.this_data_date << endl;
-	cout << "Next Update Date : " << cert_rev_list.next_update_date << endl;
-	int count = 0;
-	cout << "Revoked Certificate : " << endl;
-	for (int i = 0; i < cert_rev_list.revoked_certificates.size(); i++) {
-		cout<< cert_rev_list.revoked_certificates.at(i).serial_N << "		" << cert_rev_list.revoked_certificates.at(i).revoc_date << endl;
-	}
-	cout << "Signature : " << cert_rev_list.crl_s.algo << "		" << cert_rev_list.crl_s.parameters << "		" << cert_rev_list.crl_s.certificate_signature << endl;
-	cout << "-----------------------------------------------------------------------------------------------------------------------" << endl;
 }
 
 void Certificates::displayCert()

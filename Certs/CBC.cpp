@@ -1,5 +1,4 @@
 #include "CBC.h"
-#pragma warning(suppress : 4996)
 
 CBC::CBC()
 {

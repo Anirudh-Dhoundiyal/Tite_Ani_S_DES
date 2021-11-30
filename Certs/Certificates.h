@@ -82,8 +82,7 @@ public:
 	void menu();
 	cert_fields get_file_data();
 	crl_fields get_crl_file_data();
-	revok_certs find_certs(string serial_num, crl_fields);
-	void verify_certs_on_crl();
+	void verify_certs(string serial_num, crl_fields);
 	//crl data type created.
 	//	Need:
 	//		-function to generate a crl(insert values)
