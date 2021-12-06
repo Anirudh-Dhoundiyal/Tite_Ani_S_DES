@@ -272,15 +272,15 @@ string CBC::x_or(string value1, string k1)
 {
     string result;
     // loop through the value to exclusive-OR
-    value1 = sw(value1);
-    k1 = sw(k1);
+ //   value1 = sw(value1);
+  //  k1 = sw(k1);
     for (int i = 0; i < value1.size(); i++) {
         if (value1[i] == k1[i])
             result += '0';
         else
             result += '1';
     }
-    sw(result);
+  //  sw(result);
     return result;
 }
 
