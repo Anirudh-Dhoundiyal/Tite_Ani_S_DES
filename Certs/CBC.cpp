@@ -1,11 +1,9 @@
 #include "CBC.h"
-#pragma warning(suppress : 4996)
 
 CBC::CBC()
 {
 	CBCFlaG = false;
 	hashFlag = false;
-    k = "1010101010";
 }
 
 CBC::~CBC()
@@ -23,7 +21,7 @@ void CBC::cbc_menu() {
     cin >> option;
     cin.ignore();
     if (option == 1) {
-        read_file(fileName);
+        readFile(fileName);
     }
     else if (option == 2)
     {
@@ -51,9 +49,10 @@ string CBC::cbc_hash(string fileName) {
     string plaintext_character,
         initial_vector,
         temp,
-        input_block;
+        input_block,
+        k;
     // get s-des key for encryption 
-    //k = get_SDES_Key();
+    k = get_SDES_Key();
 
     image_flag = true;
     // convertion of IV to plaint text block size
@@ -69,7 +68,7 @@ string CBC::cbc_hash(string fileName) {
     //cin >> option;
     //if (option == 1) {
         // read the file
-    //    ifstream inFile = read_file(fileName);
+    //    ifstream inFile = readFile(fileName);
     //    temp = "";
         // get plain text from it 
     //    while (inFile >> temp) {
@@ -93,8 +92,8 @@ string CBC::cbc_hash(string fileName) {
                 input_block = "";
                 input_block = getcp();       // get previous cipher block
                 input_block = x_or(unsignedChartoBinary(plaintext_character[i]), input_block);      // exclusive-or current plain text character with the previous cipher block
-                //input_block += "01";        // add padding 
-                encryptionWrapper(input_block, k);      // encrypt output of the exclusive-or 
+                input_block += "01";        // add padding 
+                encryptionWrapper(unsignedChartoBinary(plaintext_character[i]), k);      // encrypt output of the exclusive-or 
             }
             else
             {
@@ -128,7 +127,7 @@ string CBC::get_SDES_Key()
     return ten_bit_key;
 }
 
-ifstream CBC::read_file(string filename) {
+ifstream CBC::readFile(string filename) {
     ifstream inFile;
     string plaintext,
         ten_bit_key;

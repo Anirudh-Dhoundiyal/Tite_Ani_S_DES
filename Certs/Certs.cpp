@@ -12,29 +12,18 @@
 //libraries 
 #include <iostream>
 #include <stdio.h>
+#pragma warning(suppress : 4996)
 
 using namespace std;
 
 //including class header
 #include "CBC.h"
 #include "Certificates.h"
-#include "Server.h"
-#include "Client.h"
+//#include "Server.h"
+//#include "Client.h"
 
 //main
 int main()
 {
-    cout << "press 1 to start client, press 2 to start server" << endl;
-    int option = 0;
-    cin >> option;
-    if(option ==1){
-        Client client;
-    }
-    else{
-        Server server;
-    }
-    //CBC x;
-    //x.cbc_menu();
     Certificates certs;
-    //certs.va
 }

@@ -15,40 +15,44 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Tite_Ani_S_DES.cpp">
+    <ClCompile Include="Certs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="S_DES.cpp">
+    <ClCompile Include="..\Tite_Ani_S_DES\CBC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Certificates.cpp">
+    <ClCompile Include="..\Tite_Ani_S_DES\Certificates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CBC.cpp">
+    <ClCompile Include="..\Tite_Ani_S_DES\RSA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RSA.cpp">
+    <ClCompile Include="..\Tite_Ani_S_DES\S_DES.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="S_DES.h">
+    <Image Include="..\Tite_Ani_S_DES\cypher.bmp">
+      <Filter>Header Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Tite_Ani_S_DES\CBC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Certificates.h">
+    <ClInclude Include="..\Tite_Ani_S_DES\Certificates.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CBC.h">
+    <ClInclude Include="..\Tite_Ani_S_DES\RSA.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RSA.h">
+    <ClInclude Include="..\Tite_Ani_S_DES\S_DES.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Client.h">
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Tite_Ani_S_DES\a.out">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Server.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    </None>
   </ItemGroup>
 </Project>

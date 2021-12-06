@@ -61,21 +61,19 @@ class Certificates :
 private:
 	cert_fields x;
 	crl_fields cert_rev_list;
-	bool isCertRequest;
 	string hash, 
 		crl_hash,
 		certificate_file,
-		crl_file,
-		system_time,
-		ca_key_filename;
+		system_time;
 	void displayCert();
-	cert_fields generate_cert_sign_request();
+	cert_fields getCertValues();
 	crl_fields getCrlValues();
 	void validateCrl();
 	void displayCrl();
 public:
 	Certificates();
 	~Certificates();
+	void sign_certificate();
 	void sign_crl();
 	string generate_hash(cert_fields);
 	string generate_crl_hash(crl_fields);
@@ -84,14 +82,7 @@ public:
 	void menu();
 	cert_fields get_file_data();
 	crl_fields get_crl_file_data();
-	revok_certs find_certs(string , crl_fields);
-	void verify_certs_on_crl();
-	void sign_cert(cert_fields&);
-	void generate_signature();
-	cert_fields get_cert_sign_req_file();
-	string find_key(string);
-	void get_priv_k(string);
-
+	void verify_certs(string serial_num, crl_fields);
 	//crl data type created.
 	//	Need:
 	//		-function to generate a crl(insert values)

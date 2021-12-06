@@ -20,7 +20,7 @@ int RSA::getInverse(int a, int m)
     }
     else {
         result = (x % m + m) % m;
-        //cout << "The Inverse of " << a << " mod " << m << " is: " << result << endl;
+        cout << "The Inverse of " << a << " mod " << m << " is: " << result << endl;
     }
 
     return result;
@@ -37,14 +37,8 @@ int RSA::getRPrime()
     int  d = 0;
     int  nt = (p - 1) * (q - 1);
     int e = 0;
-    int RandIndex = rand() % 9;     //Gets random index for the array
- /*   for (int i = 0; i < 9; i++) {
-        e = a[RandIndex];           // sets e
-        d = getInverse(e, nt);
-        // create all key pairs to be used 
-        key_pair.push_back(to_string(e) +" " + to_string(d));
-    }*/
-    e = a[RandIndex];           // sets e
+    int RandIndex = rand() % 9; //Gets random index for the array
+    e = a[RandIndex]; // sets e
     d = getInverse(e, nt);
     setN(p * q);
     setNtot(nt);
@@ -52,19 +46,6 @@ int RSA::getRPrime()
     return d;
 }
 
-string RSA::generateE() {
-    int a[9] = { 61, 97, 127, 167, 191, 37, 211, 241, 313 };
-    int RandIndex = rand() % 9;     //Gets random index for the array
-    e = a[RandIndex];           // sets e
-    return to_string(e);
-}
-
-string RSA::generateEAlt() {
-    int a[9] = { 73, 79, 83, 107, 109, 113, 283, 293, 307 };
-    int RandIndex = rand() % 9;     //Gets random index for the array
-    e = a[RandIndex];           // sets e
-    return to_string(e);
-}
 
 
 
@@ -130,14 +111,10 @@ void RSA::setE(int setE)
     e = setE;
 }
 
-string RSA::getNtot() {
-    return to_string(ntot);
-}
 string RSA::getE()
 {
     return to_string(e);
 }
-
 
 string RSA::getD()
 {
@@ -162,30 +139,13 @@ void RSA::setPNum(int setPnum)
 #pragma endregion
 
 #pragma region Encrypt / Decrypt Functions
-string RSA::rsa_signature_e(string hash) {
-    int dec;
-    // convert binary to int since hash will be in binary 
-    dec = stoi(hash, 0, 2);
-    // select a public key then encrypt it using the function doing the encryption
-    return encryptRSA(to_string(dec));
-}
-
-string RSA::rsa_signature_d(string public_key, string hash) {
-    // find the private key using the public and knowing totient of n 
-    int private_key;
-    private_key = getInverse(stoi(public_key), ntot);
-    // set the private key to its value then decrypt
-    setD(private_key);
-    // decrypt the cipher hash
-    return decryptRSA(hash);
-}
 string RSA::encryptRSA(string hash)
 {
     int pt = stoi(hash);
-    //cout << "Encrypting Plaintext: " << pt << endl;
+    cout << "Encrypting Plaintext" << pt << endl;
     setPNum(pt);
-    setCNum(FastModExpAlgo(d, pt, n));
-    //cout << "Ciphertext: " << cnum << endl;
+    setCNum(FastModExpAlgo(e, pt, n));
+    cout << "Ciphertext: " << cnum << endl;
     return to_string(cnum);
 }
 string RSA::decryptRSA(string cipher)
@@ -193,7 +153,7 @@ string RSA::decryptRSA(string cipher)
     int pt = 0;
     int ct = stoi(cipher);
     //pt = FastModExpAlgo(d, cnum, n);
-    pt = FastModExpAlgo(e, ct, n);
+    pt = FastModExpAlgo(d, ct, n);
     cout << "decrypted num is: " << pt << endl;
     return to_string(pt);
 }
