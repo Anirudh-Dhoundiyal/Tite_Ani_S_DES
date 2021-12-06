@@ -208,7 +208,7 @@ class Client {
 
 					valid = true;
 				}
-
+				`
 				//*** Case 3 message containing g and q to be sent
 					// Do nothing as -1 already included in message just send over to server
 					// Send to server only if client message is valid
