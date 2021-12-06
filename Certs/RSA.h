@@ -45,6 +45,8 @@ public:
 	string dectobinary(int);
 	int FastModExpAlgo(int, int, int);
 	void print_values();
+	string rsa_signature_e(string);
+	string rsa_signature_d(string, string);
 #pragma endregion
 
 #pragma region Constructor

@@ -25,17 +25,5 @@ using namespace std;
 //main
 int main()
 {
-    //cout << "press 1 to start client, press 2 to start server" << endl;
-    //int option = 0;
-    //cin >> option;
-    //if(option ==1){
-     //   Client client;
-    //}
-    //else{
-    //    Server server;
-    //}
-    //CBC x;
-    //x.cbc_menu();
     Certificates certs;
-    //certs.va
 }

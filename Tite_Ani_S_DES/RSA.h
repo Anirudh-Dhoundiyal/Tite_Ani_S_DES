@@ -6,6 +6,7 @@
 #include <time.h>
 #include<string>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -20,7 +21,7 @@ private:
 	int d = 0; // private key pair (n, d)
 	int cnum = 0; // enrypted num
 	int pnum = 0; // plain num
-
+	vector<string> key_pair;
 
 public:
 
@@ -37,6 +38,7 @@ public:
 	void setE(int);
 	string getE();
 	string getD();
+	string getNtot();
 	void setD(int);
 	void setCNum(int);
 	void setPNum(int);
@@ -45,6 +47,8 @@ public:
 	string dectobinary(int);
 	int FastModExpAlgo(int, int, int);
 	void print_values();
+	string rsa_signature_e(string);
+	string rsa_signature_d(string, string);
 #pragma endregion
 
 #pragma region Constructor
@@ -57,6 +61,13 @@ public:
 	}
 
 #pragma endregion
+
+	string generateE();
+
+	string generateEAlt();
+
+	
+
 };
 
 #endif

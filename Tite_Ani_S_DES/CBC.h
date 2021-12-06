@@ -16,6 +16,7 @@ class CBC :
 private:
     bool CBCFlaG;
     bool hashFlag;
+    string k;
 public:
     CBC();
     ~CBC();
@@ -24,7 +25,7 @@ public:
     string x_or(string, string);
     string sw(string);
     string cbc_hash(string);
-    ifstream readFile(string filename);
+    ifstream read_file(string filename);
     string get_SDES_Key();
     int binaryToInt(bitset<8> binary);
     void printByte(bitset<8> byte);
