@@ -153,6 +153,8 @@
     <ClInclude Include="..\Tite_Ani_S_DES\Certificates.h" />
     <ClInclude Include="..\Tite_Ani_S_DES\RSA.h" />
     <ClInclude Include="..\Tite_Ani_S_DES\S_DES.h" />
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="Server.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Tite_Ani_S_DES\a.out" />
