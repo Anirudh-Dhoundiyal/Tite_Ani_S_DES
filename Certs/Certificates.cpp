@@ -312,6 +312,7 @@ void Certificates::verify_validity()
 
 
 void Certificates::sign_cert(cert_fields& a) {
+
 	cout << "\n Enter signature algorithms id: ";
 	cin >> a.s.algo;
 	writeFile(a.s.algo, certificate_file);
@@ -322,6 +323,10 @@ void Certificates::sign_cert(cert_fields& a) {
 	// To sign we need to CA Private key
 	// use the CA name to find it's private key and use it to sign 
 	get_priv_k(a.issuer_name);
+
+	// Write the chain for that subject starting with the issuer
+	writeChain(a.issuer_name, a.subject_name);
+
 	// sign the hash using rsa and store the encrypted hash on the signature field of certificate
 	// Convert hash from binary to decimal for encryption
 	// Encrypt the hash in decimal and save to convert into binary if needed
@@ -329,6 +334,30 @@ void Certificates::sign_cert(cert_fields& a) {
 	a.s.certificate_signature = rsa_signature_e(hash);
 	// write the signature to the certificate being signed
 	writeFile(a.s.certificate_signature, certificate_file);					// write to file
+}
+
+void Certificates::writeChain(string issuer, string subject) {
+	// open the chain file for this cert
+	string chain_filename = subject + "_chain.txt",
+		input;
+	ifstream file(chain_filename);
+	// if the chain file does not exist create one startign with the issuer name
+	if (!file.is_open()) {
+		// Issuer<subject>
+		// issuer signed subect chain
+		input = issuer + "<" + subject + ">";
+		writeFile(input, chain_filename);
+		// if not a self signed add to the issuer chain  file that a new cert have been added to it 
+		if (issuer != subject) {
+			input = "<" + subject + ">";
+			writeFile(input, issuer + "_chain.txt");
+		}
+	}
+	else {
+	// if it exist just add the next element signed by that issuer 
+		input = "<" + subject + ">";
+		writeFile(input, chain_filename);
+	}
 }
 
 void Certificates::get_priv_k(string issuer_name) {
