@@ -15,6 +15,7 @@
 
 S_DES::S_DES()
 {
+    image_flag = true;
 }
 
 S_DES::~S_DES()

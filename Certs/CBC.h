@@ -16,6 +16,7 @@ class CBC :
 private:
     bool CBCFlaG;
     bool hashFlag;
+    string k;
 public:
     CBC();
     ~CBC();

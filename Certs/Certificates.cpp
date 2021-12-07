@@ -2,29 +2,67 @@
 
 Certificates::Certificates()
 {
-	certificate_file = "Certificate.txt";
 	system_time = "2021";
+	isCertRequest = false;
+	ca_key_filename = "ca_keys.txt";
+	//testHash();
 	menu();
+}
+
+void Certificates::testHash() {
+
+	string hash, input, ehash, dhash;
+	while (input != "q") {
+		cin.clear();
+		cin.ignore();
+
+		cout << "Enter string to hash: ";
+		cin >> input;
+		input = "1234tite20202025tite1237";
+		hash = cbc_hash(input);
+
+		cout << "HAsh is now: " << hash << endl;
+		ehash = rsa_signature_e(hash);
+		cout << "Encrypting the hash " << hash << " intp --> " << ehash << endl;
+		dhash = decryptRSA(ehash);
+		cout << "Decrypting the hash " << ehash << " Into --> " << dhash << endl << endl;
+	}
 }
 
 Certificates::~Certificates()
 {
 }
 
+
 void Certificates::menu() {
 	string option;
 	//cout << "Press 1 to Read and Verify a Certificate file or Press 2 to enter values for a certificate or Press q to quit: ";
 	//cin >> option;
 	while (option != "q") {
-		cout << "Press 1 to Read and Verify a Certificate file or Press 2 to enter values for a certificate or Press q to quit: ";
+		isCertRequest = false;
+		cout << "\n Press 1 to Verify a Certificate file \n Press 2 to Generate a certificate signature request \n Press 3 to Generate a Certification Revokation List \n Press 4 to Verify a Certificate in the current CRL \n Press 5 to change system time \n Press 6 to Sign a Certs\n Press q to quit: ";
 		cin >> option;
 		if (option == "1")
 			verify_validity();
 		else if(option == "2")
 		{
-			getCertValues();
-			displayCert();
-			compare_hash(x.s.certificate_signature, hash);
+			generate_cert_sign_request();
+			//displayCert();
+			//compare_hash(x.s.certificate_signature, hash);
+		}
+		else if (option == "3") {
+			generate_crl();
+			displayCrl();
+		}
+		else if (option == "4") {
+			verify_certs_on_crl();
+		}
+		else if (option == "5") {
+			cout << "\nEnter new system time(year): ";
+			cin >> system_time;
+		}
+		else if (option == "6") {
+			generate_signature();
 		}
 	}
 	
@@ -32,13 +70,13 @@ void Certificates::menu() {
 
 cert_fields Certificates::get_file_data()
 {
-	string filename	, filedata;
+	string filedata;
 	ifstream certificate_inFile;
 	// get the certificate file name to read
-	cout << "Enter file name: ";
-	cin >> filename;
+	cout << "Enter Certificate file name: ";
+	cin >> certificate_file;
 	// check if it exist, if yes then read all input in the file
-	certificate_inFile = readFile(filename);
+	certificate_inFile = read_file(certificate_file);
 	// count for all 14 required fields for a certificate
 	for (int i = 0; i <= 14; i++) {
 		// read each file input into filedata then later assign to required certificate field
@@ -46,33 +84,33 @@ cert_fields Certificates::get_file_data()
 		// read all required values storing each line of the file in a required field 
 		if (i == 0)
 			x.version = filedata[0];
-		if (i == 1)
+		else if (i == 1)
 			x.serial_number = filedata;
-		if (i == 2)
+		else if (i == 2)
 			x.signature_algo_id.algo = filedata;
-		if (i == 3)
+		else if (i == 3)
 			x.signature_algo_id.parameters = filedata;
-		if (i == 4)
+		else if (i == 4)
 			x.issuer_name = filedata;
-		if (i == 5)
+		else if (i == 5)
 			x.period_of_validity.not_before = stoi(filedata);
-		if (i == 6)
+		else if (i == 6)
 			x.period_of_validity.not_after = stoi(filedata);
-		if (i == 7)
+		else if (i == 7)
 			x.subject_name = filedata;
-		if (i == 8)
+		else if (i == 8)
 			x.subject_pk_info.algo = filedata;
-		if (i == 9)
+		else if (i == 9)
 			x.subject_pk_info.parameters = filedata;
-		if (i == 10)
+		else if (i == 10)
 			x.subject_pk_info.key = filedata;
-		if (i == 11)
+		else if (i == 11)
 			x.trust_level = filedata;
-		if (i == 12)
+		else if (i == 12)
 			x.s.algo = filedata;
-		if (i == 13)
+		else if (i == 13)
 			x.s.parameters = filedata;
-		if (i == 14)
+		else if (i == 14)
 			x.s.certificate_signature = filedata;
 	}
 	return x;
@@ -87,7 +125,7 @@ crl_fields Certificates::get_crl_file_data()
 	cin >> filename;
 
 	// check if it exist, if yes then read all input in the file
-	crl_inFile = readFile(filename);
+	crl_inFile = read_file(filename);
 
 	// count for all 14 required fields for a certificate
 	for (int i = 0; i <= 6; i++) {
@@ -133,18 +171,70 @@ crl_fields Certificates::get_crl_file_data()
 	return cert_rev_list;
 }
 
-void Certificates::verify_certs(string serial_num, crl_fields a)
+revok_certs Certificates::find_certs(string serial_num, crl_fields a)
 {
+	int count = 0;
+	bool found = false;
 	// search for the serial number in the crl
+	while (count < a.revoked_certificates.size() && !found) {
+		// if current certificate in the list equal to the serial number entered then revoked certificate has been found
+		if (a.revoked_certificates[count].serial_N == serial_num)
+			found = true;
+		else  // Else move to next certificate on the list till the end of the list
+			count++;
+	}
+	// if nothing found set the result to return to empty
+	if (found == false) {
+		a.revoked_certificates[count].serial_N = "\0";
+		return a.revoked_certificates[count];
+	}
+	else 
+		return a.revoked_certificates[count];
+}
+
+void Certificates::verify_certs_on_crl()
+{
+	string certs_sn;
+	revok_certs rev_cert;
+	cert_fields certificate;
+	crl_fields crl;
+	bool is_found;
+	//cout << "Press 1 to verify a certificate file ";
+	//cin >> certs_sn;
+	crl = get_crl_file_data();
+	// get certificate data and store it
+	certificate = get_file_data();
+	// use certificate serial number to verify whether to disqualify the data or not
+	rev_cert = find_certs(certificate.serial_number, cert_rev_list);
+	// if not found in the CRL, a empty value is returned 
+	// if an empty value is not detected then certificate have been found in the CRL display message
+	if (rev_cert.serial_N != "\0") {
+		cout << "Certificate serial number found in the CRL. Following certificate " << rev_cert.serial_N << " has been disqualified on the "<<rev_cert.revoc_date << endl;
+	}
+	else {		// if an empty value is detected then certificate not in the CRL
+		cout << "Certificate " << certificate.serial_number	<< " is stil valid. " << endl;
+	}
+}
+
+void Certificates::generate_signature()
+{
+	cout << "Enter the cert signature request filename: ";
+	cin >> certificate_file;
+	// Read values of the certificate signature request file
+	x = get_cert_sign_req_file();
+	// Generate the hash 
+	hash = generate_hash(x);
+	// sign the hash
+	sign_cert(x);
 }
 
 
 string Certificates::generate_hash(cert_fields a)
 {
 	// adding the CA informations
-	string concatinated_info = a.serial_number + a.signature_algo_id.algo + a.signature_algo_id.parameters + a.issuer_name;
+	string concatinated_info = a.version + a.serial_number + a.signature_algo_id.algo + a.signature_algo_id.parameters + a.issuer_name;
 	// adding the Rest of user ID information
-	concatinated_info += to_string(a.period_of_validity.not_before) + to_string(a.period_of_validity.not_before) + a.subject_name;
+	concatinated_info += to_string(a.period_of_validity.not_before) + to_string(a.period_of_validity.not_after) + a.subject_name;
 	// concatinate the subject's public key information in a string of text
 	concatinated_info += a.subject_pk_info.algo + a.subject_pk_info.parameters + a.subject_pk_info.key;
 	// send the concatinated string to the function that will hash it
@@ -158,7 +248,7 @@ string Certificates::generate_crl_hash(crl_fields a)
 	// adding the Rest of crl information
 	concatinated_info += a.this_data_date + a.next_update_date;
 	// add info of all revoked certificate
-	for (int i = 0; i <= a.revoked_certificates.size(); i++) {
+	for (int i = 0; i < a.revoked_certificates.size(); i++) {
 		concatinated_info += a.revoked_certificates[i].serial_N;
 		concatinated_info += a.revoked_certificates[i].revoc_date;
 	}
@@ -172,6 +262,8 @@ void Certificates::compare_hash(string encrypted_hash, string unsigned_hash) {
 	
 	// convert binary unsign hash to decimal for comparison
 	int unsigned_hash_int = stoi(unsigned_hash, 0, 2), signed_hash_int;
+	// find the certificate CA public key to decrypt the sign hash
+	get_priv_k(x.issuer_name);
 	// decrypt the decimal sign hash 
 	signed_hash_int = stoi(decryptRSA(encrypted_hash));
 	// compare unsigned hash and decrypted signed hash
@@ -181,7 +273,6 @@ void Certificates::compare_hash(string encrypted_hash, string unsigned_hash) {
 	else {
 		cout << "Invalid Hash. " << unsigned_hash_int << "  !=  " << signed_hash_int << endl;
 	}
-	// hash;
 }
 
 void Certificates::verify_validity()
@@ -204,117 +295,209 @@ void Certificates::verify_validity()
 	else if (stoi(system_time) > cert_values.period_of_validity.not_after)
 		cout << "Certificate is expired! System time is above the period of validity " << cert_values.period_of_validity.not_before << " - " << cert_values.period_of_validity.not_after << endl;
 	else 
-		cout << "Period of validity validated. System time within the period of validity"<< cert_values.period_of_validity.not_before<< " - "<< cert_values.period_of_validity.not_after << endl;
+		cout << "Period of validity validated. System time "<< system_time << " within the period of validity: "<< cert_values.period_of_validity.not_before<< " - "<< cert_values.period_of_validity.not_after << endl;
 }
 
-void Certificates::sign_certificate()
-{
+
+void Certificates::sign_cert(cert_fields& a) {
 	cout << "\n Enter signature algorithms id: ";
-	cin >> x.s.algo;
-	writeFile(x.s.algo, certificate_file);
+	cin >> a.s.algo;
+	writeFile(a.s.algo, certificate_file);
 
 	cout << "\n Enter signature Parameters: ";
-	cin >> x.s.parameters;
-	writeFile(x.s.parameters, certificate_file);
-
+	cin >> a.s.parameters;
+	writeFile(a.s.parameters, certificate_file);
+	// To sign we need to CA Private key
+	// use the CA name to find it's private key and use it to sign 
+	get_priv_k(a.issuer_name);
 	// sign the hash using rsa and store the encrypted hash on the signature field of certificate
-	int hash_decimal = stoi(hash, 0, 2);									// Convert hash from binary to decimal for encryption
-	string signature_decimal = encryptRSA(to_string(hash_decimal));			// Encrypt the hash in decimal and save to convert into binary if needed
-	x.s.certificate_signature = signature_decimal;							// Store decimal sign hash
-	writeFile(x.s.certificate_signature, certificate_file);					// write to file
+	// Convert hash from binary to decimal for encryption
+	// Encrypt the hash in decimal and save to convert into binary if needed
+	// Store decimal sign hash
+	a.s.certificate_signature = rsa_signature_e(hash);
+	// write the signature to the certificate being signed
+	writeFile(a.s.certificate_signature, certificate_file);					// write to file
+}
 
+void Certificates::get_priv_k(string issuer_name) {
+	// Find the CA public key in the file
+	// Get CA(issuer name)
+	string pk;
+	// get the public key from key file
+	pk = find_key(issuer_name);
+	// if no keys found print message to user
+	if (pk == "")
+		cout << "CA " << issuer_name << " has no public key in file. " << endl;
+	else {
+		// use the public key e found in file to find its private key
+		// set the public key to its value for encryption 
+		setE(stoi(pk));
+		// find private key d using public key and totion
+		int public_key = stoi(pk),
+			totient = stoi(getNtot());
+		setD(getInverse(public_key, totient));
+	}
+	
+}
+string Certificates::find_key(string issuer_name) {
+	string key = "", ca_name;
+	bool isFound = false;
+	// Read the file and find the values 
+	ifstream inFile = read_file(ca_key_filename);
+	// Get the public key
+	while (inFile >> ca_name && !isFound) {
+		if (ca_name == issuer_name) {
+			isFound = true;
+			// get next string which should be the public key following the issuer name
+			inFile >> key;
+		}
+	}
+
+	return key;
 }
 
 void Certificates::sign_crl()
 {
 	cout << "\n Enter signature algorithms id: ";
 	cin >> cert_rev_list.crl_s.algo;
-	writeFile(cert_rev_list.crl_s.algo, certificate_file);
+	writeFile(cert_rev_list.crl_s.algo, crl_file);
 
 	cout << "\n Enter signature Parameters: ";
 	cin >> cert_rev_list.crl_s.parameters;
-	writeFile(cert_rev_list.crl_s.parameters, certificate_file);
-
-	// sign the hash using rsa and store the encrypted hash on the signature field of certificate
-	int hash_decimal = stoi(crl_hash, 0, 2);									// Convert hash from binary to decimal for encryption
-	string signature_decimal = encryptRSA(to_string(hash_decimal));			// Encrypt the hash in decimal and save to convert into binary if needed
-	cert_rev_list.crl_s.certificate_signature = signature_decimal;							// Store decimal sign hash
-	writeFile(cert_rev_list.crl_s.certificate_signature, certificate_file);					// write to file
-
+	writeFile(cert_rev_list.crl_s.parameters, crl_file);
+	// set the private and public key to encrypt the crl from the issuer CA
+	get_priv_k(cert_rev_list.issuer_name);
+	cert_rev_list.crl_s.certificate_signature = rsa_signature_e(hash);
+	//	sign the hash using rsa and store the encrypted hash on the signature field of certificate
+	//	int hash_decimal = stoi(crl_hash, 0, 2);									// Convert hash from binary to decimal for encryption
+	//	string signature_decimal = encryptRSA(to_string(hash_decimal));				// Encrypt the hash in decimal and save to convert into binary if needed
+	//	cert_rev_list.crl_s.certificate_signature = signature_decimal;				// Store decimal sign hash
+	writeFile(cert_rev_list.crl_s.certificate_signature, crl_file);					// write to file
 }
 
 
-
-cert_fields Certificates::getCertValues()
+cert_fields Certificates::generate_cert_sign_request()
 {
 
-	string certificate_file = "Certificate.txt";
+	cout << "Enter Certificate file name: ";
+	cin >> certificate_file;						// ""
+
 	cout << "Enter certificate version: ";
-	cin >> x.version;
-	writeFile(x.version + "", certificate_file);
+	cin >> x.version;								// "1"
+	writeFile(x.version, certificate_file);
 
 	cout << "\n Enter certificate serial number: ";
-	cin >> x.serial_number;
+	cin >> x.serial_number;							// "2"
 	writeFile(x.serial_number, certificate_file);
 
 	cout << "\n Enter signature algorithm id: ";
-	cin >> x.signature_algo_id.algo;
+	cin >> x.signature_algo_id.algo;				// cbcWithRSAEncryption
 	writeFile(x.signature_algo_id.algo, certificate_file);
 
 	cout << "\n Enter signature algorithm parameters seperated with a space: ";
-	cin >> x.signature_algo_id.parameters;
+	cin >> x.signature_algo_id.parameters;			// "none"
 	writeFile(x.signature_algo_id.parameters, certificate_file);
 
 	cout << "\n Enter name of the CA: ";
-	cin >> x.issuer_name;
+	cin >> x.issuer_name;							// "bob"
 	writeFile(x.issuer_name, certificate_file);
 
 	cout << "\n Enter period of validity. Not before: ";
-	cin >> x.period_of_validity.not_before;
+	cin >> x.period_of_validity.not_before;			// "2021"
 	writeFile(to_string(x.period_of_validity.not_before), certificate_file);
 
 	cout << "\n Enter period of validity. Not after: ";
-	cin >> x.period_of_validity.not_after;
+	cin >> x.period_of_validity.not_after;			// "2025"
 	writeFile(to_string(x.period_of_validity.not_after), certificate_file);
 
 	cout << "\n Enter the name of the user: ";
-	cin >> x.subject_name;
+	cin >> x.subject_name;							// "alice"
 	writeFile(x.subject_name, certificate_file);
 
 	cout << "\n Enter algorithm id: ";
-	cin >> x.subject_pk_info.algo;
+	cin >> x.subject_pk_info.algo;					// "1"
 	writeFile(x.subject_pk_info.algo, certificate_file);
 
 	cout << "\n Enter parameters separated with a space: ";
-	cin >> x.subject_pk_info.parameters;
+	cin >> x.subject_pk_info.parameters;			// "none"
 	writeFile(x.subject_pk_info.parameters, certificate_file);
-
-	// will be change with the algorithm used to make the public key
-	x.subject_pk_info.key = getE();
-	cout << "\n Public key is: " << x.subject_pk_info.key;
-	//cin >> subject_pk_info.key;
+	// get the certificate authority public key if requester
+	if (x.subject_name == x.issuer_name) {
+		// SELF SIGN CERTIFICATE
+		// if self sign get a public key from rsa
+		x.subject_pk_info.key = generateE();
+		// then add the CA Name along with the public key to a file for CA keys
+		writeFile(x.issuer_name + " " + x.subject_pk_info.key, ca_key_filename);
+	}
+	else {
+		// REGULAR CERTIFICATE SIGNATURE REQUEST 
+		// Generate a public key for the certification
+		x.subject_pk_info.key = generateEAlt();//.subject_pk_info.key();
+		//	Store public key and its owner in case need to sign someone certificate
+		writeFile(x.subject_name + " " + x.subject_pk_info.key, ca_key_filename);
+	}
 	writeFile(x.subject_pk_info.key, certificate_file);
 
 	cout << "\n Enter trust in bit value: ";
-	cin >> x.trust_level;
+	cin >> x.trust_level;							// "5"
 	writeFile(x.trust_level, certificate_file);
 	cout << endl << endl;
-	// generate to hash to be signed 
-	hash = generate_hash(x);
-	// sign the hash
-	sign_certificate();
 
-	// return the certificate data with the signature
+	// return the certificate data
 	return x;
 }
 
-crl_fields Certificates::getCrlValues()
+
+cert_fields Certificates::get_cert_sign_req_file()
+{
+	string filedata, certfile;
+	ifstream certificate_inFile;
+	cert_fields a;
+
+	// check if it exist, if yes then read all input in the file
+	certificate_inFile = read_file(certificate_file);
+	// count for all 14 required fields for a certificate
+	for (int i = 0; i <= 11; i++) {
+		// read each file input into filedata then later assign to required certificate field
+		certificate_inFile >> filedata;
+		// read all required values storing each line of the file in a required field 
+		if (i == 0)
+			a.version = filedata[0];
+		else if (i == 1)
+			a.serial_number = filedata;
+		else if (i == 2)
+			a.signature_algo_id.algo = filedata;
+		else if (i == 3)
+			a.signature_algo_id.parameters = filedata;
+		else if (i == 4)
+			a.issuer_name = filedata;
+		else if (i == 5)
+			a.period_of_validity.not_before = stoi(filedata);
+		else if (i == 6)
+			a.period_of_validity.not_after = stoi(filedata);
+		else if (i == 7)
+			a.subject_name = filedata;
+		else if (i == 8)
+			a.subject_pk_info.algo = filedata;
+		else if (i == 9)
+			a.subject_pk_info.parameters = filedata;
+		else if (i == 10)
+			a.subject_pk_info.key = filedata;
+		else if (i == 11)
+			a.trust_level = filedata;
+	}
+	return a;
+}
+
+crl_fields Certificates::generate_crl()
 {
 	string hashable;					// store values to be hashed
 	int cert_list_number;
-	string crl_file = "CRL.txt",
-		user_certificate_serial,
+	string user_certificate_serial,
 		revocation_date;
+	revok_certs temp_rev_certs;
+	cout << "Enter CRL filename: ";
+	cin >> crl_file;
 
 	cout << "\n Enter signature algorithm id: ";
 	cin >> cert_rev_list.sign_algo_id.algo;
@@ -328,17 +511,17 @@ crl_fields Certificates::getCrlValues()
 
 	cout << "\n Enter name of the issuer(CA): ";
 	cin >> cert_rev_list.issuer_name;
-	writeFile(cert_rev_list.issuer_name, certificate_file);
+	writeFile(cert_rev_list.issuer_name, crl_file);
 	hashable += cert_rev_list.issuer_name;
 		
 	cout << "\n Enter update date : ";
 	cin >> cert_rev_list.this_data_date;
-	writeFile(cert_rev_list.this_data_date, certificate_file);
+	writeFile(cert_rev_list.this_data_date, crl_file);
 	hashable += cert_rev_list.this_data_date;
 
 	cout << "\n Enter next update date: ";
 	cin >> cert_rev_list.next_update_date;
-	writeFile(cert_rev_list.next_update_date, certificate_file);
+	writeFile(cert_rev_list.next_update_date, crl_file);
 	hashable += cert_rev_list.next_update_date;
 
 	cout << "Enter number of certificate to add on the list of revoked certificate: ";
@@ -349,15 +532,17 @@ crl_fields Certificates::getCrlValues()
 		// enter certificates to be revocked  
 		count++;
 		
-		cout << "\n Enter User Certificate serial #";
+		cout << "\n Enter User Certificate serial number: ";
 		cin >> user_certificate_serial;
-		cert_rev_list.revoked_certificates[count].serial_N = user_certificate_serial;
-		hashable += cert_rev_list.revoked_certificates[count].serial_N;
+		temp_rev_certs.serial_N = "# " + user_certificate_serial;		// Add pound to identify the serial number in the file
+		hashable += temp_rev_certs.serial_N;
 
-		cout << "\n Enter revocation date";
+		cout << "\n Enter revocation date: ";
 		cin >> revocation_date;
-		cert_rev_list.revoked_certificates[count].revoc_date = revocation_date;
-		hashable += cert_rev_list.revoked_certificates[count].revoc_date;
+		temp_rev_certs.revoc_date = revocation_date;
+		hashable += temp_rev_certs.revoc_date;
+		
+		cert_rev_list.revoked_certificates.push_back(temp_rev_certs);
 	}
 	// if no certificate on the revocation list 
 	if (cert_list_number == 0) {
@@ -383,21 +568,24 @@ void Certificates::validateCrl()
 	unsigned_hash = generate_crl_hash(crl_values);
 	// compare the hash
 	compare_hash(crl_values.crl_s.certificate_signature, unsigned_hash);
-	// check period of validity
-	// while system time is between the before and after validity time frame then certificate is validated
-	// determine whether vaild or not
-	if (stoi(system_time) < crl_values.period_of_validity.not_before)
-		cout << "Certificate not valid yet! System time is below the period of validity " << cert_values.period_of_validity.not_before << " - " << cert_values.period_of_validity.not_after << endl;
-	else if (stoi(system_time) > cert_values.period_of_validity.not_after)
-		cout << "Certificate is expired! System time is above the period of validity " << cert_values.period_of_validity.not_before << " - " << cert_values.period_of_validity.not_after << endl;
-	else
-		cout << "Period of validity validated. System time within the period of validity" << cert_values.period_of_validity.not_before << " - " << cert_values.period_of_validity.not_after << endl;
 
 }
 
 
 void Certificates::displayCrl()
 {
+	cout << "-----------------------------------------------------------------------------------------------------------------------" << endl;
+	cout << "Signature Algo Identifier and Parameters: " << cert_rev_list.sign_algo_id.algo << "		" << cert_rev_list.sign_algo_id.parameters << endl;
+	cout << "Issuer Name : " << cert_rev_list.issuer_name << endl;
+	cout << "Update Date : " << cert_rev_list.this_data_date << endl;
+	cout << "Next Update Date : " << cert_rev_list.next_update_date << endl;
+	int count = 0;
+	cout << "Revoked Certificate : " << endl;
+	for (int i = 0; i < cert_rev_list.revoked_certificates.size(); i++) {
+		cout<< cert_rev_list.revoked_certificates.at(i).serial_N << "		" << cert_rev_list.revoked_certificates.at(i).revoc_date << endl;
+	}
+	cout << "Signature : " << cert_rev_list.crl_s.algo << "		" << cert_rev_list.crl_s.parameters << "		" << cert_rev_list.crl_s.certificate_signature << endl;
+	cout << "-----------------------------------------------------------------------------------------------------------------------" << endl;
 }
 
 void Certificates::displayCert()
