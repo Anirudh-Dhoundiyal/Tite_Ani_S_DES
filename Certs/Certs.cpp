@@ -26,4 +26,6 @@ using namespace std;
 int main()
 {
     Certificates certs;
+  
+    return 0;
 }

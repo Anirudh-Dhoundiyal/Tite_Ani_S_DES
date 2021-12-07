@@ -91,7 +91,7 @@ public:
 	cert_fields get_cert_sign_req_file();
 	string find_key(string);
 	void get_priv_k(string);
-
+	void testHash();
 	//crl data type created.
 	//	Need:
 	//		-function to generate a crl(insert values)
