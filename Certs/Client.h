@@ -189,28 +189,29 @@ Client(){
     char  server_reply[100], client_message[100], entry; 
    	bool valid = false, validEntry = false;
     char *found = " ", convert[15], * foundS;
+	bool servervalid = false;
     cert_fields temp;
 	cert_fields servercert;
-    // //Create socket
-	// socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+    //Create socket
+	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
 
-	// printf("Trying to create socket\n");
-	// if (socket_desc == -1)
-	// {
-	// 	printf("Unable to create socket\n");
-	// }
+	printf("Trying to create socket\n");
+	if (socket_desc == -1)
+	{
+		printf("Unable to create socket\n");
+	}
 		
-	// // *********** This is the line you need to edit ****************
-	// server.sin_addr.s_addr = inet_addr("169.254.71.79");  // doesn't like localhost?
-	// server.sin_family = AF_INET;
-	// server.sin_port = htons( 8421 );    // random "high"  port number
+	// *********** This is the line you need to edit ****************
+	server.sin_addr.s_addr = inet_addr(" . . . .");  // doesn't like localhost?
+	server.sin_family = AF_INET;
+	server.sin_port = htons( 8421 );    // random "high"  port number
 
-	// //Connect to remote server
-	// if (connect(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0)
-	// {
-	// 	printf(" connect error");
-	// 	return 1;
-	// }
+	//Connect to remote server
+	if (connect(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0)
+	{
+		printf(" connect error");
+		return 1;
+	}
 	
 	
     //Get data from keyboard and send  to server
@@ -219,7 +220,12 @@ Client(){
     while(strncmp(client_message,"b",1))      // quit on "b" for "bye"
 	{
 	    printf("Enter -1 to start cert authentication\n");
-		printf("Enter M or m for message to server.\n");
+		printf("Enter K or k for sending gPKa to the server.\n");
+		printf("Enter b for message to bye.\n");
+		if(servervalid){
+			printf("Enter 1 to perform SSPP and 2 to SEND password.\n");
+			string password = "anirudh";
+		}
 	    
 	    memset (client_message, '\0', 100);
 	    scanf("%s", client_message);
@@ -291,8 +297,9 @@ Client(){
 						// generate a key using your private key and g ^ pkb mod q
 						//gPKb = fastModExpAlg(decToBin(pKb), g, q);
 						gPKb = modExpo (g, pKb, q);
+						gPKb = fastModExpAlg(stoi(servercert.subject_pk_info.key), gPKb, n);
 						// Display private key and generated private key for debugging
-						printf("Your Private Key is %d and your Generated Key is %d\n", pKb, gPKb);
+						printf("Your Private Key is %d and your signed Generated Key is %d\n", pKb, gPKb);
 						// convert the key to a character
 						sprintf(convert, "%d", gPKb);
 						// add the instruction flag to the client message
@@ -301,13 +308,6 @@ Client(){
 						// copy key generated to be sent over to the server
 						strcat(client_message, convert);
 						
-						// Sign the private key using RSA for authentification by server
-						rsaK = encrypt();
-						// convert rsa key to string to be appended to the private key for authentification
-						sprintf(convert, "%d", rsaK );
-						// Append rsa Keyy with flag r or just add a space next to the private key
-						strcat(client_message, " ");
-						strcat(client_message, convert);
 
 						printf("Wait for server generated private key!! \n");
 						valid = true;
@@ -351,17 +351,15 @@ Client(){
 						// Print message client is sending to the client 
 						printf("\nSending Message: %.*s\n", (int)strlen(client_message), client_message);
 						//Receive a reply from the server
-                        //if ((read_size = recv(socket_desc, server_reply, 100, 0)) < 0)
-						//{
-						//printf("recv failed");
-						//}
+                        if ((read_size = recv(socket_desc, server_reply, 100, 0)) < 0)
+						{
+						printf("recv failed");
+						}
                         // TESTABILITY PURPOSE ASSUMING SERVER SEND BACK SAME RESPONSE
-                        strcpy(server_reply, client_message);
+                       // strcpy(server_reply, client_message);
                         
 				        // Allocate space for server reply instruction check
 						foundS = (char*)malloc(strlen(server_reply) + 1);
-						sprintf (convert, "%s", "k");
-						strcat(foundS, convert);
 						// Copy content of server reply
 						strcpy(foundS, server_reply);
 						// Get the first string from the server reply
@@ -424,8 +422,10 @@ Client(){
 							certs.writeFile( servercert.issuer_name, "server_cert.txt");
 							certs.writeFile( to_string(servercert.period_of_validity.not_before), "server_cert.txt");
 							certs.writeFile( to_string(servercert.period_of_validity.not_after), "server_cert.txt");
+							certs.writeFile( servercert.subject_name, "server_cert.txt");
 							certs.writeFile( servercert.subject_pk_info.algo, "server_cert.txt");
 							certs.writeFile( servercert.subject_pk_info.parameters, "server_cert.txt");
+							certs.writeFile( servercert.subject_pk_info.key, "server_cert.txt");
 							certs.writeFile( servercert.s.algo, "server_cert.txt");
 							certs.writeFile( servercert.s.parameters, "server_cert.txt");
 							certs.writeFile( servercert.s.certificate_signature, "server_cert.txt");
@@ -450,6 +450,19 @@ Client(){
 							printf("Common key to use for S_DES encryption and decryption is %d \n", comKey);
 						}// End of if
 
+						else if(strcmp(foundS, "v") == 0 || strcmp(foundS, "V") == 0){
+						    	printf("Client is Validated");
+								servervalid = true;
+						    	// clear array containing message for next message
+						    	client_message[0] = '\0';
+						}
+						else if(strcmp(foundS, "i") == 0 || strcmp(foundS, "I") == 0){
+						    	printf("Client is  not Validated \n");
+								printf("Exiting the program \n");
+								exit;
+						    	// clear array containing message for next message
+						    	
+						}
 					    // if server reply instruction is m send back decrypted message to client
 						else if(strcmp(foundS, "m") == 0 || strcmp(foundS, "M") == 0){
 						    	printf("Server decrypted message is: %.*s\n\n", read_size, server_reply);
