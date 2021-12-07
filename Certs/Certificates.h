@@ -88,6 +88,7 @@ public:
 	void generate_signature();
 	cert_fields get_cert_sign_req_file();
 	string find_key(string);
+	void writeChain(string, string);
 	void get_priv_k(string);
 	void testHash();
 

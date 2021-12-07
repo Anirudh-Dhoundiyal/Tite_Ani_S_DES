@@ -14,13 +14,17 @@ using namespace std;
 
 class Server {
 private:
-	int e,
-		n;
+	int e,	// RSA public key
+		n,	// RSA n
+		g,	// Diffie Parameter (Generator) 
+		q;	// DH Parameter
 
 public:
 Server(){
 	 e = 0;
 	 n = 0;
+	 g = -1;
+	 q = -1;
 	server();
 }
 int decrypt(int signedKey){
@@ -92,10 +96,10 @@ int fastModExpAlg(char * binary, int a, int n) {
 
 
 	int server() {
-		int socket_desc , new_socket , c, read_size, i, comKey = -1, pKa, gPKa, gPKb, keyReceived, g = -1, q = -1, signedKey;
+		int socket_desc , new_socket , c, read_size, i, comKey = -1, pKa, gPKa, gPKb, keyReceived,  signedKey;
 	struct sockaddr_in server , client;
 	char *message, client_message[100], convert[15];
-		
+	Certificates certs;
 	char *list;	
 	list = "ls -l\n";
 
@@ -167,61 +171,111 @@ int fastModExpAlg(char * binary, int a, int n) {
 		found = strtok(client_message, " ");
 		// while not at the end of the file do this
 		a.version = found;
+		certs.writeFile(a.version, "client_certs.txt");
 
 		// Get next string
 		found = strtok(NULL, " ");
 		a.serial_number = found;
+		certs.writeFile(a.serial_number, "client_certs.txt");
 		//
 		found = strtok(NULL, " ");
 		a.signature_algo.algo = found;
+		certs.writeFile(a.signature_algo.algo, "client_certs.txt");
 
 		found = strtok(NULL, " ");
 		a.signature_algo.parameters = found;
+		certs.writeFile(a.signature_algo.parameters, "client_certs.txt");
 
 		found = strtok(NULL, " ");
 		a.issuer_name = found;
+		certs.writeFile(a.issuer_name, "client_certs.txt");
 
 		found = strtok(NULL, " ");
 		a.period_of_validity.not_before = stoi(found);
+		certs.writeFile(to_string(a.period_of_validity.not_before), "client_certs.txt");
 
 		found = strtok(NULL, " ");
 		a.period_of_validity.not_after = stoi(found);
+		certs.writeFile(to_string(a.period_of_validity.not_after), "client_certs.txt");
 
 		found = strtok(NULL, " ");
 		a.subject_name = found;
+		certs.writeFile(a.subject_name, "client_certs.txt");
 
 		found = strtok(NULL, " ");
 		a.subject_pk_info.algo = found;
+		certs.writeFile(a.subject_pk_info.algo, "client_certs.txt");
 
 		found = strtok(NULL, " ");
 		a.subject_pk_info.parameters = found;
+		certs.writeFile(a.subject_pk_info.parameters, "client_certs.txt");
 
 		found = strtok(NULL, " ");
 		a.subject_pk_info.key = found;
+		certs.writeFile(a.subject_pk_info.key, "client_certs.txt");
 
 		found = strtok(NULL, " ");
 		a.s.algo = found;
+		certs.writeFile(a.s.algo, "client_certs.txt");
 
 		found = strtok(NULL, " ");
 		a.s.parameters = found;
+		certs.writeFile(a.s.parameters, "client_certs.txt");
 
 		found = strtok(NULL, " ");
 		a.s.certificate_signature = found;
+		certs.writeFile(a.s.certificate_signature, "client_certs.txt");
 
-		string g = found = strtok(NULL, " "),			// Signed G by client for DH
-			q = found = strtok(NULL, " "),				// Signed Q by client for DH
-			n = found = strtok(NULL, " ");				// Signed N by client for RSA Decryption to be used with public key
-		
+		string gS,			// Signed G by client for DH
+			qS, 				// Signed Q by client for DH
+			nS;				// Signed N by client for RSA Decryption to be used with public key
+
+		found = strtok(NULL, " ");
+		gS = found;
+		found = strtok(NULL, " ");
+		qS = found;
+		found = strtok(NULL, " ");
+		nS = found;
 		//***************************************************************************
 		// Now authenticate the certs
+		string unsigned_hash = certs.generate_hash(a),
+			signed_hash;
+		int	unsigned_hash_dec,
+			signed_hash_dec;
+		// Convert hash from binray to decimal for comparison
+		unsigned_hash_dec = stoi(unsigned_hash, 0, 2);
+		// Decrypt the signature then compare to unsigned hash
+		if (a.issuer_name == a.subject_name) {
+			// Set the public key found on the certificate
+			certs.setE(stoi(a.subject_pk_info.key));
+			// Set n
+			certs.setN(stoi(nS));
 
+			// get the public key and totient to calculate the private key
+			int public_key = stoi(certs.getE()),
+				totient = stoi(certs.getNtot());
 
+			// decrypt 
+			signed_hash = certs.decryptRSA(a.s.certificate_signature);
+
+			// Display
+			if (unsigned_hash == signed_hash)
+				cout << "Certificate Hash validated. Decrypted signature: " << signed_hash << " Match Unsigned Hash: " << unsigned_hash << endl;
+			else
+				cout << "Certificate Hash not Valid. Decrypted signature: " << signed_hash << " Do no match unsigned hash: " << unsigned_hash << endl;
+		}
 		//***************************************************************************
 		// Decrypt G Q and N using the certs public key for authentification 
-		// How do you decrypt if even N is sign? (By sign i mean encrypted with RSA Private)
-		
 		// After authentification Set g and q for DH
-	 
+		g = stoi(certs.decryptRSA(gS));
+		q = stoi(certs.decryptRSA(qS));
+		cert_fields temp;				// hold the value for sever certificate
+		// Generate the server certificate
+		temp = certs.generate_cert_sign_request();
+		certs.generate_signature();
+		// Send back to server Certificate in the client message
+		// With Certificate  K to request their generated g ^ privateKey mod q
+		
 		// Generate G ^ pka mod q
 		
 		// Send the generated key
