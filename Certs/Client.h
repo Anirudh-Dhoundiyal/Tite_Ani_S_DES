@@ -1,4 +1,5 @@
-/*#ifndef CLIENT_H
+#pragma once
+#ifndef CLIENT_H
 #define CLIENT_H
 
 #include <stdio.h>
@@ -7,10 +8,15 @@
 #include<string.h>	
 #include<sys/socket.h>
 #include<arpa/inet.h> 
+#include "Certificates.h"
 
-class Client {
+using namespace std;
 
-private:
+class Client
+{
+	private:
+Certificates certs;
+
 public:
 int nt = 0, 	// totient of n 
 e = 0,		// public key pair
@@ -97,7 +103,7 @@ int encrypt()
     		printf("Failure, enter numerical value followed by enter.\nEnter your signed key: ");
     	 	getchar();  
     	}
-    	signedKey = fastModExpAlg(decToBin(e),pt,n);
+    	signedKey = fastModExpAlg(e,pt,n);
     	printf("encrypted num is: %d\n", signedKey);
 	return signedKey;
 }
@@ -130,86 +136,88 @@ void printFastModTable (int i, char bt, int c, int f)
 
 }
 
-char * decToBin (int decimal)
+string decToBin (int decimal)
 {
-  // hold the value of the binary string after convertion to be returned 
-  char *binary = new char[25];
-  int i = 0;
-  // do this while n is positive, until the remainder is 0
-  while (decimal > 0)
-    {
-      // get the remainder of n divided by 2
-      binary[i] = (decimal % 2) + '0';
-      // get the new result of n
-      decimal = decimal / 2;
-      i++;
+    // hold the value of the binary string after convertion to be returned 
+    string binary = "";
+
+    // do this while n is positive, until the remainder is 0
+    while (n > 0) {
+        // get the remainder of n divided by 2
+        binary += to_string(n % 2);
+        // get the new result of n
+        n = n / 2;
     }
-  return binary;
+
+    return binary;
 }
 
-int fastModExpAlg (char *binary, int a, int n)
+int fastModExpAlg (int exponent, int a, int n)
 {
-  int c = 0, f = 1;
-  // Print
-  printf ("i\t\tb\t\tc\t\tf\t\t\n");
-  for (int i = strlen (binary) - 1; i >= 0; i--)
-    {
-      // 
-      c = 2 * c;
-      f = (f * f) % n;
-      // Check that the binary digit at position i is 1 to perform ...
-      if (binary[i] == '1')
-	{
-	  c = c + 1;
-	  f = (f * a) % n;
-	}
-      printFastModTable (i, binary[i], c, f);
+  string binary = decToBin(exponent);
+    int c = 0,
+        f = 1;
+
+    for (int i = binary.size() - 1; i >= 0; i--) {
+        // 
+        c = 2 * c;
+        f = (f * f) % n;
+        // Check that the binary digit at position i is 1 to perform ...
+        if (binary[i] == '1') {
+            c = c + 1;
+            f = (f * a) % n;
+        }
+
+
     }
-  return f;
+    return f;
 }
 
 Client(){
+	certs.generate_cert_sign_request();
+	certs.generate_signature();
+	e = stoi(certs.getE());
+	d = stoi(certs.getD());
+	n = e *d;
 	client();
 }
 
 	int client() {
-		//////int socket_desc;    // file descripter returned by socket command
-	//////struct sockaddr_in server;    // in arpa/inet.h
+		int socket_desc;    // file descripter returned by socket command
+	struct sockaddr_in server;    // in arpa/inet.h
     int read_size, pKb, g = -1, q = -1, gPKb, comKey, gPKa, rsaK;
     char  server_reply[100], client_message[100], entry; 
    	bool valid = false, validEntry = false;
     char *found = " ", convert[15], * foundS;
-    
-    //Create socket
-	/////socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+    cert_fields temp;
+    // //Create socket
+	// socket_desc = socket(AF_INET , SOCK_STREAM , 0);
 
-	/////printf("Trying to create socket\n");
-	/////if (socket_desc == -1)
-	/////{
-	/////	printf("Unable to create socket\n");
-	/////}
+	// printf("Trying to create socket\n");
+	// if (socket_desc == -1)
+	// {
+	// 	printf("Unable to create socket\n");
+	// }
 		
-	// *********** This is the line you need to edit ****************
-	/////server.sin_addr.s_addr = inet_addr("169.254.71.79");  // doesn't like localhost?
-	/////server.sin_family = AF_INET;
-	/////server.sin_port = htons( 8421 );    // random "high"  port number
+	// // *********** This is the line you need to edit ****************
+	// server.sin_addr.s_addr = inet_addr("169.254.71.79");  // doesn't like localhost?
+	// server.sin_family = AF_INET;
+	// server.sin_port = htons( 8421 );    // random "high"  port number
 
-	//Connect to remote server
-	/////if (connect(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0)
-	/////{
-	/////	printf(" connect error");
-	/////	return 1;
-	/////}
+	// //Connect to remote server
+	// if (connect(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0)
+	// {
+	// 	printf(" connect error");
+	// 	return 1;
+	// }
 	
-	// Generate RSA Public and private key
-	getRPrime();
+	
     //Get data from keyboard and send  to server
 	printf("What do you want to send to the server. (b for bye)\n");
     
     while(strncmp(client_message,"b",1))      // quit on "b" for "bye"
 	{
-	    printf("Enter -1 with a space sending g and q or just enter message\n");
-		printf("Enter K or k to send private key.\n\n");
+	    printf("Enter -1 to start cert authentication\n");
 		printf("Enter M or m for message to server.\n");
 	    
 	    memset (client_message, '\0', 100);
@@ -218,19 +226,26 @@ Client(){
 	    // if client input is -1 prompt user for G and Q then send to server
       	// Server reply with a confirmation message that G and Q are set
 	        if (strcmp (client_message, "-1") == 0){
+				strcmp(client_message, " ");
+			temp = certs.get_file_data();
+			string data = certs.generate_sendstring(temp);
+			strcat(client_message, data.c_str());
     			// Prompt User for g and q prime
 				printf ("\nEnter g --> ");
 				// if entry is not an int and enter input
     	 		while(scanf("%d%c", &g, &entry) != 2 || entry != '\n'){
     	 		    printf("Failure, enter numerical value followed by enter.\nEnter g--> ");
     	 		    getchar();
-    	 		    client_message[0] = '\0';
+    	 		    //signing g
+					g = fastModExpAlg(d,g,n);
     	 		}
     	 		
     	 		printf ("\nEnter q --> ");
     	 		while(scanf("%d%c", &q, &entry) != 2 || entry != '\n'){
     	 		  printf("Failure, enter numerical value followed by enter.\nEnter q --> ");
     	 		  getchar();  
+				   //signing q
+					q = fastModExpAlg(d,q,n);
     	 		}
                 
     	  		// append the integer g and q to client message containing -1 already
@@ -243,12 +258,14 @@ Client(){
     	  		sprintf (convert, "%d", q);
     	  		strcat (client_message, convert);
 				
-				// adding private key pair to server
+				// adding n to server message
 				strcat (client_message, " ");
-				strcat(client_message,pubKeyPair);
+				sprintf (convert, "%d", n);
+				strcat(client_message, convert);
 				valid = true;
     		}//End of if
       		// Before Sending the message make sure(Check) that g and q are set
+
       		if (!(g >= 0 && q >= 0))
         		printf("No g prime or q set. Error, set them before to continue. Press -1 no enter them\n");
         	else{
@@ -352,7 +369,8 @@ Client(){
 							gPKa = atoi(foundS);
 							printf("Server  Replies: %d.  Generated %d \n\n", read_size, gPKa);
 							// Find common key using the server key received 
-							comKey = fastModExpAlg(decToBin(gPKa), g, q);
+							comKey = fastModExpAlg(gPKa, g, q);
+
 							// display common key
 							printf("Common key to use for S_DES encryption and decryption is %d \n", comKey);
 						}// End of if
@@ -375,6 +393,5 @@ Client(){
 
 };
 
-#pragma once
+
 #endif // !CLIENT_H
-*/

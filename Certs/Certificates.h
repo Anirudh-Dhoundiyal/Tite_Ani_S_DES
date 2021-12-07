@@ -34,7 +34,7 @@ struct cert_fields {
 		serial_number,						// serial number of the certificate
 		issuer_name,						// name of certificate authority
 		subject_name;						// name of user A
-	signature_algo_id signature_algo_id;	// identifier of the algorithm used to sign the certificate
+	signature_algo_id signature_algo;	// identifier of the algorithm used to sign the certificate
 	subjectPkInfo subject_pk_info;			// public key of user A
 	Ta period_of_validity;					// period of validity of the certificate
 	string trust_level;						// 8 bit field to indicate the trust level of the certificate
@@ -56,7 +56,7 @@ struct crl_fields {
 };
 
 class Certificates :
-	public CBC , public RSA
+public CBC , public RSA
 {
 private:
 	cert_fields x;
@@ -68,16 +68,14 @@ private:
 		crl_file,
 		system_time,
 		ca_key_filename;
-	void displayCert();
-	cert_fields generate_cert_sign_request();
-	crl_fields generate_crl();
-	void validateCrl();
-	void displayCrl();
+	
 public:
+
 	Certificates();
 	~Certificates();
 	void sign_crl();
 	string generate_hash(cert_fields);
+	string generate_sendstring(cert_fields);
 	string generate_crl_hash(crl_fields);
 	void compare_hash(string, string);
 	void verify_validity();
@@ -92,7 +90,12 @@ public:
 	string find_key(string);
 	void get_priv_k(string);
 	void testHash();
-	cert_fields parse_certificate(char message);
+
+	void displayCert();
+	cert_fields generate_cert_sign_request();
+	crl_fields generate_crl();
+	void validateCrl();
+	void displayCrl();
 	//crl data type created.
 	//	Need:
 	//		-function to generate a crl(insert values)

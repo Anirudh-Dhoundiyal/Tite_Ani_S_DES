@@ -19,13 +19,15 @@ using namespace std;
 //including class header
 #include "CBC.h"
 #include "Certificates.h"
+#include "Client.h"
 //#include "Server.h"
 //#include "Client.h"
 
 //main
 int main()
 {
-    Certificates certs;
+    Client client;
+    //Certificates certs;
   
     return 0;
 }
