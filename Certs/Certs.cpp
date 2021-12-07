@@ -26,4 +26,21 @@ using namespace std;
 int main()
 {
     Certificates certs;
+
+    string hash, input, ehash;
+    while (input != "q") {
+        
+        cout << "Enter string to hash: ";
+        cin >> input;
+
+        hash = certs.cbc_hash(hash);
+
+        cout << "HAsh is now: " << hash << endl;
+        ehash = certs.encryptRSA(hash);
+        cout << "Encrypting the hash " << hash << " intp --> " << ehash << endl;
+        ehash = certs.decryptRSA(ehash);
+        cout << "Decrypting the hash " << ehash << " Into --> " << ehash << endl << endl;
+    }
+  
+
 }
