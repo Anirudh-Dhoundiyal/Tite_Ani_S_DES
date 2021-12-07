@@ -139,11 +139,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Tite_Ani_S_DES\CBC.cpp" />
-    <ClCompile Include="..\Tite_Ani_S_DES\Certificates.cpp" />
-    <ClCompile Include="..\Tite_Ani_S_DES\RSA.cpp" />
-    <ClCompile Include="..\Tite_Ani_S_DES\S_DES.cpp" />
+    <ClCompile Include="CBC.cpp" />
+    <ClCompile Include="Certificates.cpp" />
     <ClCompile Include="Certs.cpp" />
+    <ClCompile Include="RSA.cpp" />
+    <ClCompile Include="S_DES.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Tite_Ani_S_DES\cypher.bmp" />

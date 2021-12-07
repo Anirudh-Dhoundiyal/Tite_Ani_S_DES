@@ -18,16 +18,16 @@
     <ClCompile Include="Certs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Tite_Ani_S_DES\CBC.cpp">
+    <ClCompile Include="S_DES.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Tite_Ani_S_DES\Certificates.cpp">
+    <ClCompile Include="RSA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Tite_Ani_S_DES\RSA.cpp">
+    <ClCompile Include="Certificates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Tite_Ani_S_DES\S_DES.cpp">
+    <ClCompile Include="CBC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

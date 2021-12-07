@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 #ifndef SERVER_H
 #define SERVER_H
 
@@ -272,3 +272,4 @@ int fastModExpAlg(char * binary, int a, int n) {
 
 };
 #endif // !SERVER_H
+*/

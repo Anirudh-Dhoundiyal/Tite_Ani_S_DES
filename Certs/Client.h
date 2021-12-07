@@ -1,4 +1,4 @@
-#ifndef CLIENT_H
+/*#ifndef CLIENT_H
 #define CLIENT_H
 
 #include <stdio.h>
@@ -377,3 +377,4 @@ Client(){
 
 #pragma once
 #endif // !CLIENT_H
+*/
