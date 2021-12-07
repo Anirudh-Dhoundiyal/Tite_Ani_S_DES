@@ -428,7 +428,7 @@ Client(){
 							certs.writeFile( servercert.s.parameters, "server_cert.txt");
 							certs.writeFile( servercert.s.certificate_signature, "server_cert.txt");
 							certs.verify_validity();
-							
+							//this is a comment
 							printf("Server sent the cert and the signed gPKa: %.*s\n\n", read_size, foundS);
 							// Get the string after the space then convert that into integer
 							int temp = fastModExpAlg(d,atoi(foundS),n);
