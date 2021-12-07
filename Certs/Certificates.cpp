@@ -6,7 +6,7 @@ Certificates::Certificates()
 	isCertRequest = false;
 	ca_key_filename = "ca_keys.txt";
 	//testHash();
-	menu();
+	//menu();
 }
 
 void Certificates::testHash() {
@@ -87,9 +87,9 @@ cert_fields Certificates::get_file_data()
 		else if (i == 1)
 			x.serial_number = filedata;
 		else if (i == 2)
-			x.signature_algo_id.algo = filedata;
+			x.signature_algo.algo = filedata;
 		else if (i == 3)
-			x.signature_algo_id.parameters = filedata;
+			x.signature_algo.parameters = filedata;
 		else if (i == 4)
 			x.issuer_name = filedata;
 		else if (i == 5)
@@ -232,13 +232,24 @@ void Certificates::generate_signature()
 string Certificates::generate_hash(cert_fields a)
 {
 	// adding the CA informations
-	string concatinated_info = a.version + a.serial_number + a.signature_algo_id.algo + a.signature_algo_id.parameters + a.issuer_name;
+	string concatinated_info = a.version + a.serial_number + a.signature_algo.algo + a.signature_algo.parameters + a.issuer_name;
 	// adding the Rest of user ID information
 	concatinated_info += to_string(a.period_of_validity.not_before) + to_string(a.period_of_validity.not_after) + a.subject_name;
 	// concatinate the subject's public key information in a string of text
 	concatinated_info += a.subject_pk_info.algo + a.subject_pk_info.parameters + a.subject_pk_info.key;
 	// send the concatinated string to the function that will hash it
 	return cbc_hash(concatinated_info);
+}
+string Certificates::generate_sendstring(cert_fields a)
+{
+	// adding the CA informations
+	string concatinated_info = a.version +" "+ a.serial_number +" "+ a.signature_algo.algo +" "+ a.signature_algo.parameters +" "+ a.issuer_name;
+	// adding the Rest of user ID information
+	concatinated_info += " " + to_string(a.period_of_validity.not_before) +" "+ to_string(a.period_of_validity.not_after) +" "+ a.subject_name;
+	// concatinate the subject's public key information in a string of text
+	concatinated_info += " " + a.subject_pk_info.algo + " " + a.subject_pk_info.parameters + " " + a.subject_pk_info.key + " ";
+	// send the concatinated string to the function that will hash it
+	return concatinated_info;
 }
 
 string Certificates::generate_crl_hash(crl_fields a)
@@ -391,12 +402,12 @@ cert_fields Certificates::generate_cert_sign_request()
 	writeFile(x.serial_number, certificate_file);
 
 	cout << "\n Enter signature algorithm id: ";
-	cin >> x.signature_algo_id.algo;				// cbcWithRSAEncryption
-	writeFile(x.signature_algo_id.algo, certificate_file);
+	cin >> x.signature_algo.algo;				// cbcWithRSAEncryption
+	writeFile(x.signature_algo.algo, certificate_file);
 
 	cout << "\n Enter signature algorithm parameters seperated with a space: ";
-	cin >> x.signature_algo_id.parameters;			// "none"
-	writeFile(x.signature_algo_id.parameters, certificate_file);
+	cin >> x.signature_algo.parameters;			// "none"
+	writeFile(x.signature_algo.parameters, certificate_file);
 
 	cout << "\n Enter name of the CA: ";
 	cin >> x.issuer_name;							// "bob"
@@ -466,9 +477,9 @@ cert_fields Certificates::get_cert_sign_req_file()
 		else if (i == 1)
 			a.serial_number = filedata;
 		else if (i == 2)
-			a.signature_algo_id.algo = filedata;
+			a.signature_algo.algo = filedata;
 		else if (i == 3)
-			a.signature_algo_id.parameters = filedata;
+			a.signature_algo.parameters = filedata;
 		else if (i == 4)
 			a.issuer_name = filedata;
 		else if (i == 5)
@@ -593,7 +604,7 @@ void Certificates::displayCert()
 	cout << "-----------------------------------------------------------------------------------------------------------------------" << endl;
 	cout << "Version : " << x.version << endl;
 	cout << "Certificate Serial Number : "	<< x.serial_number << endl;
-	cout << "Signature Algo Identifier : " << x.signature_algo_id.algo << "		"<< x.signature_algo_id.parameters<<endl;
+	cout << "Signature Algo Identifier : " << x.signature_algo.algo << "		"<< x.signature_algo.parameters<<endl;
 	cout << "Issuer Name : " << x.issuer_name << endl;
 	cout << "Period of validity : " << x.period_of_validity.not_before << " - " << x.period_of_validity.not_after << endl;
 	cout << "Subject Name : " << x.subject_name << endl;
