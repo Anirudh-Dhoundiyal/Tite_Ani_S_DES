@@ -6,12 +6,12 @@ Certificates::Certificates()
 	isCertRequest = false;
 	ca_key_filename = "ca_keys.txt";
 	//testHash();
-	menu();
+	//menu();
 }
 
 void Certificates::testHash() {
 
-	/*string hash, input, ehash, dhash;
+	string hash, input, ehash, dhash;
 	while (input != "q") {
 		cin.clear();
 		cin.ignore();
@@ -26,10 +26,7 @@ void Certificates::testHash() {
 		cout << "Encrypting the hash " << hash << " intp --> " << ehash << endl;
 		dhash = decryptRSA(ehash);
 		cout << "Decrypting the hash " << ehash << " Into --> " << dhash << endl << endl;
-
-	}*/
-	//cert_fields a = parse_certificate(&client_message);
-
+	}
 }
 
 Certificates::~Certificates()
@@ -313,6 +310,7 @@ void Certificates::verify_validity()
 }
 
 
+
 void Certificates::sign_cert(cert_fields& a) {
 	cout << "\n Enter signature algorithms id: ";
 	cin >> a.s.algo;
@@ -461,62 +459,6 @@ cert_fields Certificates::generate_cert_sign_request()
 	return x;
 }
 
-
-cert_fields Certificates::parse_certificate(char message) {
-	cert_fields a;
-	char* found;
-
-	//int init_size = strlen(message);
-	// allocate space
-	//found = (char*)malloc(strlen(message) + 1);
-//	found = (char*)malloc(strlen(client_message) + 1);
-	// Get the first string in the client message
-//	found = strtok(message, " ");
-	// while not at the end of the file do this
-//	a.version = found;
-
-	// Get next string
-	found = strtok(NULL, " ");
-	a.serial_number = found;
-	//
-	found = strtok(found, " ");
-	a.signature_algo_id.algo = found;
-
-	found = strtok(found, " ");
-	a.signature_algo_id.parameters = found;
-
-	found = strtok(found, " ");
-	a.issuer_name = found;
-
-	found = strtok(found, " ");
-	a.period_of_validity.not_before = stoi(found);
-
-	found = strtok(found, " ");
-	a.period_of_validity.not_after = stoi(found);
-
-	found = strtok(found, " ");
-	a.subject_name = found;
-
-	found = strtok(found, " ");
-	a.subject_pk_info.algo = found;
-
-	found = strtok(found, " ");
-	a.subject_pk_info.parameters = found;
-
-	found = strtok(found, " ");
-	a.subject_pk_info.key = found;
-
-	found = strtok(found, " ");
-	a.s.algo = found;
-
-	found = strtok(found, " ");
-	a.s.parameters = found;
-
-	found = strtok(found, " ");
-	a.s.certificate_signature = found;
-
-	return a;
-}
 
 cert_fields Certificates::get_cert_sign_req_file()
 {

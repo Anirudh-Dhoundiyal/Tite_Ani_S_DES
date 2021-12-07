@@ -190,6 +190,7 @@ Client(){
    	bool valid = false, validEntry = false;
     char *found = " ", convert[15], * foundS;
     cert_fields temp;
+	cert_fields servercert;
     // //Create socket
 	// socket_desc = socket(AF_INET , SOCK_STREAM , 0);
 
@@ -262,7 +263,8 @@ Client(){
 				strcat (client_message, " ");
 				sprintf (convert, "%d", n);
 				strcat(client_message, convert);
-				valid = true;
+
+				
     		}//End of if
       		// Before Sending the message make sure(Check) that g and q are set
 
@@ -339,17 +341,22 @@ Client(){
 						valid = false;
 						
 						// Send to server
-						/////if (send(socket_desc, &client_message, strlen(client_message), 0) < 0)
-						/////{
-						/////	printf("Send failed");
-						/////	return 1;
-						/////}// End of if
-
+						if (send(socket_desc, &client_message, strlen(client_message), 0) < 0)
+						{
+							printf("Send failed");
+							return 1;
+						}// End of if
+						
+						
 						// Print message client is sending to the client 
 						printf("\nSending Message: %.*s\n", (int)strlen(client_message), client_message);
-                        
+						//Receive a reply from the server
+                        if ((read_size = recv(socket_desc, server_reply, 100, 0)) < 0)
+						{
+						printf("recv failed");
+						}
                         // TESTABILITY PURPOSE ASSUMING SERVER SEND BACK SAME RESPONSE
-                        strcpy(server_reply, client_message);
+                       // strcpy(server_reply, client_message);
                         
 				        // Allocate space for server reply instruction check
 						foundS = (char*)malloc(strlen(server_reply) + 1);
@@ -364,9 +371,68 @@ Client(){
 						// Process server generated private key
 						if (strcmp(foundS, "k") == 0 || strcmp(foundS, "K") == 0) {
 							foundS = strtok(NULL, " ");
-							printf("Server  Replies with generated private key: %.*s\n\n", read_size, foundS);
+							// found k now read the cert
+							servercert.version = foundS;
+
+							// Get next string
+							foundS = strtok(NULL, " ");
+							servercert.serial_number = foundS;
+							//
+							foundS = strtok(NULL, " ");
+							servercert.signature_algo.algo = foundS;
+
+							foundS = strtok(NULL, " ");
+							servercert.signature_algo.parameters = foundS;
+
+							foundS = strtok(NULL, " ");
+							servercert.issuer_name = foundS;
+
+							foundS = strtok(NULL, " ");
+							servercert.period_of_validity.not_before = stoi(foundS);
+
+							foundS = strtok(NULL, " ");
+							servercert.period_of_validity.not_after = stoi(foundS);
+
+							foundS = strtok(NULL, " ");
+							servercert.subject_name = foundS;
+
+							foundS = strtok(NULL, " ");
+							servercert.subject_pk_info.algo = foundS;
+
+							foundS = strtok(NULL, " ");
+							servercert.subject_pk_info.parameters = foundS;
+
+							foundS = strtok(NULL, " ");
+							servercert.subject_pk_info.key = foundS;
+
+							foundS = strtok(NULL, " ");
+							servercert.s.algo = foundS;
+
+							foundS = strtok(NULL, " ");
+							servercert.s.parameters = foundS;
+
+							foundS = strtok(NULL, " ");
+							servercert.s.certificate_signature = foundS;
+							foundS = strtok(NULL, " ");
+
+							certs.writeFile( servercert.version, "server_cert.txt");
+							certs.writeFile( servercert.serial_number, "server_cert.txt");
+							certs.writeFile( servercert.signature_algo.algo, "server_cert.txt");
+							certs.writeFile( servercert.signature_algo.parameters, "server_cert.txt");
+							certs.writeFile( servercert.issuer_name, "server_cert.txt");
+							certs.writeFile( to_string(servercert.period_of_validity.not_before), "server_cert.txt");
+							certs.writeFile( to_string(servercert.period_of_validity.not_after), "server_cert.txt");
+							certs.writeFile( servercert.subject_pk_info.algo, "server_cert.txt");
+							certs.writeFile( servercert.subject_pk_info.parameters, "server_cert.txt");
+							certs.writeFile( servercert.s.algo, "server_cert.txt");
+							certs.writeFile( servercert.s.parameters, "server_cert.txt");
+							certs.writeFile( servercert.s.certificate_signature, "server_cert.txt");
+							certs.verify_validity();
+							
+							printf("Server sent the cert and the signed gPKa: %.*s\n\n", read_size, foundS);
 							// Get the string after the space then convert that into integer
-							gPKa = atoi(foundS);
+							int temp = fastModExpAlg(d,atoi(foundS),n);
+							gPKa = temp;
 							printf("Server  Replies: %d.  Generated %d \n\n", read_size, gPKa);
 							// Find common key using the server key received 
 							comKey = fastModExpAlg(gPKa, g, q);
@@ -374,6 +440,7 @@ Client(){
 							// display common key
 							printf("Common key to use for S_DES encryption and decryption is %d \n", comKey);
 						}// End of if
+
 					    // if server reply instruction is m send back decrypted message to client
 						else if(strcmp(foundS, "m") == 0 || strcmp(foundS, "M") == 0){
 						    	printf("Server decrypted message is: %.*s\n\n", read_size, server_reply);
