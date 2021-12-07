@@ -351,15 +351,17 @@ Client(){
 						// Print message client is sending to the client 
 						printf("\nSending Message: %.*s\n", (int)strlen(client_message), client_message);
 						//Receive a reply from the server
-                        if ((read_size = recv(socket_desc, server_reply, 100, 0)) < 0)
-						{
-						printf("recv failed");
-						}
+                        //if ((read_size = recv(socket_desc, server_reply, 100, 0)) < 0)
+						//{
+						//printf("recv failed");
+						//}
                         // TESTABILITY PURPOSE ASSUMING SERVER SEND BACK SAME RESPONSE
-                       // strcpy(server_reply, client_message);
+                        strcpy(server_reply, client_message);
                         
 				        // Allocate space for server reply instruction check
 						foundS = (char*)malloc(strlen(server_reply) + 1);
+						sprintf (convert, "%s", "k");
+						strcat(foundS, convert);
 						// Copy content of server reply
 						strcpy(foundS, server_reply);
 						// Get the first string from the server reply
@@ -427,7 +429,14 @@ Client(){
 							certs.writeFile( servercert.s.algo, "server_cert.txt");
 							certs.writeFile( servercert.s.parameters, "server_cert.txt");
 							certs.writeFile( servercert.s.certificate_signature, "server_cert.txt");
-							certs.verify_validity();
+							string unsigned_hash = certs.generate_hash(servercert);
+							string comparehash = decToBin(fastModExpAlg(d,stoi(servercert.s.certificate_signature),n));
+							if(unsigned_hash == comparehash){
+								cout << "hash is validated" << endl;
+							}
+							else{
+								cout << "invalid cert" << endl;
+							}
 							//this is a comment
 							printf("Server sent the cert and the signed gPKa: %.*s\n\n", read_size, foundS);
 							// Get the string after the space then convert that into integer
