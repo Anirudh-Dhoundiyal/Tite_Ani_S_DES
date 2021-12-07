@@ -57,9 +57,6 @@ class S_DES
 		void setkey2(string x) {
 			key2 = x;
 		}
-		void setcp(string x) {
-			cp = x;
-		}
 
 	public:
 		bool image_flag = false;
@@ -75,6 +72,9 @@ class S_DES
 		string decrypt();
 		void setpt(string x) {
 			pt = x;
+		}
+		void setcp(string x) {
+			cp = x;
 		}
 		string getcp() {
 			return cp;

@@ -5,7 +5,28 @@ Certificates::Certificates()
 	system_time = "2021";
 	isCertRequest = false;
 	ca_key_filename = "ca_keys.txt";
+	//testHash();
 	menu();
+}
+
+void Certificates::testHash() {
+
+	string hash, input, ehash, dhash;
+	while (input != "q") {
+		cin.clear();
+		cin.ignore();
+
+		cout << "Enter string to hash: ";
+		cin >> input;
+		input = "1234tite20202025tite1237";
+		hash = cbc_hash(input);
+
+		cout << "HAsh is now: " << hash << endl;
+		ehash = rsa_signature_e(hash);
+		cout << "Encrypting the hash " << hash << " intp --> " << ehash << endl;
+		dhash = decryptRSA(ehash);
+		cout << "Decrypting the hash " << ehash << " Into --> " << dhash << endl << endl;
+	}
 }
 
 Certificates::~Certificates()
@@ -195,8 +216,6 @@ void Certificates::verify_certs_on_crl()
 
 void Certificates::generate_signature()
 {
-	cert_fields auth, signature_requester;
-	string auth_certFile, requester_filename, auth_pk;
 	cout << "Enter the cert signature request filename: ";
 	cin >> certificate_file;
 	// Read values of the certificate signature request file

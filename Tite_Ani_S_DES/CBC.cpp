@@ -48,6 +48,7 @@ string CBC::cbc_hash(string fileName) {
     // Initiale value
     int iv = 3, option;
     bool CBC_firstPass = false;
+    S_DES block;
     string plaintext_character,
         initial_vector,
         temp,
@@ -92,25 +93,26 @@ string CBC::cbc_hash(string fileName) {
             // Hi = E (Mi, Hi-1) 
             if (CBC_firstPass) {
                 input_block = "";
-                input_block = getcp();       // get previous cipher block
+                input_block = block.getcp();       // get previous cipher block
                 input_block = x_or(unsignedChartoBinary(plaintext_character[i]), input_block);      // exclusive-or current plain text character with the previous cipher block
                 //input_block += "01";        // add padding 
-                encryptionWrapper(input_block, k);      // encrypt output of the exclusive-or 
-                writeFile(input_block, "cbctest.txt");
+                block.encryptionWrapper(input_block, k);      // encrypt output of the exclusive-or 
+                writeFile(block.getcp(), "cbctest.txt");
             }
             else
             {
                 input_block = x_or(unsignedChartoBinary(plaintext_character[i]), initial_vector);      // exclusive-or current plain text character with the previous cipher block
                 // get the initial value h0
-                encryptionWrapper(input_block, k);
-                writeFile(input_block, "cbctest.txt");
+                block.encryptionWrapper(input_block, k);
+                writeFile(block.getcp(), "cbctest.txt");
                 CBC_firstPass = true;
             }
         }
     }
     // get the hash value of the file
     // G = Hn
-    string hash = getcp();
+    string hash = block.getcp();
+    block.setcp("");
     return hash;
 }
 

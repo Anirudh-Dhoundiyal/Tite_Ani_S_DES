@@ -179,6 +179,7 @@ string RSA::rsa_signature_d(string public_key, string hash) {
     // decrypt the cipher hash
     return decryptRSA(hash);
 }
+
 string RSA::encryptRSA(string hash)
 {
     int pt = stoi(hash);
