@@ -98,7 +98,7 @@ int fastModExpAlg(char * binary, int a, int n) {
 	int server() {
 		int socket_desc , new_socket , c, read_size, i, comKey = -1, pKa, gPKa, gPKb, keyReceived,  signedKey;
 	struct sockaddr_in server , client;
-	char *message, client_message[100], convert[15];
+	char *message, client_message[100], * convert;
 	Certificates certs;
 	char *list;	
 	list = "ls -l\n";
@@ -169,233 +169,184 @@ int fastModExpAlg(char * binary, int a, int n) {
 		found = (char*)malloc(strlen(client_message) + 1);
 		// Get the first string in the client message
 		found = strtok(client_message, " ");
-		// while not at the end of the file do this
-		a.version = found;
-		certs.writeFile(a.version, "client_certs.txt");
 
-		// Get next string
-		found = strtok(NULL, " ");
-		a.serial_number = found;
-		certs.writeFile(a.serial_number, "client_certs.txt");
-		//
-		found = strtok(NULL, " ");
-		a.signature_algo.algo = found;
-		certs.writeFile(a.signature_algo.algo, "client_certs.txt");
-
-		found = strtok(NULL, " ");
-		a.signature_algo.parameters = found;
-		certs.writeFile(a.signature_algo.parameters, "client_certs.txt");
-
-		found = strtok(NULL, " ");
-		a.issuer_name = found;
-		certs.writeFile(a.issuer_name, "client_certs.txt");
-
-		found = strtok(NULL, " ");
-		a.period_of_validity.not_before = stoi(found);
-		certs.writeFile(to_string(a.period_of_validity.not_before), "client_certs.txt");
-
-		found = strtok(NULL, " ");
-		a.period_of_validity.not_after = stoi(found);
-		certs.writeFile(to_string(a.period_of_validity.not_after), "client_certs.txt");
-
-		found = strtok(NULL, " ");
-		a.subject_name = found;
-		certs.writeFile(a.subject_name, "client_certs.txt");
-
-		found = strtok(NULL, " ");
-		a.subject_pk_info.algo = found;
-		certs.writeFile(a.subject_pk_info.algo, "client_certs.txt");
-
-		found = strtok(NULL, " ");
-		a.subject_pk_info.parameters = found;
-		certs.writeFile(a.subject_pk_info.parameters, "client_certs.txt");
-
-		found = strtok(NULL, " ");
-		a.subject_pk_info.key = found;
-		certs.writeFile(a.subject_pk_info.key, "client_certs.txt");
-
-		found = strtok(NULL, " ");
-		a.s.algo = found;
-		certs.writeFile(a.s.algo, "client_certs.txt");
-
-		found = strtok(NULL, " ");
-		a.s.parameters = found;
-		certs.writeFile(a.s.parameters, "client_certs.txt");
-
-		found = strtok(NULL, " ");
-		a.s.certificate_signature = found;
-		certs.writeFile(a.s.certificate_signature, "client_certs.txt");
-
-		string gS,			// Signed G by client for DH
-			qS, 				// Signed Q by client for DH
-			nS;				// Signed N by client for RSA Decryption to be used with public key
-
-		found = strtok(NULL, " ");
-		gS = found;
-		found = strtok(NULL, " ");
-		qS = found;
-		found = strtok(NULL, " ");
-		nS = found;
-		//***************************************************************************
-		// Now authenticate the certs
-		string unsigned_hash = certs.generate_hash(a),
-			signed_hash;
-		int	unsigned_hash_dec,
-			signed_hash_dec;
-		// Convert hash from binray to decimal for comparison
-		unsigned_hash_dec = stoi(unsigned_hash, 0, 2);
-		// Decrypt the signature then compare to unsigned hash
-		if (a.issuer_name == a.subject_name) {
-			// Set the public key found on the certificate
-			certs.setE(stoi(a.subject_pk_info.key));
-			// Set n
-			certs.setN(stoi(nS));
-
-			// get the public key and totient to calculate the private key
-			int public_key = stoi(certs.getE()),
-				totient = stoi(certs.getNtot());
-
-			// decrypt 
-			signed_hash = certs.decryptRSA(a.s.certificate_signature);
-
-			// Display
-			if (unsigned_hash == signed_hash)
-				cout << "Certificate Hash validated. Decrypted signature: " << signed_hash << " Match Unsigned Hash: " << unsigned_hash << endl;
-			else
-				cout << "Certificate Hash not Valid. Decrypted signature: " << signed_hash << " Do no match unsigned hash: " << unsigned_hash << endl;
-		}
-		//***************************************************************************
-		// Decrypt G Q and N using the certs public key for authentification 
-		// After authentification Set g and q for DH
-		g = stoi(certs.decryptRSA(gS));
-		q = stoi(certs.decryptRSA(qS));
-		cert_fields temp;				// hold the value for sever certificate
-		// Generate the server certificate
-		temp = certs.generate_cert_sign_request();
-		certs.generate_signature();
-		// Send back to server Certificate in the client message
-		// With Certificate  K to request their generated g ^ privateKey mod q
 		
-		// Generate G ^ pka mod q
-		
-		// Send the generated key
-		
-		// wait to receive the generated from client
-		
-		//	Use the generated key to create the Shared secret key for DH
-		
-		//	Use shared secret key to communicate   
-		 
-		
-
-		//  Allow the authenticated remote user to execute a few select commands on the remote server 
-		
-		// view the results on the client. 
-
-		// All communication to and from the server are encrypted (using S-DES and either of the keys established in Part 1. 
-		 
-		
-		// Case 1 -1 for setting up g and q 
+		// Case 1 M or m for sending the message to server possibly decrypting before sending then receive encrypted message then decrypt it if instruction is M or m and display the decrypted on the server comparing to original message from client
 		// Case 2 K or k for sending the key and requesting key from server
-		// Case 3 M or m for sending the message to server possibly decrypting before sending then receive encrypted message then decrypt it if instruction is M or m and display the decrypted on the server comparing to original message from client
-		
-		
+		// Case 3 To process Certificate! 
+		if (strcmp(found, "M") == 0 || strcmp(found, "m") == 0) {
+			// Check if private key was entered
+			
+		}
 		// Check if g prime and q are defined,
 		// If not process with g and q
-		if (g >= 0 && q >= 0) {
-			found = (char *)malloc(strlen(client_message)+1);
-			strcpy(found, client_message);
-			// Get the first string in the client message
-			found = strtok(found, " ");
-			// Case 2: K or k for sending the key and requesting key from server
-			if (strcmp(found,"K") == 0 || strcmp(found, "k") == 0) {
-				// Ask user to enter their Diffie-Hellmen private key 
-				printf("\nEnter server DH Private key --> ");
-				scanf("%d", &pKa);
-				// Generate a key using server private key and g ^ pka mod q		
-				gPKa = modExpo(g, pKa, q);
-				// Get the next element after space in the message 
-				// Receive g ^ pkb mod q from client then store in found.
-				found = strtok(NULL, " ");	
-				 
-				//Convert variable containing the key to integer
-				gPKb = atoi(found);
-				// Use key received to find common key
-				comKey = fastModExpAlg(decToBin(gPKb), g, q);
-				
-				// Check for signed key for authentification
-				// get signed next to generated key 
-				found = strtok(NULL, " ");
-				signedKey = atoi(found);
-				printf("Your decrypted RSA Key is %d \n", decrypt(signedKey));
-				
-				// Display private key and generated private key
-				printf("\nYour Private Key is %d and your Generated Key is %d\n\n", pKa, gPKa);
-				// Display common key generated from client private key
-				printf("\nThe common key is %d\n\n", comKey);
-			
-				// Add flag K to specify that it's a generated key from server
-				strcpy(client_message, "k ");
-				// Convert the the server private key integer to string of character then copy it to the message back to the client
-				sprintf (convert, "%d", gPKa);
-				strcat(client_message, convert);
-			}
-			else if (strcmp(found, "M") == 0 || strcmp(found, "m") == 0) {
-				// Check if private key was entered
-				if(comKey <= 0){
-					printf("Error. Common generated key not found.\n");
+		else if (strcmp(found, "K") == 0 || strcmp(found, "k") == 0) {
+			// Check for signed key for authentification
+			// get signed next to generated key 
+			found = strtok(NULL, " ");
+			signedKey = stoi(certs.decryptRSA(found));
+			printf("Client decrypted Generated Key is %d \n", signedKey);
+			//Convert variable containing the key to integer
+			gPKb = signedKey;
+			// Use key received to find common key
+			comKey = fastModExpAlg(decToBin(gPKb), g, q);
+			// Display common key generated from client private key
+			printf("\nThe common key is %d\n\n", comKey);
+			// Send back V to client
+			strcpy(client_message, "V");
+		}
+		else{
+			// while not at the end of the file do this
+			a.version = found;
+			certs.writeFile(a.version, "client_certs.txt");
+
+			// Get next string
+			found = strtok(NULL, " ");
+			a.serial_number = found;
+			certs.writeFile(a.serial_number, "client_certs.txt");
+			//
+			found = strtok(NULL, " ");
+			a.signature_algo.algo = found;
+			certs.writeFile(a.signature_algo.algo, "client_certs.txt");
+
+			found = strtok(NULL, " ");
+			a.signature_algo.parameters = found;
+			certs.writeFile(a.signature_algo.parameters, "client_certs.txt");
+
+			found = strtok(NULL, " ");
+			a.issuer_name = found;
+			certs.writeFile(a.issuer_name, "client_certs.txt");
+
+			found = strtok(NULL, " ");
+			a.period_of_validity.not_before = stoi(found);
+			certs.writeFile(to_string(a.period_of_validity.not_before), "client_certs.txt");
+
+			found = strtok(NULL, " ");
+			a.period_of_validity.not_after = stoi(found);
+			certs.writeFile(to_string(a.period_of_validity.not_after), "client_certs.txt");
+
+			found = strtok(NULL, " ");
+			a.subject_name = found;
+			certs.writeFile(a.subject_name, "client_certs.txt");
+
+			found = strtok(NULL, " ");
+			a.subject_pk_info.algo = found;
+			certs.writeFile(a.subject_pk_info.algo, "client_certs.txt");
+
+			found = strtok(NULL, " ");
+			a.subject_pk_info.parameters = found;
+			certs.writeFile(a.subject_pk_info.parameters, "client_certs.txt");
+
+			found = strtok(NULL, " ");
+			a.subject_pk_info.key = found;
+			certs.writeFile(a.subject_pk_info.key, "client_certs.txt");
+
+			found = strtok(NULL, " ");
+			a.s.algo = found;
+			certs.writeFile(a.s.algo, "client_certs.txt");
+
+			found = strtok(NULL, " ");
+			a.s.parameters = found;
+			certs.writeFile(a.s.parameters, "client_certs.txt");
+
+			found = strtok(NULL, " ");
+			a.s.certificate_signature = found;
+			certs.writeFile(a.s.certificate_signature, "client_certs.txt");
+
+			string gS,			// Signed G by client for DH
+				qS, 			// Signed Q by client for DH
+				nS;				// Signed N by client for RSA Decryption to be used with public key
+
+			found = strtok(NULL, " ");
+			gS = found;
+			found = strtok(NULL, " ");
+			qS = found;
+			found = strtok(NULL, " ");
+			nS = found;
+			//***************************************************************************
+			// Now authenticate the certs
+			string unsigned_hash = certs.generate_hash(a),
+				signed_hash;
+			int	unsigned_hash_dec,
+				signed_hash_dec;
+			// Convert hash from binray to decimal for comparison
+			unsigned_hash_dec = stoi(unsigned_hash, 0, 2);
+			// Decrypt the signature then compare to unsigned hash
+			if (a.issuer_name == a.subject_name) {
+				// Set the public key found on the certificate
+				certs.setE(stoi(a.subject_pk_info.key));
+				// Set n
+				certs.setN(stoi(nS));
+
+				// get the public key and totient to calculate the private key
+				int public_key = stoi(certs.getE()),
+					totient = stoi(certs.getNtot());
+
+				// decrypt 
+				signed_hash = certs.decryptRSA(a.s.certificate_signature);
+
+				// Display
+				if (unsigned_hash == signed_hash) {
+					cout << "Certificate Hash validated. Decrypted signature: " << signed_hash << " Match Unsigned Hash: " << unsigned_hash << endl;
+					//***************************************************************************
+			// Decrypt G Q and N using the certs public key for authentification 
+			// After authentification Set g and q for DH
+					g = stoi(certs.decryptRSA(gS));
+					q = stoi(certs.decryptRSA(qS));
+					cert_fields temp;				// hold the value for sever certificate
+					// Generate the server certificate
+					temp = certs.generate_cert_sign_request();
+					certs.generate_signature();
+					// Send back to server Certificate in the client message
+					// With Certificate add K to request their generated g ^ privateKey mod q
+					string data = certs.generate_sendstring(temp);
+					//strcat(client_message, data.c_str());
+					// Generate G ^ pka mod q
+					// Ask user to enter their Diffie-Hellmen private key 
+					printf("\nEnter server DH Private key --> ");
+					scanf("%d", &pKa);
+					// Generate a key using server private key and g ^ pka mod q		
+					gPKa = modExpo(g, pKa, q);
+
+					// Display private key and generated private key
+					printf("\nYour Private Key is %d and your Generated Key is %d\n\n", pKa, gPKa);
+
+					// Convert to character
+					sprintf(convert, "%d", gPKa);
+					// add the instruction flag to the client message
+					strcpy(client_message, "k");
+					// add space
+					strcat(client_message, " ");
+					// copy certificate to be sent over to the server
+					strcat(client_message, data.c_str());
+					string signedGPK;
+					// sign generated key with server RSA private 
+					signedGPK = fastModExpAlg(a.subject_pk_info.key.c_str(), gPKa, n);
+					// add the generated key
+					strcat(client_message, signedGPK.c_str());
+					// Send the generated key
 				}
-				else{
-					// Decrypt the message 
-					printf("\n Client sent %2i byte message:  %.*s\n",read_size, read_size ,client_message);
-				
-					// Send the message back to client
-					for(i=0;i< read_size;i++)
-					{
-						if ( i%2)
-						client_message[i] = 'z';
-					}
-				} 
-				
-			}	
+				else {
+					cout << "Certificate Hash not Valid. Decrypted signature: " << signed_hash << " Do no match unsigned hash: " << unsigned_hash << endl;
+					strcpy(client_message, "I");
+				}
+			}
+			
+
+			// wait to receive the generated from client
+			//	Use the generated key to create the Shared secret key for DH
+			//	Use shared secret key to communicate   
+
+			//  Allow the authenticated remote user to execute a few select commands on the remote server 
+
+			// view the results on the client. 
+
+			// All communication to and from the server are encrypted (using S-DES and either of the keys established in Part 1. 
+
 			// send private key produced 
 			// write(new_socket, client_message, read_size);
 		}// End of if
 
-		// Otherwise if g and q not define
-		else{
-			found = (char *)malloc(strlen(client_message)+1);
-			strcpy(found, client_message);
-			// looking for the first string by checking the separator 
-			found = strtok(client_message, " ");
-			
-			// If not included in client message 
-			// Send a message back to the user to ask the client to enter them
-			// check if client message contain -1 meaning g and q are included in the client message 
-			if (strcmp(found,"-1") == 0) {
-				// get g and q from client message by parsing them
-				// return string found before the seperator " " as long as string is no NULL
-				// set g
-				found = strtok(NULL, " ");
-				g = atoi(found);
-				// set q
-				found = strtok(NULL, " ");
-				q = atoi(found);
-				// get key pair d
-				found = strtok(NULL, " ");
-				e = atoi(found);
-				// get key pair n
-				found = strtok(NULL, " ");
-				n = atoi(found);
-				// send confirmation message back
-				// copy the message to reply back to the client
-				strcpy(client_message, "g and q are set!! Ready to receive generated key\n");
-			}// End of if
-			else{
-				printf("g prime and q prime not found. Try again.\n\n");
-				strcpy(client_message, "g prime and q prime not found. Try again.\n\n");
-			}// End of else
-		}// End of else
 		//write(new_socket, client_message , strlen(client_message));
 		write(new_socket, client_message , read_size);
 	}// End of while
