@@ -173,10 +173,10 @@ int fastModExpAlg(char * binary, int a, int n) {
 		a.serial_number = found;
 		//
 		found = strtok(NULL, " ");
-		a.signature_algo_id.algo = found;
+		a.signature_algo.algo = found;
 
 		found = strtok(NULL, " ");
-		a.signature_algo_id.parameters = found;
+		a.signature_algo.parameters = found;
 
 		found = strtok(NULL, " ");
 		a.issuer_name = found;
