@@ -51,7 +51,7 @@ void Certificates::menu() {
 			//compare_hash(x.s.certificate_signature, hash);
 		}
 		else if (option == "3") {
-			getCrlValues();
+			generate_crl();
 			displayCrl();
 		}
 		else if (option == "4") {
@@ -197,9 +197,11 @@ void Certificates::verify_certs_on_crl()
 	string certs_sn;
 	revok_certs rev_cert;
 	cert_fields certificate;
+	crl_fields crl;
 	bool is_found;
 	//cout << "Press 1 to verify a certificate file ";
 	//cin >> certs_sn;
+	crl = get_crl_file_data();
 	// get certificate data and store it
 	certificate = get_file_data();
 	// use certificate serial number to verify whether to disqualify the data or not
@@ -487,7 +489,7 @@ cert_fields Certificates::get_cert_sign_req_file()
 	return a;
 }
 
-crl_fields Certificates::getCrlValues()
+crl_fields Certificates::generate_crl()
 {
 	string hashable;					// store values to be hashed
 	int cert_list_number;
@@ -530,9 +532,9 @@ crl_fields Certificates::getCrlValues()
 		// enter certificates to be revocked  
 		count++;
 		
-		cout << "\n Enter User Certificate serial #";
+		cout << "\n Enter User Certificate serial number: ";
 		cin >> user_certificate_serial;
-		temp_rev_certs.serial_N = user_certificate_serial;
+		temp_rev_certs.serial_N = "# " + user_certificate_serial;		// Add pound to identify the serial number in the file
 		hashable += temp_rev_certs.serial_N;
 
 		cout << "\n Enter revocation date: ";

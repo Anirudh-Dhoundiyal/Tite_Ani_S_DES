@@ -70,7 +70,7 @@ private:
 		ca_key_filename;
 	void displayCert();
 	cert_fields generate_cert_sign_request();
-	crl_fields getCrlValues();
+	crl_fields generate_crl();
 	void validateCrl();
 	void displayCrl();
 public:
