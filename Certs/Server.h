@@ -1,4 +1,4 @@
-/*#pragma once
+#pragma once
 #ifndef SERVER_H
 #define SERVER_H
 
@@ -8,15 +8,19 @@
 #include <stdio.h>
 #include<string.h>	
 #include <iostream>
+#include "Certificates.h"
+
 using namespace std;
 
 class Server {
 private:
-int e =0;
-int n = 0;
+	int e,
+		n;
 
 public:
 Server(){
+	 e = 0;
+	 n = 0;
 	server();
 }
 int decrypt(int signedKey){
@@ -86,6 +90,7 @@ int fastModExpAlg(char * binary, int a, int n) {
 	return f;
 }
 
+
 	int server() {
 		int socket_desc , new_socket , c, read_size, i, comKey = -1, pKa, gPKa, gPKb, keyReceived, g = -1, q = -1, signedKey;
 	struct sockaddr_in server , client;
@@ -149,6 +154,92 @@ int fastModExpAlg(char * binary, int a, int n) {
 			printf("\n\n");
 		}// End of if
 		// Check what instructions have been sent
+		//***************************************************************************
+		// Receive the Certificate values as a string in client message
+		// Store element of the cert
+		char* found;
+		cert_fields a;
+		//int init_size = strlen(message);
+		// allocate space
+		//found = (char*)malloc(strlen(message) + 1);
+		found = (char*)malloc(strlen(client_message) + 1);
+		// Get the first string in the client message
+		found = strtok(client_message, " ");
+		// while not at the end of the file do this
+		a.version = found;
+
+		// Get next string
+		found = strtok(NULL, " ");
+		a.serial_number = found;
+		//
+		found = strtok(NULL, " ");
+		a.signature_algo_id.algo = found;
+
+		found = strtok(NULL, " ");
+		a.signature_algo_id.parameters = found;
+
+		found = strtok(NULL, " ");
+		a.issuer_name = found;
+
+		found = strtok(NULL, " ");
+		a.period_of_validity.not_before = stoi(found);
+
+		found = strtok(NULL, " ");
+		a.period_of_validity.not_after = stoi(found);
+
+		found = strtok(NULL, " ");
+		a.subject_name = found;
+
+		found = strtok(NULL, " ");
+		a.subject_pk_info.algo = found;
+
+		found = strtok(NULL, " ");
+		a.subject_pk_info.parameters = found;
+
+		found = strtok(NULL, " ");
+		a.subject_pk_info.key = found;
+
+		found = strtok(NULL, " ");
+		a.s.algo = found;
+
+		found = strtok(NULL, " ");
+		a.s.parameters = found;
+
+		found = strtok(NULL, " ");
+		a.s.certificate_signature = found;
+
+		string g = found = strtok(NULL, " "),			// Signed G by client for DH
+			q = found = strtok(NULL, " "),				// Signed Q by client for DH
+			n = found = strtok(NULL, " ");				// Signed N by client for RSA Decryption to be used with public key
+		
+		//***************************************************************************
+		// Now authenticate the certs
+
+
+		//***************************************************************************
+		// Decrypt G Q and N using the certs public key for authentification 
+		// How do you decrypt if even N is sign? (By sign i mean encrypted with RSA Private)
+		
+		// After authentification Set g and q for DH
+	 
+		// Generate G ^ pka mod q
+		
+		// Send the generated key
+		
+		// wait to receive the generated from client
+		
+		//	Use the generated key to create the Shared secret key for DH
+		
+		//	Use shared secret key to communicate   
+		 
+		
+
+		//  Allow the authenticated remote user to execute a few select commands on the remote server 
+		
+		// view the results on the client. 
+
+		// All communication to and from the server are encrypted (using S-DES and either of the keys established in Part 1. 
+		 
 		
 		// Case 1 -1 for setting up g and q 
 		// Case 2 K or k for sending the key and requesting key from server
@@ -162,17 +253,18 @@ int fastModExpAlg(char * binary, int a, int n) {
 			strcpy(found, client_message);
 			// Get the first string in the client message
 			found = strtok(found, " ");
-			// Case 2 K or k for sending the key and requesting key from server
+			// Case 2: K or k for sending the key and requesting key from server
 			if (strcmp(found,"K") == 0 || strcmp(found, "k") == 0) {
-				// Ask user to enter their key 
-				printf("\nEnter server private key --> ");
+				// Ask user to enter their Diffie-Hellmen private key 
+				printf("\nEnter server DH Private key --> ");
 				scanf("%d", &pKa);
 				// Generate a key using server private key and g ^ pka mod q		
-				// convert to binary && mod private key
-				//gPKa = fastModExpAlg(decToBin(pKa), g, q);
 				gPKa = modExpo(g, pKa, q);
-				found = strtok(NULL, " ");
-				// Receive private key from client. Convert message containing the key to integer
+				// Get the next element after space in the message 
+				// Receive g ^ pkb mod q from client then store in found.
+				found = strtok(NULL, " ");	
+				 
+				//Convert variable containing the key to integer
 				gPKb = atoi(found);
 				// Use key received to find common key
 				comKey = fastModExpAlg(decToBin(gPKb), g, q);
@@ -272,4 +364,3 @@ int fastModExpAlg(char * binary, int a, int n) {
 
 };
 #endif // !SERVER_H
-*/

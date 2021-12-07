@@ -92,6 +92,7 @@ public:
 	string find_key(string);
 	void get_priv_k(string);
 	void testHash();
+	cert_fields parse_certificate(char message);
 	//crl data type created.
 	//	Need:
 	//		-function to generate a crl(insert values)
