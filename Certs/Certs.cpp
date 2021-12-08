@@ -22,6 +22,9 @@ using namespace std;
 #include "Client.h"
 #include "Server.h"
 
+bool relativelyPrime(int a, int b) { // Assumes a, b > 0
+    return (a < b) ? relativelyPrime(b, a) : !(a % b) ? (b == 1) : relativelyPrime(b, a % b);
+}
 
 //main
 int main()
@@ -33,13 +36,14 @@ int main()
 
     cin >> select;
     if (select == 1) {
-        Server server;
+        Server server();
     }
     else if (select == 2) {
         Client client;
     }
 
     //Certificates certs;
-
+    
+   
     return 0;
 }

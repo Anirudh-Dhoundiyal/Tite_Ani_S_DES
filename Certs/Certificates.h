@@ -73,6 +73,9 @@ public:
 
 	Certificates();
 	~Certificates();
+	cert_fields getX() {
+		return x;
+	}
 	void sign_crl();
 	string generate_hash(cert_fields);
 	string generate_sendstring(cert_fields);

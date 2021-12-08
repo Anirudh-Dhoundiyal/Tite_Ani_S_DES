@@ -465,19 +465,20 @@ cert_fields Certificates::generate_cert_sign_request()
 	cin >> x.subject_pk_info.parameters;			// "none"
 	writeFile(x.subject_pk_info.parameters, certificate_file);
 	// get the certificate authority public key if requester
-	if (x.subject_name == x.issuer_name) {
-		// SELF SIGN CERTIFICATE
-		// if self sign get a public key from rsa
-		x.subject_pk_info.key = generateE();
-		// then add the CA Name along with the public key to a file for CA keys
-		writeFile(x.issuer_name + " " + x.subject_pk_info.key, ca_key_filename);
-	}
-	else {
+	if (x.subject_pk_info.algo == "2") {
 		// REGULAR CERTIFICATE SIGNATURE REQUEST 
 		// Generate a public key for the certification
 		x.subject_pk_info.key = generateEAlt();//.subject_pk_info.key();
 		//	Store public key and its owner in case need to sign someone certificate
 		writeFile(x.subject_name + " " + x.subject_pk_info.key, ca_key_filename);
+	}
+	else if (x.subject_name == x.issuer_name) {
+		// SELF SIGN CERTIFICATE
+		// if self sign get a public key from rsa
+		x.subject_pk_info.key = generateE();
+		//x.subject_pk_info.key = genRando();
+		// then add the CA Name along with the public key to a file for CA keys
+		writeFile(x.issuer_name + " " + x.subject_pk_info.key, ca_key_filename);
 	}
 	writeFile(x.subject_pk_info.key, certificate_file);
 

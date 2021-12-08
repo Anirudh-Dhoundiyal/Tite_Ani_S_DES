@@ -15,18 +15,24 @@ using namespace std;
 class Server {
 private:
 	int e,	// RSA public key
+		d,
 		n,	// RSA n
 		g,	// Diffie Parameter (Generator) 
 		q;	// DH Parameter
 				// Store element of the cert
 	cert_fields a;
+	char * iencli_message;
 public:
-	Server() {
+	Server(char * m) {
 		e = 0;
+		d = 0;
 		n = 0;
 		g = -1;
 		q = -1;
+		iencli_message = (char*)malloc(100 * sizeof(char));
+		strcpy (iencli_message,m);
 		server();
+		strcpy(m, iencli_message);
 	}
 
 
@@ -57,18 +63,19 @@ public:
 
 	}
 
-	string decToBin(int decimal) {
+	string decToBin(int decimal)
+	{
 		// hold the value of the binary string after convertion to be returned 
 		string binary = "";
-		int i = 0;
+
 		// do this while n is positive, until the remainder is 0
 		while (decimal > 0) {
 			// get the remainder of n divided by 2
-			binary[i] = (decimal % 2) + '0';
+			binary += to_string(decimal % 2);
 			// get the new result of n
 			decimal = decimal / 2;
-			i++;
 		}
+
 		return binary;
 	}
 
@@ -97,7 +104,7 @@ public:
 		char* message, client_message[100], *convert;
 		Certificates certs;
 		char *list;
-
+		string input;
 		list = (char*)malloc(10 * sizeof(char));
 		convert = (char*)malloc(10 * sizeof(char));
 
@@ -152,10 +159,10 @@ public:
 		//*************************************
 		// TESTABILITY switched the two while 
 		// Assuming the client sent this message, Process it 
-		strcpy(client_message, "ABC ");
+		strcpy(client_message, iencli_message);
 		read_size = 100;
  
-		while(!strncmp(client_message, "\0", 2))
+		while(!strncmp(client_message, "-1", 2))
 		{
 			printf("\n Client sent %2i byte message:  %.*s\n", read_size, read_size, client_message);
 
@@ -202,9 +209,10 @@ public:
 				// Send back V to client
 				strcpy(client_message, "V");
 			}
-			else {
+			else if(!strncmp(found, "-1", 2)) {
 
 				cout << "Now reading the certs" << endl;
+
 				// while not at the end of the file do this
 				found = strtok(NULL, " ");
 				a.version = found;
@@ -265,14 +273,16 @@ public:
 
 				string gS,			// Signed G by client for DH
 					qS, 			// Signed Q by client for DH
-					nS;				// Signed N by client for RSA Decryption to be used with public key
-
+					nS,				// Signed N by client for RSA Decryption to be used with public key
+					gPKS;
 				found = strtok(NULL, " ");
 				gS = found;
 				found = strtok(NULL, " ");
 				qS = found;
 				found = strtok(NULL, " ");
 				nS = found;
+				found = strtok(NULL, " ");
+				gPKS = found;
 				//***************************************************************************
 				// Now authenticate the certs
 				string unsigned_hash = certs.generate_hash(a),
@@ -282,7 +292,6 @@ public:
 				// Convert hash from binray to decimal for comparison
 				unsigned_hash_dec = stoi(unsigned_hash, 0, 2);
 				// Decrypt the signature then compare to unsigned hash
-				if (a.issuer_name == a.subject_name) {
 					// Set the public key found on the certificate
 					certs.setE(stoi(a.subject_pk_info.key));
 					// Set n
@@ -294,19 +303,42 @@ public:
 
 					// decrypt 
 					signed_hash = certs.decryptRSA(a.s.certificate_signature);
-
+					signed_hash_dec = stoi(signed_hash);
 					// Display
-					if (unsigned_hash == signed_hash) {
-						cout << "Certificate Hash validated. Decrypted signature: " << signed_hash << " Match Unsigned Hash: " << unsigned_hash << endl;
+					if (unsigned_hash_dec == signed_hash_dec) {
+						cout << "Certificate Hash validated. Decrypted signature: " << signed_hash << " Match Unsigned Hash: " << unsigned_hash_dec << endl;
 						//***************************************************************************
-				// Decrypt G Q and N using the certs public key for authentification 
-				// After authentification Set g and q for DH
+						// Decrypt G Q and N using the certs public key for authentification 
+						// After authentification Set g and q for DH
 						g = stoi(certs.decryptRSA(gS));
 						q = stoi(certs.decryptRSA(qS));
+						gPKclient = stoi(certs.decryptRSA(gPKS));
+						cout << "G Q and GPKClient: " << g << "  " << q << "  " << gPKclient << endl;
 						cert_fields temp;				// hold the value for sever certificate
-						// Generate the server certificate
-						temp = certs.generate_cert_sign_request();
-						certs.generate_signature();
+						
+						bool iscorrect = false;
+						while (!iscorrect) {
+							cout << "Enter 1 to generate a cert or 2 to Read a cert file: ";
+							cin >> input;
+							if (input == "1") {
+								// Generate the server certificate
+								temp = certs.generate_cert_sign_request();
+								certs.generate_signature();
+								temp = certs.getX();
+								iscorrect = true;
+							}
+							else if (input == "2") {
+								temp = certs.get_file_data();
+								iscorrect = true;
+							} 
+						}
+						
+						// get public and private key of cert for RSA Encryption
+						certs.get_priv_k(temp.subject_name);
+						e = stoi(certs.getE());
+						d = stoi(certs.getD());
+						n = stoi(certs.getN());
+
 						// Send back to server Certificate in the client message
 						// With Certificate add K to request their generated g ^ privateKey mod q
 						string data = certs.generate_sendstring(temp);
@@ -320,27 +352,34 @@ public:
 
 						// Display private key and generated private key
 						printf("\nYour Private Key is %d and your Generated Key is %d\n\n", pKserver, gPKserver);
+						// Generate Shared Secret
+						comKey = fastModExpAlg(pKserver, gPKclient, q);
+						cout << "After receiving client generated key: " << gPKclient << " Shared Common key to use for S_DES encryption and decryption: " << comKey << endl;
 
 						// Convert to character
-						sprintf(convert, "%d", gPKserver);
+						//sprintf(convert, "%d", gPKserver);
 						// add the instruction flag to the client message
 						strcpy(client_message, "k");
 						// add space
 						strcat(client_message, " ");
 						// copy certificate to be sent over to the server
 						strcat(client_message, data.c_str());
-						string signedGPK;
+						int signedGPK;
 						// sign generated key with server RSA private 
-						signedGPK = fastModExpAlg(stoi(a.subject_pk_info.key), gPKserver, n);
+						signedGPK = fastModExpAlg(d, gPKserver, n);
 						// add the generated key
-						strcat(client_message, signedGPK.c_str());
+						sprintf(convert, "%d", signedGPK);
+						strcat(client_message, convert);
 						// Send the generated key
+						
 					}
 					else {
 						cout << "Certificate Hash not Valid. Decrypted signature: " << signed_hash << " Do no match unsigned hash: " << unsigned_hash << endl;
 						strcpy(client_message, "I");
 					}
-				}
+
+					//********************TESTABILITY
+					strcpy(iencli_message, client_message);
 
 
 				// wait to receive the generated from client

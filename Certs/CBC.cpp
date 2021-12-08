@@ -136,12 +136,23 @@ string CBC::get_SDES_Key()
 ifstream CBC::read_file(string filename) {
     ifstream inFile;
     string plaintext,
-        ten_bit_key;
+        input;
     inFile.open(filename);
 
     // if file not found display message
     if (!inFile) {
-        cerr << "File not found: " << filename << endl;
+            while (!inFile) {
+                cerr << "\nFile not found: " << filename << endl;
+                cout << "Enter q to quit or Enter filename: ";
+                cin >> filename;
+                // quit program
+                if (filename == "q")
+                    exit(0);
+                // try opening the file
+                inFile.open(filename);
+            
+            }
+            return inFile;
     }
     else {
         return inFile;

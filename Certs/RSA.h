@@ -50,6 +50,7 @@ public:
 	void print_values();
 	string rsa_signature_e(string);
 	string rsa_signature_d(string, string);
+	bool relativelyPrime(int, int);
 #pragma endregion
 
 #pragma region Constructor
@@ -64,6 +65,8 @@ public:
 #pragma endregion
 
 	string generateE();
+
+	string genRando();
 
 	string generateEAlt();
 

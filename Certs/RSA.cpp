@@ -59,6 +59,31 @@ string RSA::generateE() {
     return to_string(e);
 }
 
+bool isPrime(int n) {
+    for (int i = 2; i <= n / i; ++i) {
+        if (n % i == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool RSA::relativelyPrime(int a, int b) { // Assumes a, b > 0
+    return (a < b) ? relativelyPrime(b, a) : !(a % b) ? (b == 1) : relativelyPrime(b, a % b);
+}
+
+string RSA::genRando() {
+    int p = 0;
+     
+    srand(time(NULL));
+    do {
+        p = rand();
+    } while (!relativelyPrime(ntot, p));
+
+    return to_string(p);
+}
+
+
 string RSA::generateEAlt() {
     int a[9] = { 73, 79, 83, 107, 109, 113, 283, 293, 307 };
     int RandIndex = rand() % 9;     //Gets random index for the array

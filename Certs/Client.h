@@ -9,6 +9,7 @@
 //#include<sys/socket.h>
 //#include<arpa/inet.h> 
 #include "Certificates.h"
+#include "Server.h"
 
 using namespace std;
 
@@ -185,12 +186,13 @@ public:
 	int client() {
 		int socket_desc;    // file descripter returned by socket command
 	//	struct sockaddr_in server;    // in arpa/inet.h
-		int read_size = 0, pKclient, g = -1, q = -1, gPKclient, comKey, gPKserver, rsaK;
+		int read_size = 0, pKclient = 0, g = -1, q = -1, gPKclient = 0, comKey, gPKserver, rsaK;
 		char  server_reply[100], client_message[100], entry;
 		bool valid = false, validEntry = false;
 		char* found, convert[15], * foundS;
 		cert_fields temp;
 		cert_fields servercert;
+		int gE, qE, gPKclientE;
 		// //Create socket
 	//	socket_desc = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -248,8 +250,8 @@ public:
 					//signing g
 				}
 				cout << "g before signing " << g << endl;
-				g = fastModExpAlg(d, g, n);
-				cout << g << endl;
+				gE = fastModExpAlg(d, g, n);
+				cout << gE << endl;
 
 				printf("\nEnter q --> ");
 				while (scanf("%d%c", &q, &entry) != 2 || entry != '\n') {
@@ -258,17 +260,17 @@ public:
 					//signing q
 				}
 				cout << "q before signing" << q << endl;
-				q = fastModExpAlg(d, q, n);
+				qE = fastModExpAlg(d, q, n);
 
-				cout << q << endl;
+				cout << qE << endl;
 				// append the integer g and q to client message containing -1 already
 				// after converting the integer to character g
 				//strcat(client_message, " ");
-				sprintf(convert, "%d", g);
+				sprintf(convert, "%d", gE);
 				strcat(client_message, convert);
 				// q
 				strcat(client_message, " ");
-				sprintf(convert, "%d", q);
+				sprintf(convert, "%d", qE);
 				strcat(client_message, convert);
 
 				// adding n to server message
@@ -277,6 +279,26 @@ public:
 				cout << n << endl;
 				sprintf(convert, "%d", n);
 				cout << convert << endl;
+				strcat(client_message, convert);
+
+				// Prompt user for message 
+				printf("Enter the private key to generate a public key to server.\n");
+				cin >>pKclient;
+				// Send the client message  
+				// convert string of character containing the message into integer for calculation
+				//pKclient = atoi(client_message);
+				// generate a key using your private key and g ^ pkb mod q
+				//gPKb = fastModExpAlg(decToBin(pKb), g, q);
+				gPKclient = modExpo(g, pKclient, q);
+				// Sign the generated key 
+				gPKclientE = fastModExpAlg(d,gPKclient, n);
+				// Display private key and generated private key for debugging
+				printf("Your Private Key is %d and your Generated Key is %d\n", pKclient, gPKclient);
+				// convert the key to a character
+				sprintf(convert, "%d", gPKclientE);
+				// adding generated client key to server message
+				strcat(client_message, " ");
+				// copy key generated to be sent over to the server
 				strcat(client_message, convert);
 
 				valid = true;
@@ -296,25 +318,6 @@ public:
 					// If first string is not -1 then message contain private key.
 					// Produce generated key using then copy generated key to client message to be sent over to the server
 				if (strcmp(found, "K") == 0 || strcmp(found, "k") == 0) {
-					// Prompt user for message 
-					printf("Enter the private key to generate a public key to server.\n");
-					memset(client_message, '\0', 100);
-					scanf("%s", client_message);
-					// Send the client message  
-					// convert string of character containing the message into integer for calculation
-					pKclient = atoi(client_message);
-					// generate a key using your private key and g ^ pkb mod q
-					//gPKb = fastModExpAlg(decToBin(pKb), g, q);
-					gPKclient = modExpo(g, pKclient, q);
-					// Display private key and generated private key for debugging
-					printf("Your Private Key is %d and your Generated Key is %d\n", pKclient, gPKclient);
-					// convert the key to a character
-					sprintf(convert, "%d", gPKclient);
-					// add the instruction flag to the client message
-					strcpy(client_message, found);
-					strcat(client_message, " ");
-					// copy key generated to be sent over to the server
-					strcat(client_message, convert);
 
 					// Sign the private key using RSA for authentification by server
 					//rsaK = encrypt();
@@ -348,6 +351,10 @@ public:
 
 					valid = true;
 				}
+				else if (strncmp(found, "-1", 2) == 0) {
+					Server ser(&*client_message);// (client_message);
+					strcpy(server_reply, client_message);
+				}
 
 				//*** Case 3 message containing g and q to be sent
 					// Do nothing as -1 already included in message just send over to server
@@ -378,8 +385,8 @@ public:
 					// Allocate space for server reply instruction check
 					
 					foundS = (char*)malloc(strlen(server_reply) + 1);
-					sprintf(convert, "%s", "k");
-					strcat(foundS, convert);
+					//sprintf(convert, "%s", "k");
+					//strcat(foundS, convert);
 					// Copy content of server reply
 					strcpy(foundS, server_reply);
 					// Get the first string from the server reply
@@ -433,7 +440,6 @@ public:
 
 						foundS = strtok(NULL, " ");
 						servercert.s.certificate_signature = foundS;
-						foundS = strtok(NULL, " ");
 
 						certs.writeFile(servercert.version, "server_cert.txt");
 						certs.writeFile(servercert.serial_number, "server_cert.txt");
@@ -448,7 +454,11 @@ public:
 						certs.writeFile(servercert.s.parameters, "server_cert.txt");
 						certs.writeFile(servercert.s.certificate_signature, "server_cert.txt");
 						string unsigned_hash = certs.generate_hash(servercert);
-						string comparehash = decToBin(fastModExpAlg(d, stoi(servercert.s.certificate_signature), n));
+
+						certs.setE(stoi(servercert.subject_pk_info.key));
+
+						//string comparehash = decToBin(fastModExpAlg(d, stoi(servercert.s.certificate_signature), n));
+						string comparehash = decToBin(stoi(certs.decryptRSA(servercert.s.certificate_signature)));
 						if (unsigned_hash == comparehash) {
 							cout << "hash is validated" << endl;
 						}
@@ -456,16 +466,21 @@ public:
 							cout << "invalid cert" << endl;
 						}
 						//this is a comment
-						printf("Server sent the cert and the signed gPKa: %.*s\n\n", read_size, foundS);
-						// Get the string after the space then convert that into integer
-						int temp = fastModExpAlg(d, atoi(foundS), n);
+						printf("Server sent the cert and the signed generated key: %.*s\n\n", read_size, foundS);
+						// Decrypt generated key from server 
+						//int temp = fastModExpAlg(d, atoi(foundS), n);
+						int temp = stoi(certs.decryptRSA(foundS));
 						gPKserver = temp;
-						printf("Server  Replies: %d.  Generated %d \n\n", read_size, gPKserver);
+						printf("Server  Replies: %d.  Generated key decrypted: %d \n\n", read_size, gPKserver);
+
+
+
+
 						// Find common key using the server key received 
-						comKey = fastModExpAlg(gPKserver, g, q);
+						comKey = fastModExpAlg(pKclient, gPKserver, q);
 
 						// display common key
-						printf("Common key to use for S_DES encryption and decryption is %d \n", comKey);
+						printf("Shared Common key to use for S_DES encryption and decryption is %d \n", comKey);
 					}// End of if
 
 					// if server reply instruction is m send back decrypted message to client
