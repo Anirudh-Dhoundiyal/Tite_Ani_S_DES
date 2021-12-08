@@ -252,14 +252,16 @@ public:
 				memset(client_message, '\0', 100);
 				scanf("%s", client_message);
 				if (strcmp(client_message, "p") == 0 || strcmp(client_message, "p") == 0){
-
+					string temppass;
 					printf("\nEnter your user --> ");
 
 					scanf("%s", client_message);
 					strcat(client_message, " ");
 					printf("\nEnter your Passsword --> ");
-					scanf("%s", client_message);
-					valid = true;
+					
+					scanf("%s", temppass);
+					temppass = certs.cbc_hash(temppass, comKey);
+					strcat(client_message, temppass.c_str());
 				}
 				else if(strcmp(client_message, "c") == 0 || strcmp(client_message, "C") == 0){
 					string temp = "";
