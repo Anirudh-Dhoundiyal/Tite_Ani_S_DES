@@ -44,7 +44,7 @@ void CBC::cbc_menu() {
     }
 }
 
-string CBC::cbc_hash(string fileName) {
+string CBC:: cbc_hash(string fileName) {
     // Initiale value
     int iv = 3, option;
     bool CBC_firstPass = false;
@@ -104,6 +104,77 @@ string CBC::cbc_hash(string fileName) {
                 input_block = x_or(unsignedChartoBinary(plaintext_character[i]), initial_vector);      // exclusive-or current plain text character with the previous cipher block
                 // get the initial value h0
                 block.encryptionWrapper(input_block, k);
+                writeFile(block.getcp(), "cbctest.txt");
+                CBC_firstPass = true;
+            }
+        }
+    }
+    // get the hash value of the file
+    // G = Hn
+    string hash = block.getcp();
+    block.setcp("");
+    return hash;
+}
+string CBC:: cbc_hash(string fileName, int key) {
+    // Initiale value
+    int iv = 3, option;
+    bool CBC_firstPass = false;
+    S_DES block;
+    string plaintext_character,
+        initial_vector,
+        temp,
+        input_block;
+    // get s-des key for encryption 
+    //k = get_SDES_Key();
+     string tempkey = block.decTobin(key);
+    image_flag = true;
+    // convertion of IV to plaint text block size
+    temp += decTobin(iv);
+    int count = 8 - temp.size();
+    while (count > 0) {
+        initial_vector += '0';
+        count--;
+    }
+    initial_vector += temp;
+
+    //cout << "Press 1 to hash a file or 2 to hash a string of text ";
+    //cin >> option;
+    //if (option == 1) {
+        // read the file
+    //    ifstream inFile = read_file(fileName);
+    //    temp = "";
+        // get plain text from it 
+    //    while (inFile >> temp) {
+    //        plaintext_character += temp;
+    //    }
+        // close file once done 
+    //    inFile.close();
+    //}
+    //else if (option == 2) {
+        plaintext_character = fileName;
+        hashFlag = true;
+    //}
+    writeFile(plaintext_character + "  ---Hash -----\n\n", "cbctest.txt");
+    // for each plaintext block encrypt every character at a time
+    for (int i = 0; i < plaintext_character.size(); i++) {
+        if (hashFlag) {
+            
+            // after pass one do this
+            // Exclusive-or current plaintext block with previous ciphertext block
+            // Hi = E (Mi, Hi-1) 
+            if (CBC_firstPass) {
+                input_block = "";
+                input_block = block.getcp();       // get previous cipher block
+                input_block = x_or(unsignedChartoBinary(plaintext_character[i]), input_block);      // exclusive-or current plain text character with the previous cipher block
+                //input_block += "01";        // add padding 
+                block.encryptionWrapper(input_block, tempkey);      // encrypt output of the exclusive-or 
+                writeFile(block.getcp(), "cbctest.txt");
+            }
+            else
+            {
+                input_block = x_or(unsignedChartoBinary(plaintext_character[i]), initial_vector);      // exclusive-or current plain text character with the previous cipher block
+                // get the initial value h0
+                block.encryptionWrapper(input_block, tempkey);
                 writeFile(block.getcp(), "cbctest.txt");
                 CBC_firstPass = true;
             }
