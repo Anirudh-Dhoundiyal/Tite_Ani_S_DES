@@ -102,12 +102,13 @@ public:
 		int socket_desc, new_socket, c, read_size, i, comKey = -1, pKserver, gPKserver, gPKclient, keyReceived, signedKey;
 //		struct sockaddr_in server, client;
 		char* message, client_message[100], *convert;
-		Certificates certs;
+		Certificates certs; 
 		char *list;
 		string input;
 		list = (char*)malloc(10 * sizeof(char));
 		convert = (char*)malloc(10 * sizeof(char));
 		bool authentification = false;
+		bool login = false;
 		strcpy(list, "ls -l\n");
 
 
@@ -166,12 +167,7 @@ public:
 		{
 			printf("\n Client sent %2i byte message:  %.*s\n", read_size, read_size, client_message);
 
-			if (!strncmp(client_message, "showMe", 6))
-			{
-				printf("\nFiles in this directory: \n");
-				system(list);
-				printf("\n\n");
-			}// End of if
+			
 			// Check what instructions have been sent
 			//***************************************************************************
 			// Receive the Certificate values as a string in client message
@@ -188,10 +184,62 @@ public:
 			// Case 1 M or m for sending the message to server possibly decrypting before sending then receive encrypted message then decrypt it if instruction is M or m and display the decrypted on the server comparing to original message from client
 			// Case 2 K or k for sending the key and requesting key from server
 			// Case 3 To process Certificate! 
-			if (strcmp(found, "C") == 0 || strcmp(found, "c") == 0) {
-				// Check if private key was entered
+			if(authentification = true){
+				if (strcmp(found, "P") == 0 || strcmp(found, "p") == 0) {
+					found = strtok(NULL, " ");
+					string user = found;
+					found = strtok(NULL, " ");
+					string password = found;
+					fstream inFile;
+					inFile.open("client_user.txt");
+					string stored_user;
+					string stored_pass;
+					inFile >> stored_user >> stored_pass;
+					if(user == stored_user && password == stored_pass){
+							login = true;
+					}
+					
+				}// End of if
+				if(login = true){
+					 char buffer[128];	
+					string result;
+					if (strcmp(found, "C") == 0 || strcmp(found, "c") == 0) {
+						found = strtok(NULL, " ");
 
+						if (!strncmp(found, "showMe", 6))
+						{
+							
+							printf("\nFiles in this directory: \n");
+							FILE* pipe = popen(list, "r");
+							 if (!pipe) {
+							 printf( "popen failed!");
+							}
+							  while (!feof(pipe)) {
+
+									// use buffer to read and add to result
+									if (fgets(buffer, 128, pipe) != NULL)
+										result += buffer;
+							  
+							}
+							memset(client_message, '\0', 100);
+							strcpy(client_message, result.c_str());
+  							pclose(pipe);
+							printf("\n\n");
+						}// End of if
+						else if(!strncmp(found, "touch", 5)){
+							char *touch;
+							strcpy(touch, "touch \n");
+							found = strtok(NULL, " ");
+							strcpy(touch, found);
+							printf("\n Making new File \n");
+							system(touch);
+							printf("\n\n");
+						}
+
+					}
+				}
 			}
+
 			else if(!strncmp(found, "-1", 2)) {
 			
 				if (authentification == false) {
