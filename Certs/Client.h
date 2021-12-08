@@ -239,7 +239,7 @@ public:
 			scanf("%s", client_message);
 
 
-			while (auth = true)
+			while (auth == true)
 			{
 				if(login == false){
 				printf("Enter p or P to send password\n");
