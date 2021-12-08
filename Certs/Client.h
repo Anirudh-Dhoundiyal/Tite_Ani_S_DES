@@ -6,8 +6,8 @@
 #include <stdbool.h> 
 #include <stdlib.h>
 #include<string.h>	
-//#include<sys/socket.h>
-//#include<arpa/inet.h> 
+#include<sys/socket.h>
+#include<arpa/inet.h> 
 #include "Certificates.h"
 #include "Server.h"
 
@@ -183,8 +183,8 @@ public:
 	}
 
 	Client() {
-	//	certs.generate_cert_sign_request();
-	//	certs.generate_signature();
+		certs.generate_cert_sign_request();
+		certs.generate_signature();
 		e = stoi(certs.getE());
 		d = stoi(certs.getD());
 		cout << " e is " << e << endl;
@@ -205,10 +205,10 @@ public:
 		cert_fields servercert;
 		int gE, qE, gPKclientE;
 		// //Create socket
-	//	socket_desc = socket(AF_INET, SOCK_STREAM, 0);
+		socket_desc = socket(AF_INET, SOCK_STREAM, 0);
 
 		printf("Trying to create socket\n");
-		/****************************************************************************************
+		
 		if (socket_desc == -1)
 		{
 			printf("Unable to create socket\n");
@@ -225,7 +225,6 @@ public:
 			printf(" connect error");
 			return 1;
 		}
-		***************************************************************************************/
 
 		//Get data from keyboard and send  to server
 		printf("What do you want to send to the server. (b for bye)\n");
@@ -251,7 +250,7 @@ public:
 					}
 					memset(client_message, '\0', 100);
 					scanf("%s", client_message);
-				} while (strncmp(client_message, "p", 2) || strncmp(client_message, "x", 2) || strncmp(client_message, "q", 2));
+				} while (strncmp(client_message, "p", 2) == 0 || strncmp(client_message, "c", 2) == 0 || strncmp(client_message, "q", 2) == 0);
 				
 
 				if (strcmp(client_message, "p") == 0 || strcmp(client_message, "p") == 0){

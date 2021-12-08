@@ -2,8 +2,8 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-//#include<arpa/inet.h>	//inet_addr
-//#include<unistd.h>		//write
+#include<arpa/inet.h>	//inet_addr
+#include<unistd.h>		//write
 #include<stdlib.h>	
 #include <stdio.h>
 #include<string.h>	
@@ -130,7 +130,7 @@ public:
 	}
 	int server() {
 		int socket_desc, new_socket, c, read_size, i, comKey = -1, pKserver, gPKserver, gPKclient, keyReceived, signedKey;
-//		struct sockaddr_in server, client;
+		struct sockaddr_in server, client;
 		char* message, client_message[100], *convert;
 		Certificates certs; 
 		char *list;
@@ -142,7 +142,7 @@ public:
 		strcpy(list, "ls -l\n");
 
 		char* found, convertS[15] = "\0";
-		/******************************************************************************************************************
+
 		//Create socket
 		socket_desc = socket(AF_INET, SOCK_STREAM, 0);
 		if (socket_desc == -1)
@@ -182,21 +182,12 @@ public:
 		//Reply to the client
 		message = "You have located Server X at our undisclosed location.  What would you like to say?\n";
 		write(new_socket , message , strlen(message));
-		******************************************************************************************************************/
-		
-		//Receive a message from client************************************************
-		//while ((read_size = recv(new_socket, client_message, 100, 0)) > 0)
-		//*************************************
-		// TESTABILITY switched the two while 
+
+		//Receive a message from client
 		// Assuming the client sent this message, Process it 
-		strcpy(client_message, iencli_message);
-		read_size = 100;
- 
-		//while(!strncmp(client_message, "-1", 2))
-		//{
+		while ((read_size = recv(new_socket, client_message, 100, 0)) > 0) {
 			printf("\n Client sent %2i byte message:  %.*s\n", read_size, read_size, client_message);
 
-			
 			// Check what instructions have been sent
 			//***************************************************************************
 			// Receive the Certificate values as a string in client message
@@ -218,36 +209,36 @@ public:
 					found = strtok(NULL, " ");
 					string user = found;
 					found = strtok(NULL, " ");
-					string password = found;	
+					string password = found;
 					fstream inFile;
 					inFile.open("client_user.txt");
 					string stored_user;
 					string stored_pass;
 					inFile >> stored_user >> stored_pass;
 					stored_pass = certs.cbc_hash(stored_pass, comKey);
-					if(user == stored_user && password == stored_pass){
-							login = true;
-							cout << "Password Validated. User and Password from client" << user << password << " match the ones in file " << stored_pass << " " << stored_pass << endl;
-							strcpy(client_message, "L");
+					if (user == stored_user && password == stored_pass) {
+						login = true;
+						cout << "Password Validated. User and Password from client" << user << password << " match the ones in file " << stored_pass << " " << stored_pass << endl;
+						strcpy(client_message, "L");
 					}
 					else {
 						cout << "User Or Password Incorect." << endl;
 					}
-					
+
 				}// End of if
-				if(login = true){
-					
+				if (login = true) {
+
 					string result;
 					if (strcmp(found, "C") == 0 || strcmp(found, "c") == 0) {
 						found = strtok(NULL, " ");
 
-						if (!strncmp(found, "ls", 6))
+						if (strncmp(found, "ls", 2) == 0)
 						{
 							printf("\nFiles in this directory: \n");
 							result = exec_command(client_message);
 						}// End of if
-						else if(!strncmp(found, "touch", 5)){
-							char *touch ;
+						else if (strncmp(found, "touch", 5) == 0) {
+							char* touch;
 							touch = (char*)malloc(strlen(client_message) + 1);
 							strcpy(touch, "touch \n");
 							found = strtok(NULL, " ");
@@ -260,8 +251,8 @@ public:
 					}
 				}
 			}
-			else if(!strncmp(found, "-1", 2)) {
-			
+			else if (strncmp(found, "-1", 2) == 0) {
+
 				if (authentification == false) {
 					// while not at the end of the file do this
 					found = strtok(NULL, " ");
@@ -431,31 +422,12 @@ public:
 						authentification = false;
 					}
 				}
-				
-
-					//********************TESTABILITY
-					strcpy(iencli_message, client_message);
-
-
-				// wait to receive the generated from client
-				//	Use the generated key to create the Shared secret key for DH
-				//	Use shared secret key to communicate   
-
-				//  Allow the authenticated remote user to execute a few select commands on the remote server 
-
-				// view the results on the client. 
-
-				// All communication to and from the server are encrypted (using S-DES and either of the keys established in Part 1. 
-
-				// send private key produced 
-				// write(new_socket, client_message, read_size);
+			}
+				//write(new_socket, client_message , strlen(client_message));
+				write(new_socket, client_message, read_size);
 			}// End of if
-			/************************************************************************
-			//write(new_socket, client_message , strlen(client_message));
-			write(new_socket, client_message, read_size);
-			*************************************************************************/
 		//}// End of while
-
+		
 		if (read_size == 0)
 		{
 			printf("client disconnected\n");
@@ -465,12 +437,10 @@ public:
 		{
 			perror("receive failed");
 		}// End of else
-
 		//Free the socket pointer
-		//*************************************close(socket_desc);
+		close(socket_desc);
 
 		return 0;
 	}
-
 };
 #endif // !SERVER_H
