@@ -232,36 +232,46 @@ public:
 
 		while (strncmp(client_message, "b", 1))      // quit on "b" for "bye"
 		{
-			printf("Enter -1 to start cert authentication\n");
-			printf("Enter M or m for message to server.\n");
-
-			memset(client_message, '\0', 100);
-			scanf("%s", client_message);
-
+			if (auth == false) {
+				printf("Enter -1 to start cert authentication\n");
+				memset(client_message, '\0', 100);
+				scanf("%s", client_message);
+			}
 
 			while (auth == true)
 			{
-				if(login == false){
-				printf("Enter p or P to send password\n");
-				}
-				else if(login == true){
-				printf("Enter c or C to send command.\n");
-				}
-			
+				do{
+					if (login == false) {
+						cout << "First time user: ";
+						printf("Enter p or P to send password\n");
+					}
+					else if (login == true) {
+						cout << "Logged in user: ";
+						printf("Enter c or C to send command.\n");
+					}
+					memset(client_message, '\0', 100);
+					scanf("%s", client_message);
+				} while (strncmp(client_message, "p", 2) || strncmp(client_message, "x", 2) || strncmp(client_message, "q", 2));
+				
 
-				memset(client_message, '\0', 100);
-				scanf("%s", client_message);
 				if (strcmp(client_message, "p") == 0 || strcmp(client_message, "p") == 0){
 					string temppass;
+					found = (char*)malloc(50 + 1);
 					printf("\nEnter your user --> ");
+					strcpy(found, client_message);
 
 					scanf("%s", client_message);
-					strcat(client_message, " ");
+					strcat(found, " ");
+
+					strcat(found, client_message);
 					printf("\nEnter your Passsword --> ");
-					
-					scanf("%s", temppass);
+					cin>> temppass;
+
 					temppass = certs.cbc_hash(temppass, comKey);
-					strcat(client_message, temppass.c_str());
+					strcat(found, " ");
+					strcat(found, temppass.c_str());
+					strcpy(client_message, found);
+					valid = true;
 				}
 				else if(strcmp(client_message, "c") == 0 || strcmp(client_message, "C") == 0){
 					string temp = "";
@@ -269,50 +279,44 @@ public:
 					cin  >> temp;
 					strcat(client_message, temp.c_str());
 					valid = true;
-
 				}
 				if (valid) {
 						// Set valid back to false for next menu selection
 						valid = false;
 
-						/*************************************************************************
 						// Send to server
 						if (send(socket_desc, &client_message, strlen(client_message), 0) < 0)
 						{
 							printf("Send failed");
 							return 1;
 						}// End of if
-						**************************************************************************/
 
 						// Print message client is sending to the client 
 						printf("\nSending Message: %.*s\n", (int)strlen(client_message), client_message);
-
-						/*********************************************************************************
+	
 						//Receive a reply from the server
 						if ((read_size = recv(socket_desc, server_reply, 100, 0)) < 0)
 						{
 							printf("recv failed");
 						}
-						*********************************************************************************/
-						// Allocate space for server reply instruction check
-						
 						foundS = (char*)malloc(strlen(server_reply) + 1);
-						//sprintf(convert, "%s", "k");
-						//strcat(foundS, convert);
+
 						// Copy content of server reply
 						strcpy(foundS, server_reply);
 						// Get the first string from the server reply
 						foundS = strtok(foundS, " ");
 
 						// Print message client is sending to the client 
-						printf("\nServer replied with: %.*s\n\n", (int)strlen(client_message), client_message);
+						printf("\nServer replied with: %.*s\n\n", (int)strlen(server_reply), server_reply);
 						// If server reply's first string is k then reply contains generated key
 						// Process server generated private key
 						if (strcmp(foundS, "l") == 0 || strcmp(foundS, "L") == 0) {
 							login = true;
 						}
+						else {
+							cout << server_reply<<endl;
+						}
 				}
-			
 			
 			}
 			
@@ -396,48 +400,6 @@ public:
 				// Get the first string in the client message
 				found = strtok(found, " ");
 
-				//*** Case 1 message containning private key 
-					// If first string is not -1 then message contain private key.
-					// Produce generated key using then copy generated key to client message to be sent over to the server
-				if (strcmp(found, "K") == 0 || strcmp(found, "k") == 0) {
-
-					// Sign the private key using RSA for authentification by server
-					//rsaK = encrypt();
-					// convert rsa key to string to be appended to the private key for authentification
-					//sprintf(convert, "%d", rsaK);
-					
-					// Append rsa Keyy with flag r or just add a space next to the private key
-					strcat(client_message, " ");
-					strcat(client_message, convert);
-
-					printf("Wait for server generated private key!! \n");
-					valid = true;
-				}	// End of if
-			//*** Case 2 message containing client message to be encrypted
-				// If M is the instruction ask client to enter their message, then encrypt the message using the generated private key if it exist, if not start again 
-				else if (strcmp(found, "M") == 0 || strcmp(found, "m") == 0) {
-
-					printf("Enter message to server.\n");
-					memset(client_message, '\0', 100);
-					scanf("%s", client_message);
-
-					// encrypt the message 
-					printf("Message is now %s\n", client_message);
-
-					// add the instruction flag with the client message
-					strcat(found, " ");
-					strcat(found, client_message);
-
-					// copy message encrypted
-					strcpy(client_message, found);
-
-					valid = true;
-				}
-				else if (strncmp(found, "-1", 2) == 0) {
-					Server ser(&*client_message);// (client_message);
-					strcpy(server_reply, client_message);
-				}
-
 				//*** Case 3 message containing g and q to be sent
 					// Do nothing as -1 already included in message just send over to server
 					// Send to server only if client message is valid
@@ -445,37 +407,33 @@ public:
 					// Set valid back to false for next menu selection
 					valid = false;
 
-					/*************************************************************************
+
 					// Send to server
 					if (send(socket_desc, &client_message, strlen(client_message), 0) < 0)
 					{
 						printf("Send failed");
 						return 1;
 					}// End of if
-					**************************************************************************/
+
 
 					// Print message client is sending to the client 
 					printf("\nSending Message: %.*s\n", (int)strlen(client_message), client_message);
 
-					/*********************************************************************************
 					//Receive a reply from the server
 					if ((read_size = recv(socket_desc, server_reply, 100, 0)) < 0)
 					{
 						printf("recv failed");
 					}
-					*********************************************************************************/
 					// Allocate space for server reply instruction check
-					
 					foundS = (char*)malloc(strlen(server_reply) + 1);
-					//sprintf(convert, "%s", "k");
-					//strcat(foundS, convert);
+				
 					// Copy content of server reply
 					strcpy(foundS, server_reply);
 					// Get the first string from the server reply
 					foundS = strtok(foundS, " ");
 
 					// Print message client is sending to the client 
-					printf("\nServer replied with: %.*s\n\n", (int)strlen(client_message), client_message);
+					printf("\nServer replied with: %.*s\n\n", (int)strlen(server_reply), server_reply);
 					// If server reply's first string is k then reply contains generated key
 					// Process server generated private key
 					if (strcmp(foundS, "k") == 0 || strcmp(foundS, "K") == 0) {
@@ -539,15 +497,14 @@ public:
 
 						certs.setE(stoi(servercert.subject_pk_info.key));
 
-						//string comparehash = decToBin(fastModExpAlg(d, stoi(servercert.s.certificate_signature), n));
 						string comparehash = decToBin(stoi(certs.decryptRSA(servercert.s.certificate_signature)));
 						reverseStr(comparehash);
 						if (unsigned_hash == comparehash) {
-							cout << "hash is validated" << endl;
+							cout << "hash is validated: "<< unsigned_hash << " = "<<comparehash << endl;
 							auth = true;
 						}
 						else {
-							cout << "invalid cert" << endl;
+							cout << "invalid cert." << endl;
 						}
 						//this is a comment
 						printf("Server sent the cert and the signed generated key: %.*s\n\n", read_size, foundS);
@@ -557,27 +514,12 @@ public:
 						gPKserver = temp;
 						printf("Server  Replies: %d.  Generated key decrypted: %d \n\n", read_size, gPKserver);
 
-
-
-
 						// Find common key using the server key received 
 						comKey = fastModExpAlg(pKclient, gPKserver, q);
 
 						// display common key
 						printf("Shared Common key to use for S_DES encryption and decryption is %d \n", comKey);
 					}// End of if
-
-					// if server reply instruction is m send back decrypted message to client
-					else if (strcmp(foundS, "m") == 0 || strcmp(foundS, "M") == 0) {
-						printf("Server decrypted message is: %.*s\n\n", read_size, server_reply);
-						// clear array containing message for next message
-						client_message[0] = '\0';
-					}
-					
-					// Otherwise If first string equal to -1 print the message from server 
-					// then loop again
-					else
-						printf("Server  Replies: %.*s\n\n", read_size, server_reply);
 
 				}
 			}

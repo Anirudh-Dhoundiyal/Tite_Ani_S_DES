@@ -227,7 +227,6 @@ string RSA::decryptRSA(string cipher)
     int ct = stoi(cipher);
     //pt = FastModExpAlgo(d, cnum, n);
     pt = FastModExpAlgo(e, ct, n);
-    cout << "decrypted num is: " << pt << endl;
     return to_string(pt);
 }
 

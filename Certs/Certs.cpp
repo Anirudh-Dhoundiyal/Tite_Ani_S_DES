@@ -30,15 +30,17 @@ int main()
     cout << "Enter 1 for server" << endl;
     cout << "Enter 2 for client" << endl;
 
-    int select = 0;
-
-    cin >> select;
-    if (select == 1) {
-        Server server();
+    string select;
+    while (select != "q") {
+        cin >> select;
+        if (select == "1") {
+            Server server();
+        }
+        else if (select == "2") {
+            Client client;
+        }
     }
-    else if (select == 2) {
-        Client client;
-    }
+    
    
     return 0;
 }

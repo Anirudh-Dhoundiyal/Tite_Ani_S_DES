@@ -23,7 +23,7 @@ private:
 	cert_fields a;
 	char * iencli_message;
 public:
-	Server(char * m) {
+	/*Server(char* m) {
 		e = 0;
 		d = 0;
 		n = 0;
@@ -33,6 +33,14 @@ public:
 		strcpy (iencli_message,m);
 		server();
 		strcpy(m, iencli_message);
+	}*/
+	Server() {
+		e = 0;
+		d = 0;
+		n = 0;
+		g = -1;
+		q = -1;
+		server();
 	}
 
 
@@ -184,8 +192,8 @@ public:
 		strcpy(client_message, iencli_message);
 		read_size = 100;
  
-		while(!strncmp(client_message, "-1", 2))
-		{
+		//while(!strncmp(client_message, "-1", 2))
+		//{
 			printf("\n Client sent %2i byte message:  %.*s\n", read_size, read_size, client_message);
 
 			
@@ -205,7 +213,7 @@ public:
 			// Case 1 M or m for sending the message to server possibly decrypting before sending then receive encrypted message then decrypt it if instruction is M or m and display the decrypted on the server comparing to original message from client
 			// Case 2 K or k for sending the key and requesting key from server
 			// Case 3 To process Certificate! 
-			if(authentification = true){
+			if (authentification == true) {
 				if (strcmp(found, "P") == 0 || strcmp(found, "p") == 0) {
 					found = strtok(NULL, " ");
 					string user = found;
@@ -216,8 +224,11 @@ public:
 					string stored_user;
 					string stored_pass;
 					inFile >> stored_user >> stored_pass;
+					stored_pass = certs.cbc_hash(stored_pass, comKey);
 					if(user == stored_user && password == stored_pass){
 							login = true;
+							cout << "Password Validated. User and Password from client" << user << password << " match the ones in file " << stored_pass << " " << stored_pass << endl;
+							strcpy(client_message, "L");
 					}
 					else {
 						cout << "User Or Password Incorect." << endl;
@@ -249,7 +260,6 @@ public:
 					}
 				}
 			}
-
 			else if(!strncmp(found, "-1", 2)) {
 			
 				if (authentification == false) {
@@ -444,7 +454,7 @@ public:
 			//write(new_socket, client_message , strlen(client_message));
 			write(new_socket, client_message, read_size);
 			*************************************************************************/
-		}// End of while
+		//}// End of while
 
 		if (read_size == 0)
 		{
