@@ -44,7 +44,7 @@ void Certificates::menu() {
 		cin >> option;
 		if (option == "1")
 			verify_validity();
-		else if(option == "2")
+		else if (option == "2")
 		{
 			generate_cert_sign_request();
 			//displayCert();
@@ -65,7 +65,7 @@ void Certificates::menu() {
 			generate_signature();
 		}
 	}
-	
+
 }
 
 cert_fields Certificates::get_file_data()
@@ -118,7 +118,7 @@ cert_fields Certificates::get_file_data()
 
 crl_fields Certificates::get_crl_file_data()
 {
-	string filename	, filedata;
+	string filename, filedata;
 	ifstream crl_inFile;
 	// get the crl file name to read
 	cout << "Enter file name: ";
@@ -135,7 +135,7 @@ crl_fields Certificates::get_crl_file_data()
 		if (i == 0)
 			cert_rev_list.sign_algo_id.algo = filedata;
 		if (i == 1)
-			cert_rev_list.sign_algo_id.parameters= filedata;
+			cert_rev_list.sign_algo_id.parameters = filedata;
 		if (i == 2)
 			cert_rev_list.issuer_name = filedata;
 		if (i == 3)
@@ -188,7 +188,7 @@ revok_certs Certificates::find_certs(string serial_num, crl_fields a)
 		a.revoked_certificates[count].serial_N = "\0";
 		return a.revoked_certificates[count];
 	}
-	else 
+	else
 		return a.revoked_certificates[count];
 }
 
@@ -209,10 +209,10 @@ void Certificates::verify_certs_on_crl()
 	// if not found in the CRL, a empty value is returned 
 	// if an empty value is not detected then certificate have been found in the CRL display message
 	if (rev_cert.serial_N != "\0") {
-		cout << "Certificate serial number found in the CRL. Following certificate " << rev_cert.serial_N << " has been disqualified on the "<<rev_cert.revoc_date << endl;
+		cout << "Certificate serial number found in the CRL. Following certificate " << rev_cert.serial_N << " has been disqualified on the " << rev_cert.revoc_date << endl;
 	}
 	else {		// if an empty value is detected then certificate not in the CRL
-		cout << "Certificate " << certificate.serial_number	<< " is stil valid. " << endl;
+		cout << "Certificate " << certificate.serial_number << " is stil valid. " << endl;
 	}
 }
 
@@ -243,12 +243,13 @@ string Certificates::generate_hash(cert_fields a)
 string Certificates::generate_sendstring(cert_fields a)
 {
 	// adding the CA informations
-	string concatinated_info = a.version +" "+ a.serial_number +" "+ a.signature_algo.algo +" "+ a.signature_algo.parameters +" "+ a.issuer_name;
+	string concatinated_info = a.version + " " + a.serial_number + " " + a.signature_algo.algo + " " + a.signature_algo.parameters + " " + a.issuer_name;
 	// adding the Rest of user ID information
-	concatinated_info += " " + to_string(a.period_of_validity.not_before) +" "+ to_string(a.period_of_validity.not_after) +" "+ a.subject_name;
+	concatinated_info += " " + to_string(a.period_of_validity.not_before) + " " + to_string(a.period_of_validity.not_after) + " " + a.subject_name;
 	// concatinate the subject's public key information in a string of text
 	concatinated_info += " " + a.subject_pk_info.algo + " " + a.subject_pk_info.parameters + " " + a.subject_pk_info.key + " ";
-	// send the concatinated string to the function that will hash it
+	// add signature
+	concatinated_info += a.s.algo + " " + a.s.parameters + " " + a.s.certificate_signature + " ";
 	return concatinated_info;
 }
 
@@ -270,7 +271,7 @@ string Certificates::generate_crl_hash(crl_fields a)
 
 
 void Certificates::compare_hash(string encrypted_hash, string unsigned_hash) {
-	
+
 	// convert binary unsign hash to decimal for comparison
 	int unsigned_hash_int = stoi(unsigned_hash, 0, 2), signed_hash_int;
 	// find the certificate CA public key to decrypt the sign hash
@@ -305,8 +306,8 @@ void Certificates::verify_validity()
 		cout << "Certificate not valid yet! System time is below the period of validity " << cert_values.period_of_validity.not_before << " - " << cert_values.period_of_validity.not_after << endl;
 	else if (stoi(system_time) > cert_values.period_of_validity.not_after)
 		cout << "Certificate is expired! System time is above the period of validity " << cert_values.period_of_validity.not_before << " - " << cert_values.period_of_validity.not_after << endl;
-	else 
-		cout << "Period of validity validated. System time "<< system_time << " within the period of validity: "<< cert_values.period_of_validity.not_before<< " - "<< cert_values.period_of_validity.not_after << endl;
+	else
+		cout << "Period of validity validated. System time " << system_time << " within the period of validity: " << cert_values.period_of_validity.not_before << " - " << cert_values.period_of_validity.not_after << endl;
 }
 
 
@@ -354,7 +355,7 @@ void Certificates::writeChain(string issuer, string subject) {
 		}
 	}
 	else {
-	// if it exist just add the next element signed by that issuer 
+		// if it exist just add the next element signed by that issuer 
 		input = "<" + subject + ">";
 		writeFile(input, chain_filename);
 	}
@@ -377,8 +378,9 @@ void Certificates::get_priv_k(string issuer_name) {
 		int public_key = stoi(pk),
 			totient = stoi(getNtot());
 		setD(getInverse(public_key, totient));
+		
 	}
-	
+
 }
 string Certificates::find_key(string issuer_name) {
 	string key = "", ca_name;
@@ -554,7 +556,7 @@ crl_fields Certificates::generate_crl()
 	cin >> cert_rev_list.issuer_name;
 	writeFile(cert_rev_list.issuer_name, crl_file);
 	hashable += cert_rev_list.issuer_name;
-		
+
 	cout << "\n Enter update date : ";
 	cin >> cert_rev_list.this_data_date;
 	writeFile(cert_rev_list.this_data_date, crl_file);
@@ -572,7 +574,7 @@ crl_fields Certificates::generate_crl()
 	while (count < cert_list_number) {
 		// enter certificates to be revocked  
 		count++;
-		
+
 		cout << "\n Enter User Certificate serial number: ";
 		cin >> user_certificate_serial;
 		temp_rev_certs.serial_N = "# " + user_certificate_serial;		// Add pound to identify the serial number in the file
@@ -582,7 +584,7 @@ crl_fields Certificates::generate_crl()
 		cin >> revocation_date;
 		temp_rev_certs.revoc_date = revocation_date;
 		hashable += temp_rev_certs.revoc_date;
-		
+
 		cert_rev_list.revoked_certificates.push_back(temp_rev_certs);
 	}
 	// if no certificate on the revocation list 
@@ -623,7 +625,7 @@ void Certificates::displayCrl()
 	int count = 0;
 	cout << "Revoked Certificate : " << endl;
 	for (int i = 0; i < cert_rev_list.revoked_certificates.size(); i++) {
-		cout<< cert_rev_list.revoked_certificates.at(i).serial_N << "		" << cert_rev_list.revoked_certificates.at(i).revoc_date << endl;
+		cout << cert_rev_list.revoked_certificates.at(i).serial_N << "		" << cert_rev_list.revoked_certificates.at(i).revoc_date << endl;
 	}
 	cout << "Signature : " << cert_rev_list.crl_s.algo << "		" << cert_rev_list.crl_s.parameters << "		" << cert_rev_list.crl_s.certificate_signature << endl;
 	cout << "-----------------------------------------------------------------------------------------------------------------------" << endl;
@@ -633,13 +635,13 @@ void Certificates::displayCert()
 {
 	cout << "-----------------------------------------------------------------------------------------------------------------------" << endl;
 	cout << "Version : " << x.version << endl;
-	cout << "Certificate Serial Number : "	<< x.serial_number << endl;
-	cout << "Signature Algo Identifier : " << x.signature_algo.algo << "		"<< x.signature_algo.parameters<<endl;
+	cout << "Certificate Serial Number : " << x.serial_number << endl;
+	cout << "Signature Algo Identifier : " << x.signature_algo.algo << "		" << x.signature_algo.parameters << endl;
 	cout << "Issuer Name : " << x.issuer_name << endl;
 	cout << "Period of validity : " << x.period_of_validity.not_before << " - " << x.period_of_validity.not_after << endl;
 	cout << "Subject Name : " << x.subject_name << endl;
 	cout << "Subject's public key info : " << x.subject_pk_info.algo << "			" << x.subject_pk_info.parameters << "			" << x.subject_pk_info.key << endl;
-	cout << "Signature : " << x.s.algo << "		"<<x.s.parameters<<"		"<< x.s.certificate_signature<< endl;
+	cout << "Signature : " << x.s.algo << "		" << x.s.parameters << "		" << x.s.certificate_signature << endl;
 	cout << "Trust level : " << x.trust_level << endl;
 	cout << "-----------------------------------------------------------------------------------------------------------------------" << endl;
 }

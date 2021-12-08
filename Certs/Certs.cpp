@@ -27,19 +27,19 @@ using namespace std;
 int main()
 {
     cout << "Enter 1 for server" << endl;
-    cout << "Enter 2 for client"<< endl;
-    
+    cout << "Enter 2 for client" << endl;
+
     int select = 0;
 
     cin >> select;
-    if(select == 1){
+    if (select == 1) {
         Server server;
     }
-    else if( select = 2){
-    Client client;
+    else if (select == 2) {
+        Client client;
     }
-    
+
     //Certificates certs;
-  
+
     return 0;
 }

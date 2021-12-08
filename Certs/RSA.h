@@ -36,6 +36,7 @@ public:
 	void setN(int);
 	void setNtot(int);
 	void setE(int);
+	string getN();
 	string getE();
 	string getD();
 	string getNtot();
@@ -54,8 +55,8 @@ public:
 #pragma region Constructor
 	RSA() {
 		Setup(); // sets up the p and q
-		setD(getRPrime()); // sets up d
-		print_values();
+		//setD(getRPrime()); // sets up d
+		//print_values();
 		//encrypt();
 		//decrypt();
 	}
