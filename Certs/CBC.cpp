@@ -123,10 +123,17 @@ string CBC:: cbc_hash(string fileName, int key) {
     string plaintext_character,
         initial_vector,
         temp,
-        input_block;
+        input_block,
+        tempkey;
     // get s-des key for encryption 
     //k = get_SDES_Key();
-     string tempkey = block.decTobin(key);
+     string binaryKey = block.decTobin(key);
+     int count1 = 10 - binaryKey.size();
+     while (count1 > 0) {
+         tempkey += '0';
+         count1--;
+     }
+     tempkey += binaryKey;
     image_flag = true;
     // convertion of IV to plaint text block size
     temp += decTobin(iv);
@@ -136,21 +143,7 @@ string CBC:: cbc_hash(string fileName, int key) {
         count--;
     }
     initial_vector += temp;
-
-    //cout << "Press 1 to hash a file or 2 to hash a string of text ";
-    //cin >> option;
-    //if (option == 1) {
-        // read the file
-    //    ifstream inFile = read_file(fileName);
-    //    temp = "";
-        // get plain text from it 
-    //    while (inFile >> temp) {
-    //        plaintext_character += temp;
-    //    }
-        // close file once done 
-    //    inFile.close();
-    //}
-    //else if (option == 2) {
+    
         plaintext_character = fileName;
         hashFlag = true;
     //}

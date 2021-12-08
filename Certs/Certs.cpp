@@ -26,6 +26,7 @@ using namespace std;
 //main
 int main()
 {
+    
     cout << "Enter 1 for server" << endl;
     cout << "Enter 2 for client" << endl;
 
@@ -38,9 +39,6 @@ int main()
     else if (select == 2) {
         Client client;
     }
-
-    //Certificates certs;
-    
    
     return 0;
 }
