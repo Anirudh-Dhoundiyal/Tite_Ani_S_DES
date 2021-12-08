@@ -172,6 +172,16 @@ public:
 		return f;
 	}
 
+	void reverseStr(string& str)
+	{
+		int n = str.length();
+
+		// Swap character starting from two
+		// corners
+		for (int i = 0; i < n / 2; i++)
+			swap(str[i], str[n - i - 1]);
+	}
+
 	Client() {
 	//	certs.generate_cert_sign_request();
 	//	certs.generate_signature();
@@ -249,9 +259,7 @@ public:
 					getchar();
 					//signing g
 				}
-				cout << "g before signing " << g << endl;
 				gE = fastModExpAlg(d, g, n);
-				cout << gE << endl;
 
 				printf("\nEnter q --> ");
 				while (scanf("%d%c", &q, &entry) != 2 || entry != '\n') {
@@ -259,10 +267,8 @@ public:
 					getchar();
 					//signing q
 				}
-				cout << "q before signing" << q << endl;
 				qE = fastModExpAlg(d, q, n);
 
-				cout << qE << endl;
 				// append the integer g and q to client message containing -1 already
 				// after converting the integer to character g
 				//strcat(client_message, " ");
@@ -285,10 +291,7 @@ public:
 				printf("Enter the private key to generate a public key to server.\n");
 				cin >>pKclient;
 				// Send the client message  
-				// convert string of character containing the message into integer for calculation
-				//pKclient = atoi(client_message);
 				// generate a key using your private key and g ^ pkb mod q
-				//gPKb = fastModExpAlg(decToBin(pKb), g, q);
 				gPKclient = modExpo(g, pKclient, q);
 				// Sign the generated key 
 				gPKclientE = fastModExpAlg(d,gPKclient, n);
@@ -459,6 +462,7 @@ public:
 
 						//string comparehash = decToBin(fastModExpAlg(d, stoi(servercert.s.certificate_signature), n));
 						string comparehash = decToBin(stoi(certs.decryptRSA(servercert.s.certificate_signature)));
+						reverseStr(comparehash);
 						if (unsigned_hash == comparehash) {
 							cout << "hash is validated" << endl;
 						}
