@@ -40,7 +40,7 @@ void Certificates::menu() {
 	//cin >> option;
 	while (option != "q") {
 		isCertRequest = false;
-		cout << "\n Press 1 to Verify a Certificate file \n Press 2 to Generate a certificate signature request \n Press 3 to Generate a Certification Revokation List \n Press 4 to Verify a Certificate in the current CRL \n Press 5 to change system time \n Press 6 to Sign a Certs\n Press q to quit: ";
+		cout << "\n Press 1 to Verify a Certificate file \n Press 2 to Generate a certificate signature request \n Press 3 to Generate a Certification Revokation List \n Press 4 to Verify a Certificate in the current CRL \n Press 5 to change system time \n Press 6 to Sign a Certs\n Press 7 to Verify a CRL\nPress q to quit: ";
 		cin >> option;
 		if (option == "1")
 			verify_validity();
@@ -64,9 +64,13 @@ void Certificates::menu() {
 		else if (option == "6") {
 			generate_signature();
 		}
+		else if (option == "7") {
+			//verify_crl();
+		}
 	}
 
 }
+
 
 cert_fields Certificates::get_file_data()
 {
