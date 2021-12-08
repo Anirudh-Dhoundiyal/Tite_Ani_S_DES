@@ -2,8 +2,8 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include<arpa/inet.h>	//inet_addr
-#include<unistd.h>		//write
+//#include<arpa/inet.h>	//inet_addr
+//#include<unistd.h>		//write
 #include<stdlib.h>	
 #include <stdio.h>
 #include<string.h>	
@@ -91,22 +91,22 @@ public:
 
 
 	int server() {
-		int socket_desc, new_socket, c, read_size, i, comKey = -1, pKa, gPKa, gPKb, keyReceived, signedKey;
-		struct sockaddr_in server, client;
+		int socket_desc, new_socket, c, read_size, i, comKey = -1, pKserver, gPKserver, gPKclient, keyReceived, signedKey;
+//		struct sockaddr_in server, client;
 		char* message, client_message[100], * convert;
 		Certificates certs;
 		char* list;
-		list = "ls -l\n";
+//		list = "ls -l\n";
 
 		char* found, convertS[15];
-
+		/******************************************************************************************************************
 		//Create socket
 		socket_desc = socket(AF_INET, SOCK_STREAM, 0);
 		if (socket_desc == -1)
 		{
 			printf("Could not create socket");
 		}// End of if
-
+		
 		//Prepare the sockaddr_in structure
 		server.sin_family = AF_INET;
 		server.sin_addr.s_addr = INADDR_ANY;
@@ -126,7 +126,6 @@ public:
 		//Accept incoming connection
 		printf(" Waiting for incoming connections... \n");
 
-
 		c = sizeof(struct sockaddr_in);
 		new_socket = accept(socket_desc, (struct sockaddr*)&client, (socklen_t*)&c);
 		if (new_socket < 0)
@@ -139,10 +138,14 @@ public:
 
 		//Reply to the client
 		message = "You have located Server X at our undisclosed location.  What would you like to say?\n";
-		//write(new_socket , message , strlen(message));
+		write(new_socket , message , strlen(message));
+		******************************************************************************************************************/
+		
+		//Receive a message from client************************************************
+		//while ((read_size = recv(new_socket, client_message, 100, 0)) > 0)
+		//*************************************
 
-		//Receive a message from client
-		while ((read_size = recv(new_socket, client_message, 100, 0)) > 0)
+		while(client_message != '\0')
 		{
 			printf("\n Client sent %2i byte message:  %.*s\n", read_size, read_size, client_message);
 
@@ -183,9 +186,9 @@ public:
 				signedKey = stoi(certs.decryptRSA(found));
 				printf("Client decrypted Generated Key is %d \n", signedKey);
 				//Convert variable containing the key to integer
-				gPKb = signedKey;
+				gPKclient = signedKey;
 				// Use key received to find common key
-				comKey = fastModExpAlg(gPKb, g, q);
+				comKey = fastModExpAlg(gPKclient, g, q);
 				// Display common key generated from client private key
 				printf("\nThe common key is %d\n\n", comKey);
 				// Send back V to client
@@ -303,15 +306,15 @@ public:
 						// Generate G ^ pka mod q
 						// Ask user to enter their Diffie-Hellmen private key 
 						printf("\nEnter server DH Private key --> ");
-						scanf("%d", &pKa);
+						scanf("%d", &pKserver);
 						// Generate a key using server private key and g ^ pka mod q		
-						gPKa = modExpo(g, pKa, q);
+						gPKserver = modExpo(g, pKserver, q);
 
 						// Display private key and generated private key
-						printf("\nYour Private Key is %d and your Generated Key is %d\n\n", pKa, gPKa);
+						printf("\nYour Private Key is %d and your Generated Key is %d\n\n", pKserver, gPKserver);
 
 						// Convert to character
-						sprintf(convert, "%d", gPKa);
+						sprintf(convert, "%d", gPKserver);
 						// add the instruction flag to the client message
 						strcpy(client_message, "k");
 						// add space
@@ -320,7 +323,7 @@ public:
 						strcat(client_message, data.c_str());
 						string signedGPK;
 						// sign generated key with server RSA private 
-						signedGPK = fastModExpAlg(stoi(a.subject_pk_info.key), gPKa, n);
+						signedGPK = fastModExpAlg(stoi(a.subject_pk_info.key), gPKserver, n);
 						// add the generated key
 						strcat(client_message, signedGPK.c_str());
 						// Send the generated key
@@ -345,9 +348,10 @@ public:
 				// send private key produced 
 				// write(new_socket, client_message, read_size);
 			}// End of if
-
+			/************************************************************************
 			//write(new_socket, client_message , strlen(client_message));
 			write(new_socket, client_message, read_size);
+			*************************************************************************/
 		}// End of while
 
 		if (read_size == 0)
@@ -361,7 +365,7 @@ public:
 		}// End of else
 
 		//Free the socket pointer
-		close(socket_desc);
+		//*************************************close(socket_desc);
 
 		return 0;
 	}

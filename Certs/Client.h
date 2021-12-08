@@ -6,8 +6,8 @@
 #include <stdbool.h> 
 #include <stdlib.h>
 #include<string.h>	
-#include<sys/socket.h>
-#include<arpa/inet.h> 
+//#include<sys/socket.h>
+//#include<arpa/inet.h> 
 #include "Certificates.h"
 
 using namespace std;
@@ -16,14 +16,12 @@ class Client
 {
 private:
 	Certificates certs;
-
-public:
 	int nt, 	// totient of n 
 		e,		// public key pair
 		d,		// private key pair
-		p , q = 97,
-		n = 0;
-	char pubKeyPair[5];
+		p, q,
+		n;
+public:
 
 	int extendGcd(int a, int b, int* x, int* y)
 	{
@@ -41,7 +39,7 @@ public:
 
 		return gcd;
 	}
-	int getInverse(int a, int m)
+	/*int getInverse(int a, int m)
 	{
 		int x, y;
 		int result = 0;
@@ -106,7 +104,7 @@ public:
 		signedKey = fastModExpAlg(e, pt, n);
 		printf("encrypted num is: %d\n", signedKey);
 		return signedKey;
-	}
+	}*/
 
 
 	int modExpo(int x, int y, int p)
@@ -186,22 +184,23 @@ public:
 
 	int client() {
 		int socket_desc;    // file descripter returned by socket command
-		struct sockaddr_in server;    // in arpa/inet.h
+	//	struct sockaddr_in server;    // in arpa/inet.h
 		int read_size, pKb, g = -1, q = -1, gPKb, comKey, gPKa, rsaK;
 		char  server_reply[100], client_message[100], entry;
 		bool valid = false, validEntry = false;
-		char* found = " ", convert[15], * foundS;
+		char* found, convert[15], * foundS;
 		cert_fields temp;
 		cert_fields servercert;
 		// //Create socket
-		socket_desc = socket(AF_INET, SOCK_STREAM, 0);
+	//	socket_desc = socket(AF_INET, SOCK_STREAM, 0);
 
 		printf("Trying to create socket\n");
+		/****************************************************************************************
 		if (socket_desc == -1)
 		{
 			printf("Unable to create socket\n");
 		}
-
+		
 		// *********** This is the line you need to edit ****************
 		server.sin_addr.s_addr = inet_addr("169.254.121.170");  // doesn't like localhost?
 		server.sin_family = AF_INET;
@@ -213,7 +212,7 @@ public:
 			printf(" connect error");
 			return 1;
 		}
-
+		***************************************************************************************/
 
 		//Get data from keyboard and send  to server
 		printf("What do you want to send to the server. (b for bye)\n");
@@ -311,7 +310,7 @@ public:
 					strcat(client_message, convert);
 
 					// Sign the private key using RSA for authentification by server
-					rsaK = encrypt();
+					//rsaK = encrypt();
 					// convert rsa key to string to be appended to the private key for authentification
 					sprintf(convert, "%d", rsaK);
 					// Append rsa Keyy with flag r or just add a space next to the private key
@@ -349,23 +348,27 @@ public:
 					// Set valid back to false for next menu selection
 					valid = false;
 
+					/*************************************************************************
 					// Send to server
 					if (send(socket_desc, &client_message, strlen(client_message), 0) < 0)
 					{
 						printf("Send failed");
 						return 1;
 					}// End of if
-
+					**************************************************************************/
 
 					// Print message client is sending to the client 
 					printf("\nSending Message: %.*s\n", (int)strlen(client_message), client_message);
+
+					/*********************************************************************************
 					//Receive a reply from the server
 					if ((read_size = recv(socket_desc, server_reply, 100, 0)) < 0)
 					{
 						printf("recv failed");
 					}
-
+					*********************************************************************************/
 					// Allocate space for server reply instruction check
+					
 					foundS = (char*)malloc(strlen(server_reply) + 1);
 					sprintf(convert, "%s", "k");
 					strcat(foundS, convert);
