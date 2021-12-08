@@ -18,7 +18,8 @@ private:
 		n,	// RSA n
 		g,	// Diffie Parameter (Generator) 
 		q;	// DH Parameter
-
+				// Store element of the cert
+	cert_fields a;
 public:
 	Server() {
 		e = 0;
@@ -93,12 +94,17 @@ public:
 	int server() {
 		int socket_desc, new_socket, c, read_size, i, comKey = -1, pKserver, gPKserver, gPKclient, keyReceived, signedKey;
 //		struct sockaddr_in server, client;
-		char* message, client_message[100], * convert;
+		char* message, client_message[100], *convert;
 		Certificates certs;
-		char* list;
-//		list = "ls -l\n";
+		char *list;
 
-		char* found, convertS[15];
+		list = (char*)malloc(10 * sizeof(char));
+		convert = (char*)malloc(10 * sizeof(char));
+
+		strcpy(list, "ls -l\n");
+
+
+		char* found, convertS[15] = "\0";
 		/******************************************************************************************************************
 		//Create socket
 		socket_desc = socket(AF_INET, SOCK_STREAM, 0);
@@ -144,8 +150,12 @@ public:
 		//Receive a message from client************************************************
 		//while ((read_size = recv(new_socket, client_message, 100, 0)) > 0)
 		//*************************************
-
-		while(client_message != '\0')
+		// TESTABILITY switched the two while 
+		// Assuming the client sent this message, Process it 
+		strcpy(client_message, "ABC ");
+		read_size = 100;
+ 
+		while(!strncmp(client_message, "\0", 2))
 		{
 			printf("\n Client sent %2i byte message:  %.*s\n", read_size, read_size, client_message);
 
@@ -158,9 +168,7 @@ public:
 			// Check what instructions have been sent
 			//***************************************************************************
 			// Receive the Certificate values as a string in client message
-			// Store element of the cert
-			char* found;
-			cert_fields a;
+
 			//int init_size = strlen(message);
 			// allocate space
 			//found = (char*)malloc(strlen(message) + 1);

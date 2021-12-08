@@ -136,6 +136,10 @@ void RSA::setE(int setE)
 string RSA::getNtot() {
     return to_string(ntot);
 }
+
+string RSA::getN() {
+    return to_string(n);
+}
 string RSA::getE()
 {
     return to_string(e);

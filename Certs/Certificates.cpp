@@ -248,7 +248,8 @@ string Certificates::generate_sendstring(cert_fields a)
 	concatinated_info += " " + to_string(a.period_of_validity.not_before) + " " + to_string(a.period_of_validity.not_after) + " " + a.subject_name;
 	// concatinate the subject's public key information in a string of text
 	concatinated_info += " " + a.subject_pk_info.algo + " " + a.subject_pk_info.parameters + " " + a.subject_pk_info.key + " ";
-	// send the concatinated string to the function that will hash it
+	// add signature
+	concatinated_info += a.s.algo + " " + a.s.parameters + " " + a.s.certificate_signature + " ";
 	return concatinated_info;
 }
 
@@ -377,6 +378,7 @@ void Certificates::get_priv_k(string issuer_name) {
 		int public_key = stoi(pk),
 			totient = stoi(getNtot());
 		setD(getInverse(public_key, totient));
+		
 	}
 
 }

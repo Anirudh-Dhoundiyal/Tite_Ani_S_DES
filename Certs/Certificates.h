@@ -91,7 +91,6 @@ public:
 	void writeChain(string, string);
 	void get_priv_k(string);
 	void testHash();
-
 	void displayCert();
 	cert_fields generate_cert_sign_request();
 	crl_fields generate_crl();

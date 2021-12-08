@@ -140,11 +140,11 @@ public:
 		string binary = "";
 
 		// do this while n is positive, until the remainder is 0
-		while (n > 0) {
+		while (decimal > 0) {
 			// get the remainder of n divided by 2
-			binary += to_string(n % 2);
+			binary += to_string(decimal % 2);
 			// get the new result of n
-			n = n / 2;
+			decimal = decimal / 2;
 		}
 
 		return binary;
@@ -172,8 +172,8 @@ public:
 	}
 
 	Client() {
-		certs.generate_cert_sign_request();
-		certs.generate_signature();
+	//	certs.generate_cert_sign_request();
+	//	certs.generate_signature();
 		e = stoi(certs.getE());
 		d = stoi(certs.getD());
 		cout << " e is " << e << endl;
@@ -185,7 +185,7 @@ public:
 	int client() {
 		int socket_desc;    // file descripter returned by socket command
 	//	struct sockaddr_in server;    // in arpa/inet.h
-		int read_size, pKb, g = -1, q = -1, gPKb, comKey, gPKa, rsaK;
+		int read_size = 0, pKclient, g = -1, q = -1, gPKclient, comKey, gPKserver, rsaK;
 		char  server_reply[100], client_message[100], entry;
 		bool valid = false, validEntry = false;
 		char* found, convert[15], * foundS;
@@ -228,8 +228,15 @@ public:
 			// if client input is -1 prompt user for G and Q then send to server
 			// Server reply with a confirmation message that G and Q are set
 			if (strcmp(client_message, "-1") == 0) {
+
 				strcat(client_message, " ");
 				temp = certs.get_file_data();
+				// Get public and private key of certificate being sent over to sockets
+				certs.get_priv_k(temp.issuer_name);
+				e = stoi(certs.getE());
+				d = stoi(certs.getD());
+				n = stoi(certs.getN());
+
 				string data = certs.generate_sendstring(temp);
 				strcat(client_message, data.c_str());
 				// Prompt User for g and q prime
@@ -256,7 +263,7 @@ public:
 				cout << q << endl;
 				// append the integer g and q to client message containing -1 already
 				// after converting the integer to character g
-				strcat(client_message, " ");
+				//strcat(client_message, " ");
 				sprintf(convert, "%d", g);
 				strcat(client_message, convert);
 				// q
@@ -295,14 +302,14 @@ public:
 					scanf("%s", client_message);
 					// Send the client message  
 					// convert string of character containing the message into integer for calculation
-					pKb = atoi(client_message);
+					pKclient = atoi(client_message);
 					// generate a key using your private key and g ^ pkb mod q
 					//gPKb = fastModExpAlg(decToBin(pKb), g, q);
-					gPKb = modExpo(g, pKb, q);
+					gPKclient = modExpo(g, pKclient, q);
 					// Display private key and generated private key for debugging
-					printf("Your Private Key is %d and your Generated Key is %d\n", pKb, gPKb);
+					printf("Your Private Key is %d and your Generated Key is %d\n", pKclient, gPKclient);
 					// convert the key to a character
-					sprintf(convert, "%d", gPKb);
+					sprintf(convert, "%d", gPKclient);
 					// add the instruction flag to the client message
 					strcpy(client_message, found);
 					strcat(client_message, " ");
@@ -312,7 +319,8 @@ public:
 					// Sign the private key using RSA for authentification by server
 					//rsaK = encrypt();
 					// convert rsa key to string to be appended to the private key for authentification
-					sprintf(convert, "%d", rsaK);
+					//sprintf(convert, "%d", rsaK);
+					
 					// Append rsa Keyy with flag r or just add a space next to the private key
 					strcat(client_message, " ");
 					strcat(client_message, convert);
@@ -451,10 +459,10 @@ public:
 						printf("Server sent the cert and the signed gPKa: %.*s\n\n", read_size, foundS);
 						// Get the string after the space then convert that into integer
 						int temp = fastModExpAlg(d, atoi(foundS), n);
-						gPKa = temp;
-						printf("Server  Replies: %d.  Generated %d \n\n", read_size, gPKa);
+						gPKserver = temp;
+						printf("Server  Replies: %d.  Generated %d \n\n", read_size, gPKserver);
 						// Find common key using the server key received 
-						comKey = fastModExpAlg(gPKa, g, q);
+						comKey = fastModExpAlg(gPKserver, g, q);
 
 						// display common key
 						printf("Common key to use for S_DES encryption and decryption is %d \n", comKey);

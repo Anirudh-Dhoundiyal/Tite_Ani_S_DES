@@ -36,6 +36,7 @@ public:
 	void setN(int);
 	void setNtot(int);
 	void setE(int);
+	string getN();
 	string getE();
 	string getD();
 	string getNtot();
