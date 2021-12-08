@@ -18,10 +18,10 @@ private:
 	Certificates certs;
 
 public:
-	int nt = 0, 	// totient of n 
-		e = 0,		// public key pair
-		d = 0,		// private key pair
-		p = 73, q = 97,
+	int nt, 	// totient of n 
+		e,		// public key pair
+		d,		// private key pair
+		p , q = 97,
 		n = 0;
 	char pubKeyPair[5];
 

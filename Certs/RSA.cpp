@@ -101,6 +101,9 @@ void RSA::Setup()
     int q = 97;
     setP(p);
     setQ(q);
+    setN(p * q);
+    int  nt = (p - 1) * (q - 1);
+    setNtot(nt);
 }
 
 #pragma region Set Functions

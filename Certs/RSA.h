@@ -54,8 +54,8 @@ public:
 #pragma region Constructor
 	RSA() {
 		Setup(); // sets up the p and q
-		setD(getRPrime()); // sets up d
-		print_values();
+		//setD(getRPrime()); // sets up d
+		//print_values();
 		//encrypt();
 		//decrypt();
 	}
