@@ -188,6 +188,7 @@ public:
 	//	struct sockaddr_in server;    // in arpa/inet.h
 		int read_size = 0, pKclient = 0, g = -1, q = -1, gPKclient = 0, comKey, gPKserver, rsaK;
 		char  server_reply[100], client_message[100], entry;
+		bool auth = false; bool login = false;
 		bool valid = false, validEntry = false;
 		char* found, convert[15], * foundS;
 		cert_fields temp;
@@ -227,6 +228,82 @@ public:
 			memset(client_message, '\0', 100);
 			scanf("%s", client_message);
 
+
+			while (auth = true)
+			{
+				if(login == false){
+				printf("Enter p or P to send password\n");
+				}
+				else if(login == true){
+				printf("Enter c or C to send command.\n");
+				}
+			
+
+				memset(client_message, '\0', 100);
+				scanf("%s", client_message);
+				if (strcmp(client_message, "p") == 0 || strcmp(client_message, "p") == 0){
+
+					printf("\nEnter your user --> ");
+
+					scanf("%s", client_message);
+					strcat(client_message, " ");
+					printf("\nEnter your Passsword --> ");
+					strcat(client_message, " ");
+					scanf("%s", client_message);
+				}
+				else if(strcmp(client_message, "c") == 0 || strcmp(client_message, "C") == 0){
+					string temp = "";
+					printf("\nEnter the command --> ");
+					cin  >> temp;
+					strcat(client_message, temp.c_str());
+					valid = true;
+
+				}
+				if (valid) {
+						// Set valid back to false for next menu selection
+						valid = false;
+
+						/*************************************************************************
+						// Send to server
+						if (send(socket_desc, &client_message, strlen(client_message), 0) < 0)
+						{
+							printf("Send failed");
+							return 1;
+						}// End of if
+						**************************************************************************/
+
+						// Print message client is sending to the client 
+						printf("\nSending Message: %.*s\n", (int)strlen(client_message), client_message);
+
+						/*********************************************************************************
+						//Receive a reply from the server
+						if ((read_size = recv(socket_desc, server_reply, 100, 0)) < 0)
+						{
+							printf("recv failed");
+						}
+						*********************************************************************************/
+						// Allocate space for server reply instruction check
+						
+						foundS = (char*)malloc(strlen(server_reply) + 1);
+						//sprintf(convert, "%s", "k");
+						//strcat(foundS, convert);
+						// Copy content of server reply
+						strcpy(foundS, server_reply);
+						// Get the first string from the server reply
+						foundS = strtok(foundS, " ");
+
+						// Print message client is sending to the client 
+						printf("\nServer replied with: %.*s\n\n", (int)strlen(client_message), client_message);
+						// If server reply's first string is k then reply contains generated key
+						// Process server generated private key
+						if (strcmp(foundS, "l") == 0 || strcmp(foundS, "L") == 0) {
+							login = true;
+						}
+				}
+			
+			
+			}
+			
 			// if client input is -1 prompt user for G and Q then send to server
 			// Server reply with a confirmation message that G and Q are set
 			if (strcmp(client_message, "-1") == 0) {
@@ -461,6 +538,7 @@ public:
 						string comparehash = decToBin(stoi(certs.decryptRSA(servercert.s.certificate_signature)));
 						if (unsigned_hash == comparehash) {
 							cout << "hash is validated" << endl;
+							auth = true;
 						}
 						else {
 							cout << "invalid cert" << endl;
@@ -489,6 +567,7 @@ public:
 						// clear array containing message for next message
 						client_message[0] = '\0';
 					}
+					
 					// Otherwise If first string equal to -1 print the message from server 
 					// then loop again
 					else

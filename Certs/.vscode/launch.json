@@ -35,7 +35,7 @@
       "program": "/home/adhoundiyal/Desktop/NetSEC/Tite_Ani_S_DES/Certs/build/Debug/outDebug",
       "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
-      "miDebuggerPath": "gdb",
+      "miDebuggerPath": "/usr/bin/gdb",
       "externalConsole": false,
       "setupCommands": [
         {
