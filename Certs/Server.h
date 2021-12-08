@@ -107,7 +107,7 @@ public:
 		string input;
 		list = (char*)malloc(10 * sizeof(char));
 		convert = (char*)malloc(10 * sizeof(char));
-
+		bool authentification = false;
 		strcpy(list, "ls -l\n");
 
 
@@ -188,111 +188,94 @@ public:
 			// Case 1 M or m for sending the message to server possibly decrypting before sending then receive encrypted message then decrypt it if instruction is M or m and display the decrypted on the server comparing to original message from client
 			// Case 2 K or k for sending the key and requesting key from server
 			// Case 3 To process Certificate! 
-			if (strcmp(found, "M") == 0 || strcmp(found, "m") == 0) {
+			if (strcmp(found, "C") == 0 || strcmp(found, "c") == 0) {
 				// Check if private key was entered
 
 			}
-			// Check if g prime and q are defined,
-			// If not process with g and q
-			else if (strcmp(found, "K") == 0 || strcmp(found, "k") == 0) {
-				// Check for signed key for authentification
-				// get signed next to generated key 
-				found = strtok(NULL, " ");
-				signedKey = stoi(certs.decryptRSA(found));
-				printf("Client decrypted Generated Key is %d \n", signedKey);
-				//Convert variable containing the key to integer
-				gPKclient = signedKey;
-				// Use key received to find common key
-				comKey = fastModExpAlg(gPKclient, g, q);
-				// Display common key generated from client private key
-				printf("\nThe common key is %d\n\n", comKey);
-				// Send back V to client
-				strcpy(client_message, "V");
-			}
 			else if(!strncmp(found, "-1", 2)) {
+			
+				if (authentification == false) {
+					// while not at the end of the file do this
+					found = strtok(NULL, " ");
+					a.version = found;
+					certs.writeFile(a.version, "client_certs.txt");
 
-				cout << "Now reading the certs" << endl;
+					// Get next string
+					found = strtok(NULL, " ");
+					a.serial_number = found;
+					certs.writeFile(a.serial_number, "client_certs.txt");
+					//
+					found = strtok(NULL, " ");
+					a.signature_algo.algo = found;
+					certs.writeFile(a.signature_algo.algo, "client_certs.txt");
 
-				// while not at the end of the file do this
-				found = strtok(NULL, " ");
-				a.version = found;
-				certs.writeFile(a.version, "client_certs.txt");
+					found = strtok(NULL, " ");
+					a.signature_algo.parameters = found;
+					certs.writeFile(a.signature_algo.parameters, "client_certs.txt");
 
-				// Get next string
-				found = strtok(NULL, " ");
-				a.serial_number = found;
-				certs.writeFile(a.serial_number, "client_certs.txt");
-				//
-				found = strtok(NULL, " ");
-				a.signature_algo.algo = found;
-				certs.writeFile(a.signature_algo.algo, "client_certs.txt");
+					found = strtok(NULL, " ");
+					a.issuer_name = found;
+					certs.writeFile(a.issuer_name, "client_certs.txt");
 
-				found = strtok(NULL, " ");
-				a.signature_algo.parameters = found;
-				certs.writeFile(a.signature_algo.parameters, "client_certs.txt");
+					found = strtok(NULL, " ");
+					a.period_of_validity.not_before = stoi(found);
+					certs.writeFile(to_string(a.period_of_validity.not_before), "client_certs.txt");
 
-				found = strtok(NULL, " ");
-				a.issuer_name = found;
-				certs.writeFile(a.issuer_name, "client_certs.txt");
+					found = strtok(NULL, " ");
+					a.period_of_validity.not_after = stoi(found);
+					certs.writeFile(to_string(a.period_of_validity.not_after), "client_certs.txt");
 
-				found = strtok(NULL, " ");
-				a.period_of_validity.not_before = stoi(found);
-				certs.writeFile(to_string(a.period_of_validity.not_before), "client_certs.txt");
+					found = strtok(NULL, " ");
+					a.subject_name = found;
+					certs.writeFile(a.subject_name, "client_certs.txt");
 
-				found = strtok(NULL, " ");
-				a.period_of_validity.not_after = stoi(found);
-				certs.writeFile(to_string(a.period_of_validity.not_after), "client_certs.txt");
+					found = strtok(NULL, " ");
+					a.subject_pk_info.algo = found;
+					certs.writeFile(a.subject_pk_info.algo, "client_certs.txt");
 
-				found = strtok(NULL, " ");
-				a.subject_name = found;
-				certs.writeFile(a.subject_name, "client_certs.txt");
+					found = strtok(NULL, " ");
+					a.subject_pk_info.parameters = found;
+					certs.writeFile(a.subject_pk_info.parameters, "client_certs.txt");
 
-				found = strtok(NULL, " ");
-				a.subject_pk_info.algo = found;
-				certs.writeFile(a.subject_pk_info.algo, "client_certs.txt");
+					found = strtok(NULL, " ");
+					a.subject_pk_info.key = found;
+					certs.writeFile(a.subject_pk_info.key, "client_certs.txt");
 
-				found = strtok(NULL, " ");
-				a.subject_pk_info.parameters = found;
-				certs.writeFile(a.subject_pk_info.parameters, "client_certs.txt");
+					found = strtok(NULL, " ");
+					a.s.algo = found;
+					certs.writeFile(a.s.algo, "client_certs.txt");
 
-				found = strtok(NULL, " ");
-				a.subject_pk_info.key = found;
-				certs.writeFile(a.subject_pk_info.key, "client_certs.txt");
+					found = strtok(NULL, " ");
+					a.s.parameters = found;
+					certs.writeFile(a.s.parameters, "client_certs.txt");
 
-				found = strtok(NULL, " ");
-				a.s.algo = found;
-				certs.writeFile(a.s.algo, "client_certs.txt");
+					found = strtok(NULL, " ");
+					a.s.certificate_signature = found;
+					certs.writeFile(a.s.certificate_signature, "client_certs.txt");
 
-				found = strtok(NULL, " ");
-				a.s.parameters = found;
-				certs.writeFile(a.s.parameters, "client_certs.txt");
-
-				found = strtok(NULL, " ");
-				a.s.certificate_signature = found;
-				certs.writeFile(a.s.certificate_signature, "client_certs.txt");
-
-				string gS,			// Signed G by client for DH
-					qS, 			// Signed Q by client for DH
-					nS,				// Signed N by client for RSA Decryption to be used with public key
-					gPKS;
-				found = strtok(NULL, " ");
-				gS = found;
-				found = strtok(NULL, " ");
-				qS = found;
-				found = strtok(NULL, " ");
-				nS = found;
-				found = strtok(NULL, " ");
-				gPKS = found;
-				//***************************************************************************
-				// Now authenticate the certs
-				string unsigned_hash = certs.generate_hash(a),
-					signed_hash;
-				int	unsigned_hash_dec,
-					signed_hash_dec;
-				// Convert hash from binray to decimal for comparison
-				unsigned_hash_dec = stoi(unsigned_hash, 0, 2);
-				// Decrypt the signature then compare to unsigned hash
-					// Set the public key found on the certificate
+					// DH Signed Parameters from client 
+					string gS,			// Signed G by client for DH
+						qS, 			// Signed Q by client for DH
+						nS,				// Signed N by client for RSA Decryption to be used with public key
+						gPKS;
+					found = strtok(NULL, " ");
+					gS = found;
+					found = strtok(NULL, " ");
+					qS = found;
+					found = strtok(NULL, " ");
+					nS = found;
+					found = strtok(NULL, " ");
+					gPKS = found;
+					//***************************************************************************
+					// Now authenticate the certs
+					string unsigned_hash = certs.generate_hash(a),
+						signed_hash;
+					int	unsigned_hash_dec,
+						signed_hash_dec;
+					// Convert hash from binray to decimal for comparison
+					unsigned_hash_dec = stoi(unsigned_hash, 0, 2);
+					// Decrypt the signature then compare to unsigned hash
+						// Set the public key found on the certificate
 					certs.setE(stoi(a.subject_pk_info.key));
 					// Set n
 					certs.setN(stoi(nS));
@@ -306,6 +289,7 @@ public:
 					signed_hash_dec = stoi(signed_hash);
 					// Display
 					if (unsigned_hash_dec == signed_hash_dec) {
+						authentification = true;
 						cout << "Certificate Hash validated. Decrypted signature: " << signed_hash << " Match Unsigned Hash: " << unsigned_hash_dec << endl;
 						//***************************************************************************
 						// Decrypt G Q and N using the certs public key for authentification 
@@ -315,7 +299,7 @@ public:
 						gPKclient = stoi(certs.decryptRSA(gPKS));
 						cout << "G Q and GPKClient: " << g << "  " << q << "  " << gPKclient << endl;
 						cert_fields temp;				// hold the value for sever certificate
-						
+
 						bool iscorrect = false;
 						while (!iscorrect) {
 							cout << "Enter 1 to generate a cert or 2 to Read a cert file: ";
@@ -330,9 +314,9 @@ public:
 							else if (input == "2") {
 								temp = certs.get_file_data();
 								iscorrect = true;
-							} 
+							}
 						}
-						
+
 						// get public and private key of cert for RSA Encryption
 						certs.get_priv_k(temp.subject_name);
 						e = stoi(certs.getE());
@@ -371,12 +355,15 @@ public:
 						sprintf(convert, "%d", signedGPK);
 						strcat(client_message, convert);
 						// Send the generated key
-						
+
 					}
 					else {
 						cout << "Certificate Hash not Valid. Decrypted signature: " << signed_hash << " Do no match unsigned hash: " << unsigned_hash << endl;
 						strcpy(client_message, "I");
+						authentification = false;
 					}
+				}
+				
 
 					//********************TESTABILITY
 					strcpy(iencli_message, client_message);

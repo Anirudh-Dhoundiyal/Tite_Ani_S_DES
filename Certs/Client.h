@@ -258,8 +258,8 @@ public:
 					scanf("%s", client_message);
 					strcat(client_message, " ");
 					printf("\nEnter your Passsword --> ");
-					strcat(client_message, " ");
 					scanf("%s", client_message);
+					valid = true;
 				}
 				else if(strcmp(client_message, "c") == 0 || strcmp(client_message, "C") == 0){
 					string temp = "";
